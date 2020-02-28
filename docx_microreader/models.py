@@ -5,10 +5,10 @@ from typing import List, Tuple
 
 
 class XMLement:
-    _output_format = 'html'
+    _output_format: str = 'html'
 
     def __init__(self, tag: str, content: str, position: int = 0):
-        self._tag = tag
+        self._tag: str = tag
         self._content: str = content
         self._relative_position: int = position
 
@@ -30,11 +30,11 @@ class XMLement:
 
 
 class Text(XMLement):
-    tag_name = 'w:t'
+    tag_name: str = 'w:t'
 
     def __init__(self, content: str, position: int, output_format: str = 'html'):
         super(Text, self).__init__(Text.tag_name, content, position)
-        self._content = self._inner_content()
+        self._content: str = self._inner_content()
 
     def __str__(self) -> str:
         if XMLement._output_format == 'html':       # TODO
@@ -43,7 +43,7 @@ class Text(XMLement):
 
 
 class Run(XMLement):
-    tag_name = 'w:r'
+    tag_name: str = 'w:r'
 
     def __init__(self, content: str, position: int):
         super(Run, self).__init__(Run.tag_name, content, position)
@@ -57,7 +57,7 @@ class Run(XMLement):
 
 
 class Paragraph(XMLement):
-    tag_name = 'w:p'
+    tag_name: str = 'w:p'
 
     def __init__(self, content: str, position: int):
         super(Paragraph, self).__init__(Paragraph.tag_name, content, position)
@@ -76,13 +76,15 @@ class Paragraph(XMLement):
 
 
 class Document(XMLement):
-    tag_name = 'w:body'
+    tag_name: str = 'w:body'
 
     def __init__(self, path: str):
-        self._document = xml.dom.minidom.parseString(
+        self._document: str = xml.dom.minidom.parseString(
             zipfile.ZipFile(path).read('word/document.xml')
         ).toprettyxml()
         super(Document, self).__init__(Document.tag_name, self._document)
+        self._content: str
+        self._relative_position: int
         self._content, self._relative_position = self._get_tag()
         self.paragraphs: List[Paragraph] = []
         paragraph_tuples = self._get_tags(Paragraph.tag_name)
