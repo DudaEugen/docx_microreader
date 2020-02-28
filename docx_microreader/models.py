@@ -6,6 +6,7 @@ from typing import List, Tuple
 
 class XMLement:
     _output_format: str = 'html'
+    tag_name: str
 
     def __init__(self, tag: str, content: str, position: int = 0):
         self._tag: str = tag
@@ -28,6 +29,19 @@ class XMLement:
         inner_content = re.sub(rf'</{self._tag}>', '', inner_content)
         return inner_content
 
+    def _get_properties(self, tag_name: str) -> str or None:
+        properties = re.search(rf'<{self.tag_name}Pr>([^%]+)?</{self.tag_name}Pr>', self._content).group(0)
+        prop = re.search(rf'<{tag_name} w:val="([^"%]+)"/>', properties)
+        if prop:
+            p = prop.group(0)
+            begin = p.find('"') + 1
+            end = p.find('"', begin)
+            return p[begin: end]
+
+    def _have_properties(self, tag_name: str) -> bool:
+        properties = re.search(rf'<{self.tag_name}([^\n>%]+)?>([^%]+)?</{self.tag_name}>', self._content).group(0)
+        return True if (properties.find(rf'<{tag_name}/>') != -1) else False
+
 
 class Text(XMLement):
     tag_name: str = 'w:t'
@@ -47,10 +61,27 @@ class Run(XMLement):
         super(Run, self).__init__(Run.tag_name, content, position)
         text_tuple = self._get_tag(Text.tag_name)
         self.text: Text = Text(text_tuple[0], text_tuple[1])
+        self._is_bold: bool = self._have_properties('w:b')
+        self._is_italic: bool = self._have_properties('w:i')
+        self._underline: str or None = self._get_properties('w:u')
+        self._language: str or None = self._get_properties('w:lang')
+        self._color: str or None = self._get_properties('w:color')
+        self._background: str or None = self._get_properties('w:highlight')
+        self._vertical_align: str or None = self._get_properties('w:vertAlign')
 
     def __str__(self) -> str:
         if XMLement._output_format == 'html':      # TODO
-            return str(self.text)
+            result: str = str(self.text)
+            if self._is_bold:
+                result = '<b>' + result + '</b>'
+            if self._is_italic:
+                result = '<i>' + result + '</i>'
+            if self._vertical_align is not None:
+                if self._vertical_align == 'subscript':
+                    result = '<sub>' + result + '</sub>'
+                elif self._vertical_align == 'superscript':
+                    result = '<sup>' + result + '</sup>'
+            return result
         return str(self.text)
 
 
