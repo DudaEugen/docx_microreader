@@ -14,12 +14,12 @@ class XMLement:
 
     def _get_tag(self, tag: str = '') -> Tuple[str, int]:
         _tag = self._tag if tag == '' else tag
-        element = re.search(rf'<{_tag}([^\n>%]+)?>([^%]+)?</{_tag}>', self._content)
+        element = re.search(rf'<{_tag}( [^\n>%]+)?>([^%]+)?</{_tag}>', self._content)
         return element.group(0), element.span()[0]
 
     def _get_tags(self, tag) -> List[Tuple[str, int]]:
         tags: List[Tuple[str, int]] = []
-        for o in re.finditer(rf'<{tag}([^\n>%]+)?>[^%]+?</{tag}>', self._content):
+        for o in re.finditer(rf'<{tag}( [^\n>%]+)?>[^%]+?</{tag}>', self._content):
             tags.append((o.group(0), o.span()[0]))
         return tags
 
@@ -37,8 +37,6 @@ class Text(XMLement):
         self._content: str = self._inner_content()
 
     def __str__(self) -> str:
-        if XMLement._output_format == 'html':       # TODO
-            return self._content
         return self._content
 
 
