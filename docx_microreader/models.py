@@ -9,20 +9,21 @@ class XMLement:
     _output_format: str = 'html'
     tag_name: str
 
-    def __init__(self, tag: str, content: str, position: int = 0):
+    def __init__(self, tag: str, element: Tuple[str, Tuple[int, int]]):
         self._tag: str = tag
-        self._content: str = content
-        self._relative_position: int = position
+        self._content: str = element[0]
+        self._begin_position: int = element[1][0]
+        self._end_position: int = element[1][1]
 
-    def _get_tag(self, tag: str = '') -> Tuple[str, int]:
+    def _get_tag(self, tag: str = '') -> Tuple[str, Tuple[int, int]]:
         _tag = self._tag if tag == '' else tag
         element = re.search(rf'<{_tag}( [^\n>%]+)?>([^%]+)?</{_tag}>', self._content)
-        return element.group(0), element.span()[0]
+        return element.group(0), element.span()
 
-    def _get_tags(self, tag) -> List[Tuple[str, int]]:
-        tags: List[Tuple[str, int]] = []
+    def _get_tags(self, tag) -> List[Tuple[str, Tuple[int, int]]]:
+        tags: List[Tuple[str, Tuple[int, int]]] = []
         for o in re.finditer(rf'<{tag}( [^\n>%]+)?>[^%]+?</{tag}>', self._content):
-            tags.append((o.group(0), o.span()[0]))
+            tags.append((o.group(0), o.span()))
         return tags
 
     def _inner_content(self) -> str:
@@ -47,8 +48,8 @@ class XMLement:
 class Text(XMLement):
     tag_name: str = 'w:t'
 
-    def __init__(self, content: str, position: int, output_format: str = 'html'):
-        super(Text, self).__init__(Text.tag_name, content, position)
+    def __init__(self, element: Tuple[str, Tuple[int, int]], output_format: str = 'html'):
+        super(Text, self).__init__(Text.tag_name, element)
         self._content: str = self._inner_content()
 
     def __str__(self) -> str:
@@ -58,10 +59,10 @@ class Text(XMLement):
 class Run(XMLement):
     tag_name: str = 'w:r'
 
-    def __init__(self, content: str, position: int):
-        super(Run, self).__init__(Run.tag_name, content, position)
+    def __init__(self,  element: Tuple[str, Tuple[int, int]]):
+        super(Run, self).__init__(Run.tag_name, element)
         text_tuple = self._get_tag(Text.tag_name)
-        self.text: Text = Text(text_tuple[0], text_tuple[1])
+        self.text: Text = Text(text_tuple)
         self._is_bold: bool = self._have_properties('w:b')
         self._is_italic: bool = self._have_properties('w:i')
         self._underline: str or None = self._get_properties('w:u')
@@ -94,12 +95,13 @@ class Run(XMLement):
 class Paragraph(XMLement):
     tag_name: str = 'w:p'
 
-    def __init__(self, content: str, position: int):
-        super(Paragraph, self).__init__(Paragraph.tag_name, content, position)
+    def __init__(self, element: Tuple[str, Tuple[int, int]]):
+        super(Paragraph, self).__init__(Paragraph.tag_name, element)
         self.runs: List[Run] = []
         run_tuples = self._get_tags(Run.tag_name)
         for r in run_tuples:
-            self.runs.append(Run(r[0], r[1]))
+            run = Run(r)
+            self.runs.append(run)
 
     def __str__(self) -> str:
         result = ''
@@ -114,14 +116,13 @@ class Document(XMLement):
     tag_name: str = 'w:body'
 
     def __init__(self, path: str):
-        self._document: str = xml.dom.minidom.parseString(
+        self._content: str = xml.dom.minidom.parseString(
             zipfile.ZipFile(path).read('word/document.xml')
         ).toprettyxml()
-        super(Document, self).__init__(Document.tag_name, self._document)
-        self._content: str
-        self._relative_position: int
-        self._content, self._relative_position = self._get_tag()
+        doc: Tuple[str, Tuple[int, int]] = self._get_tag(Document.tag_name)
+        super(Document, self).__init__(Document.tag_name, doc)
         self.paragraphs: List[Paragraph] = []
         paragraph_tuples = self._get_tags(Paragraph.tag_name)
         for p in paragraph_tuples:
-            self.paragraphs.append(Paragraph(p[0], p[1]))
+            par = Paragraph(p)
+            self.paragraphs.append(par)
