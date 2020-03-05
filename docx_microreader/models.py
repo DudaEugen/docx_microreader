@@ -103,12 +103,16 @@ class Paragraph(XMLement):
 
     def __init__(self, element: ContentInf):
         super(Paragraph, self).__init__(element)
-        self.runs: List[Run] = []
+        self.runs: List[Run]
+        self.__get_runs()
+        self._remove_raw_xml()
+
+    def __get_runs(self):
+        self.runs = []
         run_tuples = self._get_elements(Run)
         for r in run_tuples:
             run = Run(r)
             self.runs.append(run)
-        self._remove_raw_xml()
 
     def __str__(self) -> str:
         result = ''
@@ -128,9 +132,13 @@ class Document(XMLement):
         ).toprettyxml()
         doc: ContentInf = self._get_element(Document)
         super(Document, self).__init__(doc)
-        self.paragraphs: List[Paragraph] = []
+        self.paragraphs: List[Paragraph]
+        self.__get_paragraphs()
+        self._remove_raw_xml()
+
+    def __get_paragraphs(self):
+        self.paragraphs = []
         paragraph_tuples = self._get_elements(Paragraph)
         for p in paragraph_tuples:
             par = Paragraph(p)
             self.paragraphs.append(par)
-        self._remove_raw_xml()
