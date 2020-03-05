@@ -10,14 +10,13 @@ class XMLement:
     _output_format: str = 'html'
     tag_name: str
 
-    def __init__(self, tag: str, element: ContentInf):
-        self._tag: str = tag
+    def __init__(self, element: ContentInf):
         self._content: str = element.content
         self._begin: int = element.begin
         self._end: int = element.end
 
     def _get_tag(self, tag: str = '') -> ContentInf:
-        _tag = self._tag if tag == '' else tag
+        _tag = self.tag_name if tag == '' else tag
         element = re.search(rf'<{_tag}( [^\n>%]+)?>([^%]+)?</{_tag}>', self._content)
         return ContentInf(element.group(0), element.span())
 
@@ -28,8 +27,8 @@ class XMLement:
         return tags
 
     def _inner_content(self) -> str:
-        inner_content = re.sub(rf'<{self._tag}([^\n>%]+)?>', '', self._content)
-        inner_content = re.sub(rf'</{self._tag}>', '', inner_content)
+        inner_content = re.sub(rf'<{self.tag_name}([^\n>%]+)?>', '', self._content)
+        inner_content = re.sub(rf'</{self.tag_name}>', '', inner_content)
         return inner_content
 
     def _get_properties(self, tag_name: str) -> str or None:
@@ -50,7 +49,7 @@ class Text(XMLement):
     tag_name: str = 'w:t'
 
     def __init__(self, element: ContentInf):
-        super(Text, self).__init__(Text.tag_name, element)
+        super(Text, self).__init__(element)
         self._content: str = self._inner_content()
 
     def __str__(self) -> str:
@@ -61,7 +60,7 @@ class Run(XMLement):
     tag_name: str = 'w:r'
 
     def __init__(self,  element: ContentInf):
-        super(Run, self).__init__(Run.tag_name, element)
+        super(Run, self).__init__(element)
         text_tuple = self._get_tag(Text.tag_name)
         self.text: Text = Text(text_tuple)
         self._is_bold: bool = self._have_properties('w:b')
@@ -97,7 +96,7 @@ class Paragraph(XMLement):
     tag_name: str = 'w:p'
 
     def __init__(self, element: ContentInf):
-        super(Paragraph, self).__init__(Paragraph.tag_name, element)
+        super(Paragraph, self).__init__(element)
         self.runs: List[Run] = []
         run_tuples = self._get_tags(Run.tag_name)
         for r in run_tuples:
@@ -121,7 +120,7 @@ class Document(XMLement):
             zipfile.ZipFile(path).read('word/document.xml')
         ).toprettyxml()
         doc: ContentInf = self._get_tag(Document.tag_name)
-        super(Document, self).__init__(Document.tag_name, doc)
+        super(Document, self).__init__(doc)
         self.paragraphs: List[Paragraph] = []
         paragraph_tuples = self._get_tags(Paragraph.tag_name)
         for p in paragraph_tuples:
