@@ -140,18 +140,27 @@ class Document(XMLement):
         ).toprettyxml()
         doc: ContentInf = self._get_element(Document)
         super(Document, self).__init__(doc)
-        self.paragraphs: List[Paragraph]
-        self.__get_paragraphs()
         self.tables: List[Table]
         self.__get_tables()
+        self.paragraphs: List[Paragraph]
+        self.__get_paragraphs()
+        self.elements: List[Union[Paragraph, Table]]
+        self.__create_queue_elements()
         self._remove_raw_xml()
 
     def __get_paragraphs(self):
         self.paragraphs = []
         paragraphs = self._get_elements(Paragraph)
         for p in paragraphs:
-            par = Paragraph(p)
-            self.paragraphs.append(par)
+            paragraph = Paragraph(p)
+            is_inner_paragraph = False
+            for table in self.tables:
+                if table._begin < paragraph._begin and table._end > paragraph._end:
+                    is_inner_paragraph = True
+                    # TODO: take paragraph to table
+                    break
+            if not is_inner_paragraph:
+                self.paragraphs.append(paragraph)
 
     def __get_tables(self):
         self.tables = []
@@ -159,3 +168,10 @@ class Document(XMLement):
         for tbl in tables:
             table = Table(tbl)
             self.tables.append(table)
+
+    def __create_queue_elements(self):
+        self.elements = []
+        self.elements.extend(self.paragraphs)
+        self.elements.extend(self.tables)
+        self.elements.sort(key=lambda x: x._begin)
+
