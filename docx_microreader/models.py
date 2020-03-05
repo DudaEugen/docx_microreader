@@ -123,12 +123,79 @@ class Paragraph(XMLement):
         return result + '\n'
 
 
+class TableCell(XMLement):
+    _tag_name: str = 'w:tc'
+
+    def __init__(self, element: ContentInf):
+        super(TableCell, self).__init__(element)
+        self.paragraphs: List[Paragraph]
+        self.__get_paragraphs()
+        self._remove_raw_xml()
+
+    def __get_paragraphs(self):
+        self.paragraphs = []
+        paragraphs = self._get_elements(Paragraph)
+        for par in paragraphs:
+            paragraph = Paragraph(par)
+            self.paragraphs.append(paragraph)
+
+    def __str__(self) -> str:
+        result = ''
+        for paragraph in self.paragraphs:
+            result += str(paragraph)
+        if XMLement._output_format == 'html':
+            return '<td>' + result + '</td>'
+        return result
+
+
+class TableRow(XMLement):
+    _tag_name: str = 'w:tr'
+
+    def __init__(self, element: ContentInf):
+        super(TableRow, self).__init__(element)
+        self.cells: List[TableCell]
+        self.__get_cells()
+        self._remove_raw_xml()
+
+    def __get_cells(self):
+        self.cells = []
+        cells = self._get_elements(TableCell)
+        for c in cells:
+            cell = TableCell(c)
+            self.cells.append(cell)
+
+    def __str__(self) -> str:
+        result = ''
+        for cell in self.cells:
+            result += str(cell)
+        if XMLement._output_format == 'html':
+            return '<tr>' + result + '</tr>'
+        return result + '\n'
+
+
 class Table(XMLement):
     _tag_name: str = 'w:tbl'
 
     def __init__(self, element: ContentInf):
         super(Table, self).__init__(element)
+        self.rows: List[TableRow]
+        self.__get_rows()
         self._remove_raw_xml()
+
+    def __get_rows(self):
+        self.rows = []
+        rows = self._get_elements(TableRow)
+        for r in rows:
+            row = TableRow(r)
+            self.rows.append(row)
+
+    def __str__(self) -> str:
+        result = ''
+        for row in self.rows:
+            result += str(row)
+        if XMLement._output_format == 'html':
+            return '<table>' + result + '</table>'
+        return result
 
 
 class Document(XMLement):
@@ -157,7 +224,6 @@ class Document(XMLement):
             for table in self.tables:
                 if table._begin < paragraph._begin and table._end > paragraph._end:
                     is_inner_paragraph = True
-                    # TODO: take paragraph to table
                     break
             if not is_inner_paragraph:
                 self.paragraphs.append(paragraph)
