@@ -109,8 +109,8 @@ class Paragraph(XMLement):
 
     def __get_runs(self):
         self.runs = []
-        run_tuples = self._get_elements(Run)
-        for r in run_tuples:
+        runs = self._get_elements(Run)
+        for r in runs:
             run = Run(r)
             self.runs.append(run)
 
@@ -138,7 +138,7 @@ class Document(XMLement):
 
     def __get_paragraphs(self):
         self.paragraphs = []
-        paragraph_tuples = self._get_elements(Paragraph)
-        for p in paragraph_tuples:
+        paragraphs = self._get_elements(Paragraph)
+        for p in paragraphs:
             par = Paragraph(p)
             self.paragraphs.append(par)
