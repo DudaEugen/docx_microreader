@@ -123,6 +123,14 @@ class Paragraph(XMLement):
         return result + '\n'
 
 
+class Table(XMLement):
+    _tag_name: str = 'w:tbl'
+
+    def __init__(self, element: ContentInf):
+        super(Table, self).__init__(element)
+        self._remove_raw_xml()
+
+
 class Document(XMLement):
     _tag_name: str = 'w:body'
 
@@ -134,6 +142,8 @@ class Document(XMLement):
         super(Document, self).__init__(doc)
         self.paragraphs: List[Paragraph]
         self.__get_paragraphs()
+        self.tables: List[Table]
+        self.__get_tables()
         self._remove_raw_xml()
 
     def __get_paragraphs(self):
@@ -142,3 +152,10 @@ class Document(XMLement):
         for p in paragraphs:
             par = Paragraph(p)
             self.paragraphs.append(par)
+
+    def __get_tables(self):
+        self.tables = []
+        tables = self._get_elements(Table)
+        for tbl in tables:
+            table = Paragraph(tbl)
+            self.tables.append(table)
