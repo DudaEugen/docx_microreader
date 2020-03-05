@@ -1,7 +1,7 @@
 import zipfile
 import xml.dom.minidom
 import re
-from typing import List, Tuple, ClassVar
+from typing import List, Union
 from .special_characters import *
 from .support_classes import ContentInf
 
@@ -11,29 +11,29 @@ class XMLement:
     _tag_name: str
 
     def __init__(self, element: ContentInf):
-        self._content: str = element.content
+        self._raw_xml: Union[str, None] = element.content
         self._begin: int = element.begin
         self._end: int = element.end
 
     def _get_element(self, element_class) -> ContentInf:
         tag: XMLement = element_class._tag_name
-        element = re.search(rf'<{tag}( [^\n>%]+)?>([^%]+)?</{tag}>', self._content)
+        element = re.search(rf'<{tag}( [^\n>%]+)?>([^%]+)?</{tag}>', self._raw_xml)
         return ContentInf(element.group(0), element.span())
 
     def _get_elements(self, element_class) -> List[ContentInf]:
         tag: XMLement = element_class._tag_name
         elements: List[ContentInf] = []
-        for o in re.finditer(rf'<{tag}( [^\n>%]+)?>[^%]+?</{tag}>', self._content):
+        for o in re.finditer(rf'<{tag}( [^\n>%]+)?>[^%]+?</{tag}>', self._raw_xml):
             elements.append(ContentInf(o.group(0), o.span()))
         return elements
 
     def _inner_content(self) -> str:
-        inner_content = re.sub(rf'<{self._tag_name}([^\n>%]+)?>', '', self._content)
+        inner_content = re.sub(rf'<{self._tag_name}([^\n>%]+)?>', '', self._raw_xml)
         inner_content = re.sub(rf'</{self._tag_name}>', '', inner_content)
         return inner_content
 
-    def _get_properties(self, tag_name: str) -> str or None:
-        properties = re.search(rf'<{self._tag_name}Pr>([^%]+)?</{self._tag_name}Pr>', self._content).group(0)
+    def _get_properties(self, tag_name: str) -> Union[str, None]:
+        properties = re.search(rf'<{self._tag_name}Pr>([^%]+)?</{self._tag_name}Pr>', self._raw_xml).group(0)
         prop = re.search(rf'<{tag_name} w:val="([^"%]+)"/>', properties)
         if prop:
             p = prop.group(0)
@@ -42,8 +42,11 @@ class XMLement:
             return p[begin: end]
 
     def _have_properties(self, tag_name: str) -> bool:
-        properties = re.search(rf'<{self._tag_name}([^\n>%]+)?>([^%]+)?</{self._tag_name}>', self._content).group(0)
+        properties = re.search(rf'<{self._tag_name}([^\n>%]+)?>([^%]+)?</{self._tag_name}>', self._raw_xml).group(0)
         return True if (properties.find(rf'<{tag_name}/>') != -1) else False
+
+    def _remove_raw_xml(self):
+        self._raw_xml = None
 
 
 class Text(XMLement):
@@ -52,6 +55,7 @@ class Text(XMLement):
     def __init__(self, element: ContentInf):
         super(Text, self).__init__(element)
         self._content: str = self._inner_content()
+        self._remove_raw_xml()
 
     def __str__(self) -> str:
         return self._content
@@ -71,6 +75,7 @@ class Run(XMLement):
         self._color: str or None = self._get_properties('w:color')
         self._background: str or None = self._get_properties('w:highlight')
         self._vertical_align: str or None = self._get_properties('w:vertAlign')
+        self._remove_raw_xml()
 
     def __str__(self) -> str:
         if XMLement._output_format == 'html':      # TODO
@@ -103,6 +108,7 @@ class Paragraph(XMLement):
         for r in run_tuples:
             run = Run(r)
             self.runs.append(run)
+        self._remove_raw_xml()
 
     def __str__(self) -> str:
         result = ''
@@ -117,7 +123,7 @@ class Document(XMLement):
     _tag_name: str = 'w:body'
 
     def __init__(self, path: str):
-        self._content: str = xml.dom.minidom.parseString(
+        self._raw_xml: Union[str, None] = xml.dom.minidom.parseString(
             zipfile.ZipFile(path).read('word/document.xml')
         ).toprettyxml()
         doc: ContentInf = self._get_element(Document)
@@ -127,3 +133,4 @@ class Document(XMLement):
         for p in paragraph_tuples:
             par = Paragraph(p)
             self.paragraphs.append(par)
+        self._remove_raw_xml()
