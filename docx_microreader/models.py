@@ -157,5 +157,5 @@ class Document(XMLement):
         self.tables = []
         tables = self._get_elements(Table)
         for tbl in tables:
-            table = Paragraph(tbl)
+            table = Table(tbl)
             self.tables.append(table)
