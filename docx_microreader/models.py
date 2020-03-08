@@ -1,7 +1,7 @@
 import zipfile
 import xml.dom.minidom
 import re
-from typing import List, Union
+from typing import List, Union, Tuple
 from .special_characters import *
 from .support_classes import ContentInf
 
@@ -9,6 +9,7 @@ from .support_classes import ContentInf
 class XMLement:
     _output_format: str = 'html'
     _tag_name: str
+    _is_can_contain_same_elements: bool = False
 
     def __init__(self, element: ContentInf):
         self._raw_xml: Union[str, None] = element.content
@@ -16,15 +17,39 @@ class XMLement:
         self._end: int = element.end
 
     def _get_element(self, element_class) -> ContentInf:
-        tag: XMLement = element_class._tag_name
+        tag: str = element_class._tag_name
         element = re.search(rf'<{tag}( [^\n>%]+)?>([^%]+)?</{tag}>', self._raw_xml)
         return ContentInf(element.group(0), element.span())
 
     def _get_elements(self, element_class) -> List[ContentInf]:
-        tag: XMLement = element_class._tag_name
+        tag: str = element_class._tag_name
         elements: List[ContentInf] = []
-        for o in re.finditer(rf'<{tag}( [^\n>%]+)?>[^%]+?</{tag}>', self._raw_xml):
-            elements.append(ContentInf(o.group(0), o.span()))
+        if not element_class._is_can_contain_same_elements:
+            for o in re.finditer(rf'<{tag}( [^\n>%]+)?>[^%]+?</{tag}>', self._raw_xml):
+                elements.append(ContentInf(o.group(0), o.span()))
+        else:
+            tags: List[Tuple[ContentInf, bool]] = []
+            for o in re.finditer(rf'<{tag}( [^\n>%]+)?>', self._raw_xml):
+                tags.append((ContentInf(o.group(0), o.span()), True))
+            for o in re.finditer(rf'</{tag}>', self._raw_xml):
+                tags.append((ContentInf(o.group(0), o.span()), False))
+            tags.sort(key=lambda x: x[0].begin)
+            i: int = 0
+            while i < len(tags) - 1:
+                begin_number = 1
+                for j in range(i+1, len(tags)):
+                    if tags[j][1]:
+                        begin_number += 1
+                    else:
+                        begin_number -= 1
+                        if begin_number == 0:
+                            elements.append(ContentInf(
+                                    self._raw_xml[tags[i][0].begin:tags[j][0].end],
+                                    (tags[i][0].begin, tags[j][0].end)
+                                )
+                            )
+                            i = j + 1
+                            break
         return elements
 
     def _inner_content(self) -> str:
@@ -125,24 +150,48 @@ class Paragraph(XMLement):
 
 class TableCell(XMLement):
     _tag_name: str = 'w:tc'
+    _is_can_contain_same_elements: bool = True
 
     def __init__(self, element: ContentInf):
         super(TableCell, self).__init__(element)
+        self.tables: List[Table]
+        self.__get_tables()
         self.paragraphs: List[Paragraph]
         self.__get_paragraphs()
+        self.elements: List[Union[Paragraph, Table]]
+        self.__create_queue_elements()
         self._remove_raw_xml()
 
     def __get_paragraphs(self):
         self.paragraphs = []
         paragraphs = self._get_elements(Paragraph)
-        for par in paragraphs:
-            paragraph = Paragraph(par)
-            self.paragraphs.append(paragraph)
+        for p in paragraphs:
+            paragraph = Paragraph(p)
+            is_inner_paragraph = False
+            for table in self.tables:
+                if table._begin < paragraph._begin and table._end > paragraph._end:
+                    is_inner_paragraph = True
+                    break
+            if not is_inner_paragraph:
+                self.paragraphs.append(paragraph)
+
+    def __get_tables(self):
+        self.tables = []
+        tables = self._get_elements(Table)
+        for tbl in tables:
+            table = Table(tbl)
+            self.tables.append(table)
+
+    def __create_queue_elements(self):
+        self.elements = []
+        self.elements.extend(self.paragraphs)
+        self.elements.extend(self.tables)
+        self.elements.sort(key=lambda x: x._begin)
 
     def __str__(self) -> str:
         result = ''
-        for paragraph in self.paragraphs:
-            result += str(paragraph)
+        for element in self.elements:
+            result += str(element)
         if XMLement._output_format == 'html':
             return '<td>' + result + '</td>'
         return result
@@ -150,6 +199,7 @@ class TableCell(XMLement):
 
 class TableRow(XMLement):
     _tag_name: str = 'w:tr'
+    _is_can_contain_same_elements: bool = True
 
     def __init__(self, element: ContentInf):
         super(TableRow, self).__init__(element)
@@ -175,6 +225,7 @@ class TableRow(XMLement):
 
 class Table(XMLement):
     _tag_name: str = 'w:tbl'
+    _is_can_contain_same_elements: bool = True
 
     def __init__(self, element: ContentInf):
         super(Table, self).__init__(element)
@@ -194,7 +245,7 @@ class Table(XMLement):
         for row in self.rows:
             result += str(row)
         if XMLement._output_format == 'html':
-            return '<table>' + result + '</table>'
+            return '<table border="1px">' + result + '</table>'
         return result
 
 
