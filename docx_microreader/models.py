@@ -129,10 +129,10 @@ class Paragraph(XMLement):
     def __init__(self, element: ContentInf):
         super(Paragraph, self).__init__(element)
         self.runs: List[Run]
-        self.__get_runs()
+        self.__parse_runs()
         self._remove_raw_xml()
 
-    def __get_runs(self):
+    def __parse_runs(self):
         self.runs = []
         runs = self._parse_elements(Run)
         for r in runs:
