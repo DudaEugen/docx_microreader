@@ -71,7 +71,7 @@ class XMLement:
         return True if (properties.find(rf'<{tag_name}/>') != -1) else False
 
     def _remove_raw_xml(self):
-        self._raw_xml = None
+        del self._raw_xml
 
 
 class Text(XMLement):
