@@ -16,12 +16,12 @@ class XMLement:
         self._begin: int = element.begin
         self._end: int = element.end
 
-    def _get_element(self, element_class) -> ContentInf:
+    def _parse_element(self, element_class) -> ContentInf:
         tag: str = element_class._tag_name
         element = re.search(rf'<{tag}( [^\n>%]+)?>([^%]+)?</{tag}>', self._raw_xml)
         return ContentInf(element.group(0), element.span())
 
-    def _get_elements(self, element_class) -> List[ContentInf]:
+    def _parse_elements(self, element_class) -> List[ContentInf]:
         tag: str = element_class._tag_name
         elements: List[ContentInf] = []
         if not element_class._is_can_contain_same_elements:
@@ -57,7 +57,7 @@ class XMLement:
         inner_content = re.sub(rf'</{self._tag_name}>', '', inner_content)
         return inner_content
 
-    def _get_properties(self, tag_name: str) -> Union[str, None]:
+    def _parse_properties(self, tag_name: str) -> Union[str, None]:
         properties = re.search(rf'<{self._tag_name}Pr>([^%]+)?</{self._tag_name}Pr>', self._raw_xml).group(0)
         prop = re.search(rf'<{tag_name} w:val="([^"%]+)"/>', properties)
         if prop:
@@ -91,15 +91,15 @@ class Run(XMLement):
 
     def __init__(self,  element: ContentInf):
         super(Run, self).__init__(element)
-        text_tuple = self._get_element(Text)
+        text_tuple = self._parse_element(Text)
         self.text: Text = Text(text_tuple)
         self._is_bold: bool = self._have_properties('w:b')
         self._is_italic: bool = self._have_properties('w:i')
-        self._underline: str or None = self._get_properties('w:u')
-        self._language: str or None = self._get_properties('w:lang')
-        self._color: str or None = self._get_properties('w:color')
-        self._background: str or None = self._get_properties('w:highlight')
-        self._vertical_align: str or None = self._get_properties('w:vertAlign')
+        self._underline: str or None = self._parse_properties('w:u')
+        self._language: str or None = self._parse_properties('w:lang')
+        self._color: str or None = self._parse_properties('w:color')
+        self._background: str or None = self._parse_properties('w:highlight')
+        self._vertical_align: str or None = self._parse_properties('w:vertAlign')
         self._remove_raw_xml()
 
     def __str__(self) -> str:
@@ -134,7 +134,7 @@ class Paragraph(XMLement):
 
     def __get_runs(self):
         self.runs = []
-        runs = self._get_elements(Run)
+        runs = self._parse_elements(Run)
         for r in runs:
             run = Run(r)
             self.runs.append(run)
@@ -155,16 +155,16 @@ class TableCell(XMLement):
     def __init__(self, element: ContentInf):
         super(TableCell, self).__init__(element)
         self.tables: List[Table]
-        self.__get_tables()
+        self.__parse_tables()
         self.paragraphs: List[Paragraph]
-        self.__get_paragraphs()
+        self.__parse_paragraphs()
         self.elements: List[Union[Paragraph, Table]]
         self.__create_queue_elements()
         self._remove_raw_xml()
 
-    def __get_paragraphs(self):
+    def __parse_paragraphs(self):
         self.paragraphs = []
-        paragraphs = self._get_elements(Paragraph)
+        paragraphs = self._parse_elements(Paragraph)
         for p in paragraphs:
             paragraph = Paragraph(p)
             is_inner_paragraph = False
@@ -175,9 +175,9 @@ class TableCell(XMLement):
             if not is_inner_paragraph:
                 self.paragraphs.append(paragraph)
 
-    def __get_tables(self):
+    def __parse_tables(self):
         self.tables = []
-        tables = self._get_elements(Table)
+        tables = self._parse_elements(Table)
         for tbl in tables:
             table = Table(tbl)
             self.tables.append(table)
@@ -204,12 +204,12 @@ class TableRow(XMLement):
     def __init__(self, element: ContentInf):
         super(TableRow, self).__init__(element)
         self.cells: List[TableCell]
-        self.__get_cells()
+        self.__parse_cells()
         self._remove_raw_xml()
 
-    def __get_cells(self):
+    def __parse_cells(self):
         self.cells = []
-        cells = self._get_elements(TableCell)
+        cells = self._parse_elements(TableCell)
         for c in cells:
             cell = TableCell(c)
             self.cells.append(cell)
@@ -230,12 +230,12 @@ class Table(XMLement):
     def __init__(self, element: ContentInf):
         super(Table, self).__init__(element)
         self.rows: List[TableRow]
-        self.__get_rows()
+        self.__parse_rows()
         self._remove_raw_xml()
 
-    def __get_rows(self):
+    def __parse_rows(self):
         self.rows = []
-        rows = self._get_elements(TableRow)
+        rows = self._parse_elements(TableRow)
         for r in rows:
             row = TableRow(r)
             self.rows.append(row)
@@ -256,19 +256,19 @@ class Document(XMLement):
         self._raw_xml: Union[str, None] = xml.dom.minidom.parseString(
             zipfile.ZipFile(path).read('word/document.xml')
         ).toprettyxml()
-        doc: ContentInf = self._get_element(Document)
+        doc: ContentInf = self._parse_element(Document)
         super(Document, self).__init__(doc)
         self.tables: List[Table]
-        self.__get_tables()
+        self.__parse_tables()
         self.paragraphs: List[Paragraph]
-        self.__get_paragraphs()
+        self.__parse_paragraphs()
         self.elements: List[Union[Paragraph, Table]]
         self.__create_queue_elements()
         self._remove_raw_xml()
 
-    def __get_paragraphs(self):
+    def __parse_paragraphs(self):
         self.paragraphs = []
-        paragraphs = self._get_elements(Paragraph)
+        paragraphs = self._parse_elements(Paragraph)
         for p in paragraphs:
             paragraph = Paragraph(p)
             is_inner_paragraph = False
@@ -279,9 +279,9 @@ class Document(XMLement):
             if not is_inner_paragraph:
                 self.paragraphs.append(paragraph)
 
-    def __get_tables(self):
+    def __parse_tables(self):
         self.tables = []
-        tables = self._get_elements(Table)
+        tables = self._parse_elements(Table)
         for tbl in tables:
             table = Table(tbl)
             self.tables.append(table)
