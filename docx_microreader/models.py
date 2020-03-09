@@ -5,6 +5,7 @@ from typing import List, Union
 from .special_characters import *
 from .support_classes import ContentInf
 from .parser import XMLement
+from .mixins import ContainerMixin
 
 
 class Text(XMLement):
@@ -81,50 +82,17 @@ class Paragraph(XMLement):
         return result + '\n'
 
 
-class TableCell(XMLement):
+class TableCell(XMLement, ContainerMixin):
     _tag_name: str = 'w:tc'
     _is_can_contain_same_elements: bool = True
 
     def __init__(self, element: ContentInf):
         super(TableCell, self).__init__(element)
-        self.tables: List[Table]
-        self.__parse_tables()
-        self.paragraphs: List[Paragraph]
-        self.__parse_paragraphs()
-        self.elements: List[Union[Paragraph, Table]]
-        self.__create_queue_elements()
+        self._parse_all_elements()
         self._remove_raw_xml()
 
-    def __parse_paragraphs(self):
-        self.paragraphs = []
-        paragraphs = self._parse_elements(Paragraph)
-        for p in paragraphs:
-            paragraph = Paragraph(p)
-            is_inner_paragraph = False
-            for table in self.tables:
-                if table._begin < paragraph._begin and table._end > paragraph._end:
-                    is_inner_paragraph = True
-                    break
-            if not is_inner_paragraph:
-                self.paragraphs.append(paragraph)
-
-    def __parse_tables(self):
-        self.tables = []
-        tables = self._parse_elements(Table)
-        for tbl in tables:
-            table = Table(tbl)
-            self.tables.append(table)
-
-    def __create_queue_elements(self):
-        self.elements = []
-        self.elements.extend(self.paragraphs)
-        self.elements.extend(self.tables)
-        self.elements.sort(key=lambda x: x._begin)
-
     def __str__(self) -> str:
-        result = ''
-        for element in self.elements:
-            result += str(element)
+        result = super(TableCell, self).__str__()
         if XMLement._output_format == 'html':
             return '<td>' + result + '</td>'
         return result
@@ -182,7 +150,7 @@ class Table(XMLement):
         return result
 
 
-class Document(XMLement):
+class Document(XMLement, ContainerMixin):
     _tag_name: str = 'w:body'
 
     def __init__(self, path: str):
@@ -191,42 +159,5 @@ class Document(XMLement):
         ).toprettyxml()
         doc: ContentInf = self._parse_element(Document)
         super(Document, self).__init__(doc)
-        self.tables: List[Table]
-        self.__parse_tables()
-        self.paragraphs: List[Paragraph]
-        self.__parse_paragraphs()
-        self.elements: List[Union[Paragraph, Table]]
-        self.__create_queue_elements()
+        self._parse_all_elements()
         self._remove_raw_xml()
-
-    def __parse_paragraphs(self):
-        self.paragraphs = []
-        paragraphs = self._parse_elements(Paragraph)
-        for p in paragraphs:
-            paragraph = Paragraph(p)
-            is_inner_paragraph = False
-            for table in self.tables:
-                if table._begin < paragraph._begin and table._end > paragraph._end:
-                    is_inner_paragraph = True
-                    break
-            if not is_inner_paragraph:
-                self.paragraphs.append(paragraph)
-
-    def __parse_tables(self):
-        self.tables = []
-        tables = self._parse_elements(Table)
-        for tbl in tables:
-            table = Table(tbl)
-            self.tables.append(table)
-
-    def __create_queue_elements(self):
-        self.elements = []
-        self.elements.extend(self.paragraphs)
-        self.elements.extend(self.tables)
-        self.elements.sort(key=lambda x: x._begin)
-
-    def __str__(self) -> str:
-        result = ''
-        for element in self.elements:
-            result += str(element)
-        return result
