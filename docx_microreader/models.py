@@ -292,3 +292,8 @@ class Document(XMLement):
         self.elements.extend(self.tables)
         self.elements.sort(key=lambda x: x._begin)
 
+    def __str__(self) -> str:
+        result = ''
+        for element in self.elements:
+            result += str(element)
+        return result
