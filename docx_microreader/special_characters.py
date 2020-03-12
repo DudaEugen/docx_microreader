@@ -1,9 +1,5 @@
 from typing import Dict
 
-characters_html_first: Dict[str, str] = {
-    '&': '&amp;',
-}
-
 characters_html: Dict[str, str] = {
     'Α': '&Alpha;',
     'Β': '&Beta;',

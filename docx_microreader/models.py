@@ -39,8 +39,6 @@ class Run(XMLement):
     def __str__(self) -> str:
         if XMLement._output_format == 'html':      # TODO
             result: str = str(self.text)
-            for char in characters_html_first:
-                result = re.sub(char, characters_html_first[char], result)
             for char in characters_html:
                 result = re.sub(char, characters_html[char], result)
 
