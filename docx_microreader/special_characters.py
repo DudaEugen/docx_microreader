@@ -150,4 +150,10 @@ characters_html: Dict[str, str] = {
     '−': '-',
     'ß': '&beta;',
     '\'': '&#39;',
+    '£': '&pound;',
+    '¯': '&macr;',
+    '¨': '&uml;',
+    '¥': '&yen;',
+    '¢': '&cent;',
+    '¿': '&iquest;',
 }
