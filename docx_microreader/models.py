@@ -93,7 +93,8 @@ class TableCell(XMLement, ContainerMixin):
     def __str__(self) -> str:
         result = super(TableCell, self).__str__()
         if XMLement._output_format == 'html':
-            color = ' bgcolor="#' + self._bg_color + '"' if self._bg_color is not None else ''
+            color = ' bgcolor="#' + self._bg_color + '"' if self._bg_color is not None and self._bg_color != 'auto' \
+                else ''
             return rf'<td{color}>' + result + '</td>'
         return result
 

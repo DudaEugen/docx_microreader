@@ -13,6 +13,11 @@ class XMLement:
         self._begin: int = element.begin
         self._end: int = element.end
 
+    def __find_property_of_element_that_can_contain_same_elements(self) -> Union[str, None]:
+        property = re.search(rf'<{self._tag_name}Pr>([^%]+)?</{self._tag_name}Pr>', self._raw_xml)
+        inner_same_element = re.search(rf'<{self._tag_name}( [^\n>%]+)?>[^%]+?</{self._tag_name}>', self._inner_content())
+        return property if inner_same_element is None or property.span()[0] < inner_same_element.span()[0] else None
+
     def _parse_element(self, element_class) -> ContentInf:
         tag: str = element_class._tag_name
         element = re.search(rf'<{tag}( [^\n>%]+)?>([^%]+)?</{tag}>', self._raw_xml)
@@ -55,7 +60,11 @@ class XMLement:
         return inner_content
 
     def _parse_properties(self, tag_name: str) -> Union[str, None]:
-        properties = re.search(rf'<{self._tag_name}Pr>([^%]+)?</{self._tag_name}Pr>', self._raw_xml)
+        if not self._is_can_contain_same_elements:
+            properties = re.search(rf'<{self._tag_name}Pr>([^%]+)?</{self._tag_name}Pr>', self._raw_xml)
+        else:
+            properties = self.__find_property_of_element_that_can_contain_same_elements()
+
         if properties:
             prop = re.search(rf'<{tag_name} w:val="([^"%]+)"/>', properties.group(0))
             if prop:
@@ -64,12 +73,20 @@ class XMLement:
                 end = p.find('"', begin)
                 return p[begin: end]
 
-    def _parse_named_value_of_properties(self, property_name: str, value: str) -> Union[str, None]:
-        properties = re.search(rf'<{self._tag_name}Pr>([^%]+)?<{property_name} ([^\n>%]+)?/>([^%]+)?</{self._tag_name}Pr>',
-                               self._raw_xml)
-        if properties:
-            prop = re.search(rf'<{property_name}([^/%]+)?/>', properties.group(0))
-            if prop:
+    def _parse_named_value_of_properties(
+            self, property_name: str, value: str, wrapper: Union[str, None] = None) -> Union[str, None]:
+        if not self._is_can_contain_same_elements:
+            properties = re.search(rf'<{self._tag_name}Pr>([^%]+)?</{self._tag_name}Pr>', self._raw_xml)
+        else:
+            properties = self.__find_property_of_element_that_can_contain_same_elements()
+
+        if properties is not None:
+            if wrapper is not None:
+                wrap = re.search(rf'<{wrapper}>([^%]+)?</wrapper>', properties.group(0))
+                prop = re.search(rf'<{property_name}([^/%]+)?/>', wrap.group(0))
+            else:
+                prop = re.search(rf'<{property_name}([^/%]+)?/>', properties.group(0))
+            if prop is not None:
                 v = re.search(rf'{value}="([^"%]+)"', prop.group(0))
                 if v:
                     result = v.group(0)
