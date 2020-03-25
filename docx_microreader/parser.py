@@ -64,7 +64,7 @@ class XMLement:
             return p[begin: end]
 
     def _have_properties(self, tag_name: str) -> bool:
-        properties = re.search(rf'<{self._tag_name}([^\n>%]+)?>([^%]+)?</{self._tag_name}>', self._raw_xml).group(0)
+        properties = re.search(rf'<{self._tag_name}Pr([^\n>%]+)?>([^%]+)?</{self._tag_name}Pr>', self._raw_xml).group(0)
         return True if (properties.find(rf'<{tag_name}/>') != -1) else False
 
     def _remove_raw_xml(self):
