@@ -14,8 +14,10 @@ class XMLement:
         self._end: int = element.end
 
     def __find_property_of_element_that_can_contain_same_elements(self) -> Union[str, None]:
-        property = re.search(rf'<{self._tag_name}Pr>([^%]+)?</{self._tag_name}Pr>', self._raw_xml)
-        inner_same_element = re.search(rf'<{self._tag_name}( [^\n>%]+)?>[^%]+?</{self._tag_name}>', self._inner_content())
+        inner_content = re.sub(rf'<{self._tag_name}([^P\n>%]+)?>', '', self._raw_xml)
+        inner_content = re.sub(rf'</{self._tag_name}>', '', inner_content)
+        property = re.search(rf'<{self._tag_name}Pr>([^%]+)?</{self._tag_name}Pr>', inner_content)
+        inner_same_element = re.search(rf'<{self._tag_name}( [^\n>%]+)?>[^%]+?</{self._tag_name}>', inner_content)
         return property if inner_same_element is None or property.span()[0] < inner_same_element.span()[0] else None
 
     def _parse_element(self, element_class) -> ContentInf:
