@@ -55,13 +55,27 @@ class XMLement:
         return inner_content
 
     def _parse_properties(self, tag_name: str) -> Union[str, None]:
-        properties = re.search(rf'<{self._tag_name}Pr>([^%]+)?</{self._tag_name}Pr>', self._raw_xml).group(0)
-        prop = re.search(rf'<{tag_name} w:val="([^"%]+)"/>', properties)
-        if prop:
-            p = prop.group(0)
-            begin = p.find('"') + 1
-            end = p.find('"', begin)
-            return p[begin: end]
+        properties = re.search(rf'<{self._tag_name}Pr>([^%]+)?</{self._tag_name}Pr>', self._raw_xml)
+        if properties:
+            prop = re.search(rf'<{tag_name} w:val="([^"%]+)"/>', properties.group(0))
+            if prop:
+                p = prop.group(0)
+                begin = p.find('"') + 1
+                end = p.find('"', begin)
+                return p[begin: end]
+
+    def _parse_named_value_of_properties(self, property_name: str, value: str) -> Union[str, None]:
+        properties = re.search(rf'<{self._tag_name}Pr>([^%]+)?<{property_name} ([^\n>%]+)?/>([^%]+)?</{self._tag_name}Pr>',
+                               self._raw_xml)
+        if properties:
+            prop = re.search(rf'<{property_name}([^/%]+)?/>', properties.group(0))
+            if prop:
+                v = re.search(rf'{value}="([^"%]+)"', prop.group(0))
+                if v:
+                    result = v.group(0)
+                    begin = result.find('"') + 1
+                    end = result.find('"', begin)
+                    return result[begin: end]
 
     def _have_properties(self, tag_name: str) -> bool:
         properties = re.search(rf'<{self._tag_name}Pr([^\n>%]+)?>([^%]+)?</{self._tag_name}Pr>', self._raw_xml).group(0)
