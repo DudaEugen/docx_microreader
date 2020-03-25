@@ -29,11 +29,11 @@ class Run(XMLement):
         self.text: Text = Text(text_tuple)
         self._is_bold: bool = self._have_properties('w:b')
         self._is_italic: bool = self._have_properties('w:i')
-        self._underline: str or None = self._parse_properties('w:u')
-        self._language: str or None = self._parse_properties('w:lang')
-        self._color: str or None = self._parse_properties('w:color')
-        self._background: str or None = self._parse_properties('w:highlight')
-        self._vertical_align: str or None = self._parse_properties('w:vertAlign')
+        self._underline: Union[str, None] = self._parse_properties('w:u')
+        self._language: Union[str, None] = self._parse_properties('w:lang')
+        self._color: Union[str, None] = self._parse_properties('w:color')
+        self._background: Union[str, None] = self._parse_properties('w:highlight')
+        self._vertical_align: Union[str, None] = self._parse_properties('w:vertAlign')
         self._remove_raw_xml()
 
     def __str__(self) -> str:
@@ -87,12 +87,14 @@ class TableCell(XMLement, ContainerMixin):
     def __init__(self, element: ContentInf):
         super(TableCell, self).__init__(element)
         self._parse_all_elements()
+        self._bg_color: Union[str, None] = self._parse_named_value_of_properties('w:shd', 'w:fill')
         self._remove_raw_xml()
 
     def __str__(self) -> str:
         result = super(TableCell, self).__str__()
         if XMLement._output_format == 'html':
-            return '<td>' + result + '</td>'
+            color = ' bgcolor="#' + self._bg_color + '"' if self._bg_color is not None else ''
+            return rf'<td{color}>' + result + '</td>'
         return result
 
 
