@@ -25,7 +25,7 @@ class Run(XMLement):
 
     def __init__(self,  element: ContentInf):
         super(Run, self).__init__(element)
-        text_tuple = self._parse_element(Text)
+        text_tuple = self._parse_elements(Text, get_one_element=True)
         self.text: Text = Text(text_tuple)
         self._is_bold: bool = self._have_properties('w:b')
         self._is_italic: bool = self._have_properties('w:i')
@@ -158,7 +158,7 @@ class Document(XMLement, ContainerMixin):
         self._raw_xml: Union[str, None] = xml.dom.minidom.parseString(
             zipfile.ZipFile(path).read('word/document.xml')
         ).toprettyxml()
-        doc: ContentInf = self._parse_element(Document)
+        doc: ContentInf = self._parse_elements(Document, get_one_element=True)
         super(Document, self).__init__(doc)
         self._parse_all_elements()
         self._remove_raw_xml()

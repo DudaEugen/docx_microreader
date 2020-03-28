@@ -20,41 +20,54 @@ class XMLement:
         inner_same_element = re.search(rf'<{self._tag_name}( [^\n>%]+)?>[^%]+?</{self._tag_name}>', inner_content)
         return property if inner_same_element is None or property.span()[0] < inner_same_element.span()[0] else None
 
-    def _parse_element(self, element_class) -> ContentInf:
-        tag: str = element_class._tag_name
-        element = re.search(rf'<{tag}( [^\n>%]+)?>([^%]+)?</{tag}>', self._raw_xml)
+    def __parse_all_elements(self, regular: str) -> List[ContentInf]:
+        elements: List[ContentInf] = []
+        for o in re.finditer(regular, self._raw_xml):
+            elements.append(ContentInf(o.group(0), o.span()))
+        return elements
+
+    def __parse_one_element(self, regular: str) -> ContentInf:
+        element = re.search(regular, self._raw_xml)
         return ContentInf(element.group(0), element.span())
 
-    def _parse_elements(self, element_class) -> List[ContentInf]:
-        tag: str = element_class._tag_name
+    def __parse_external_elements(self, tag: str, get_one_element=False) -> Union[List[ContentInf], ContentInf]:
         elements: List[ContentInf] = []
-        if not element_class._is_can_contain_same_elements:
-            for o in re.finditer(rf'<{tag}( [^\n>%]+)?>[^%]+?</{tag}>', self._raw_xml):
-                elements.append(ContentInf(o.group(0), o.span()))
-        else:
-            tags: List[Tuple[ContentInf, bool]] = []
-            for o in re.finditer(rf'<{tag}( [^\n>%]+)?>', self._raw_xml):
-                tags.append((ContentInf(o.group(0), o.span()), True))
-            for o in re.finditer(rf'</{tag}>', self._raw_xml):
-                tags.append((ContentInf(o.group(0), o.span()), False))
-            tags.sort(key=lambda x: x[0].begin)
-            i: int = 0
-            while i < len(tags) - 1:
-                begin_number = 1
-                for j in range(i+1, len(tags)):
-                    if tags[j][1]:
-                        begin_number += 1
-                    else:
-                        begin_number -= 1
-                        if begin_number == 0:
-                            elements.append(ContentInf(
-                                    self._raw_xml[tags[i][0].begin:tags[j][0].end],
-                                    (tags[i][0].begin, tags[j][0].end)
-                                )
-                            )
+        tags: List[Tuple[ContentInf, bool]] = []
+        for o in re.finditer(rf'<{tag}( [^\n>%]+)?>', self._raw_xml):
+            tags.append((ContentInf(o.group(0), o.span()), True))
+        for o in re.finditer(rf'</{tag}>', self._raw_xml):
+            tags.append((ContentInf(o.group(0), o.span()), False))
+
+        tags.sort(key=lambda x: x[0].begin)
+        i: int = 0
+        while i < len(tags) - 1:
+            begin_number = 1
+            for j in range(i + 1, len(tags)):
+                if tags[j][1]:
+                    begin_number += 1
+                else:
+                    begin_number -= 1
+                    if begin_number == 0:
+                        element: ContentInf = ContentInf(
+                                self._raw_xml[tags[i][0].begin:tags[j][0].end],
+                                (tags[i][0].begin, tags[j][0].end)
+                        )
+                        if not get_one_element:
+                            elements.append(element)
                             i = j + 1
                             break
+                        else:
+                            return element
         return elements
+
+    def _parse_elements(self, element_class, get_one_element=False) -> Union[List[ContentInf], ContentInf]:
+        tag: str = element_class._tag_name
+
+        if not element_class._is_can_contain_same_elements:
+            regular: str = rf'<{tag}( [^\n>%]+)?>[^%]+?</{tag}>'
+            return self.__parse_all_elements(regular) if not get_one_element else self.__parse_one_element(regular)
+        else:
+            return self.__parse_external_elements(tag, get_one_element)
 
     def _inner_content(self) -> str:
         inner_content = re.sub(rf'<{self._tag_name}([^\n>%]+)?>', '', self._raw_xml)
