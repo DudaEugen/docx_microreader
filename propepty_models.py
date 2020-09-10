@@ -1,22 +1,21 @@
-from typing import Union, Tuple
+from typing import Union, Tuple, List
 
 PROPERTY_TYPES: Tuple[str, str] = ('str', 'bool')
 
 
 class PropertyDescription:
 
-    def __init__(self, tag_wrap: str, tag: str, tag_property: Union[str, None], is_view: bool):
+    def __init__(self, tag_wrap: str, tag: Union[List[str], str], tag_property: Union[List[str], str, None], is_view: bool):
         self.tag_wrap: str = tag_wrap
-        self.tag: str = tag
-        self.tag_property: Union[str, None] = tag_property
+        self.tag: Union[List[str], str] = tag
+        self.tag_property: Union[List[str], str, None] = tag_property
         self.value_type: str = 'str' if self.tag_property is not None else 'bool'
         self.is_view: bool = is_view
 
-    def get_wrapped_tag(self) -> str:
+    def get_wrapped_tags(self) -> Union[List[str], str]:
+        if isinstance(self.tag, list):
+            return [self.tag_wrap + '/' + tag for tag in self.tag]
         return self.tag_wrap + '/' + self.tag
-
-    def get_xml_property_name(self) -> str:
-        return self.get_wrapped_tag() + (('/' + self.tag_property) if self.tag_property is not None else '')
 
 
 class Property:

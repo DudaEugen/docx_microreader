@@ -42,6 +42,34 @@ class Parser:
             if key + ':' in tag:
                 return tag.replace(key + ':', '{' + namespaces[key] + '}')
 
+    def __find_property_element(self, description: PropertyDescription, ) -> Union[ET.Element, None]:
+        """
+        find element by propertyDescription
+        """
+        if isinstance(description.get_wrapped_tags(), list):
+            for tag in description.get_wrapped_tags():
+                result: Union[ET.Element, None] = self._element.find(tag, namespaces)
+                if result is not None:
+                    return result
+            return None
+        return self._element.find(description.get_wrapped_tags(), namespaces)
+
+    def __find_property(self, property_element: ET.Element, pr: PropertyDescription,
+                        tags: Union[List[str], str, None]) -> Union[Property, None]:
+        """
+        find property in element
+        """
+        if pr.value_type == 'str':
+            if isinstance(tags, list):
+                for tag_prop in tags:
+                    prop: Union[None, str] = property_element.get(self.__check_namespace(tag_prop))
+                    if prop is not None:
+                        return Property(prop, pr)
+                return None
+            else:
+                return Property(property_element.get(self.__check_namespace(tags)), pr)
+        return Property(True, pr)
+
     def _parse_element(self, element: ET.Element):
         from models import Document, Table, Paragraph
         tags = {
@@ -79,14 +107,9 @@ class Parser:
         result: Dict[str, Property] = {}
         for key in self._all_properties:
             pr: PropertyDescription = self._all_properties[key]
-            property_element: ET.Element = self._element.find(pr.get_wrapped_tag(), namespaces)
+            property_element: Union[ET.Element, None] = self.__find_property_element(pr)
             if property_element is not None:
-                if pr.value_type == 'str':
-                    result[key] = Property(
-                        property_element.get(self.__check_namespace(self._all_properties[key].tag_property)), pr
-                    )
-                else:
-                    result[key] = Property(True, pr)
+                result[key] = self.__find_property(property_element, pr, self._all_properties[key].tag_property)
             else:
                 if pr.value_type == 'str':
                     result[key] = Property(None, pr)
