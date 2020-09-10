@@ -55,7 +55,7 @@ class Parser:
         return self._element.find(description.get_wrapped_tags(), namespaces)
 
     def __find_property(self, property_element: ET.Element, pr: PropertyDescription,
-                        tags: Union[List[str], str, None]) -> Union[Property, None]:
+                        tags: Union[List[str], str, None]) -> Property:
         """
         find property in element
         """
@@ -65,7 +65,7 @@ class Parser:
                     prop: Union[None, str] = property_element.get(self.__check_namespace(tag_prop))
                     if prop is not None:
                         return Property(prop, pr)
-                return None
+                return Property(None, pr)
             else:
                 return Property(property_element.get(self.__check_namespace(tags)), pr)
         return Property(True, pr)
