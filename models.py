@@ -8,8 +8,8 @@ class Paragraph(XMLement):
     tag: str = 'w:p'
     _all_properties = {
         'align': PropertyDescription('w:pPr', 'w:jc', 'w:val', True),
-        'indent_left': PropertyDescription('w:pPr', 'w:ind', 'w:left', True),
-        'indent_right': PropertyDescription('w:pPr', 'w:ind', 'w:right', True),
+        'indent_left': PropertyDescription('w:pPr', 'w:ind', ['w:left', 'w:start'], True),
+        'indent_right': PropertyDescription('w:pPr', 'w:ind', ['w:right', 'w:end'], True),
         'hanging': PropertyDescription('w:pPr', 'w:ind', 'w:hanging', True),
         'first_line': PropertyDescription('w:pPr', 'w:ind', 'w:firstLine', True),
         'keep_lines': PropertyDescription('w:pPr', 'w:keepLines', None, True),
@@ -31,6 +31,13 @@ class Paragraph(XMLement):
         'border_left_color': PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:color', True),
         'border_left_size': PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:sz', True),
         'border_left_space': PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:space', True),
+    }
+    _properties_unificators = {
+        'align': [('left', ['start']),
+                  ('right', ['end']),
+                  ('center', []),
+                  ('both', []),
+                  ('distribute', [])]
     }
     from translators import ParagraphTranslatorToHTML
     translators = {
@@ -302,22 +309,27 @@ class Table(XMLement):
         'border_bottom': PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:val', True),
         'border_bottom_color': PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:color', True),
         'border_bottom_size': PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:sz', True),
-        'border_right': PropertyDescription('w:tblPr/w:tblBorders', 'w:right', 'w:val', True),
-        'border_right_color': PropertyDescription('w:tblPr/w:tblBorders', 'w:right', 'w:color', True),
-        'border_right_size': PropertyDescription('w:tblPr/w:tblBorders', 'w:right', 'w:sz', True),
-        'border_left': PropertyDescription('w:tblPr/w:tblBorders', 'w:left', 'w:val', True),
-        'border_left_color': PropertyDescription('w:tblPr/w:tblBorders', 'w:left', 'w:color', True),
-        'border_left_size': PropertyDescription('w:tblPr/w:tblBorders', 'w:left', 'w:sz', True),
+        'border_right': PropertyDescription('w:tblPr/w:tblBorders', ['w:right', 'w:end'], 'w:val', True),
+        'border_right_color': PropertyDescription('w:tblPr/w:tblBorders',  ['w:right', 'w:end'], 'w:color', True),
+        'border_right_size': PropertyDescription('w:tblPr/w:tblBorders',  ['w:right', 'w:end'], 'w:sz', True),
+        'border_left': PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:val', True),
+        'border_left_color': PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:color', True),
+        'border_left_size': PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:sz', True),
         'cell_margin_top': PropertyDescription('w:tblPr/w:tblCellMar', 'w:top', 'w:w', True),
         'cell_margin_top_type': PropertyDescription('w:tblPr/w:tblCellMar', 'w:top', 'w:type', True),
-        'cell_margin_left': PropertyDescription('w:tblPr/w:tblCellMar', 'w:left', 'w:w', True),
-        'cell_margin_left_type': PropertyDescription('w:tblPr/w:tblCellMar', 'w:left', 'w:type', True),
+        'cell_margin_left': PropertyDescription('w:tblPr/w:tblCellMar', ['w:left', 'w:start'], 'w:w', True),
+        'cell_margin_left_type': PropertyDescription('w:tblPr/w:tblCellMar', ['w:left', 'w:start'], 'w:type', True),
         'cell_margin_bottom': PropertyDescription('w:tblPr/w:tblCellMar', 'w:bottom', 'w:w', True),
         'cell_margin_bottom_type': PropertyDescription('w:tblPr/w:tblCellMar', 'w:bottom', 'w:type', True),
-        'cell_margin_right': PropertyDescription('w:tblPr/w:tblCellMar', 'w:right', 'w:w', True),
-        'cell_margin_right_type': PropertyDescription('w:tblPr/w:tblCellMar', 'w:right', 'w:type', True),
-        'indentation': PropertyDescription('w:tblPr', 'w:tblInd', 'w:w', True),
+        'cell_margin_right': PropertyDescription('w:tblPr/w:tblCellMar', ['w:right', 'w:end'], 'w:w', True),
+        'cell_margin_right_type': PropertyDescription('w:tblPr/w:tblCellMar', ['w:right', 'w:end'], 'w:type', True),
+        'indentation': PropertyDescription('w:tblPr', 'w:tblInd', ['w:w', 'w:val'], True),
         'indentation_type': PropertyDescription('w:tblPr', 'w:tblInd', 'w:type', True),
+    }
+    _properties_unificators = {
+        'align': [('left', ['start']),
+                  ('right', ['end']),
+                  ('center', [])]
     }
     '''
     all_style_properties = {
@@ -581,12 +593,12 @@ class Table(XMLement):
                 'border_bottom': PropertyDescription('w:tcPr/w:tcBorders', 'w:bottom', 'w:val', True),
                 'border_bottom_color': PropertyDescription('w:tcPr/w:tcBorders', 'w:bottom', 'w:color', True),
                 'border_bottom_size': PropertyDescription('w:tcPr/w:tcBorders', 'w:bottom', 'w:sz', True),
-                'border_right': PropertyDescription('w:tcPr/w:tcBorders', 'w:right', 'w:val', True),
-                'border_right_color': PropertyDescription('w:tcPr/w:tcBorders', 'w:right', 'w:color', True),
-                'border_right_size': PropertyDescription('w:tcPr/w:tcBorders', 'w:right', 'w:sz', True),
-                'border_left': PropertyDescription('w:tcPr/w:tcBorders', 'w:left', 'w:val', True),
-                'border_left_color': PropertyDescription('w:tcPr/w:tcBorders', 'w:left', 'w:color', True),
-                'border_left_size': PropertyDescription('w:tcPr/w:tcBorders', 'w:left', 'w:sz', True),
+                'border_right': PropertyDescription('w:tcPr/w:tcBorders', ['w:right', 'w:end'], 'w:val', True),
+                'border_right_color': PropertyDescription('w:tcPr/w:tcBorders', ['w:right', 'w:end'], 'w:color', True),
+                'border_right_size': PropertyDescription('w:tcPr/w:tcBorders', ['w:right', 'w:end'], 'w:sz', True),
+                'border_left': PropertyDescription('w:tcPr/w:tcBorders', ['w:left', 'w:start'], 'w:val', True),
+                'border_left_color': PropertyDescription('w:tcPr/w:tcBorders', ['w:left', 'w:start'], 'w:color', True),
+                'border_left_size': PropertyDescription('w:tcPr/w:tcBorders', ['w:left', 'w:start'], 'w:sz', True),
                 'width': PropertyDescription('w:tcPr', 'w:tcW', 'w:w', True),
                 'width_type': PropertyDescription('w:tcPr', 'w:tcW', 'w:type', True),
                 'col_span': PropertyDescription('w:tcPr', 'w:gridSpan', 'w:val', True),
@@ -598,10 +610,10 @@ class Table(XMLement):
                 'margin_top_type': PropertyDescription('w:tcPr/w:tcMar', 'w:top', 'w:type', True),
                 'margin_bottom': PropertyDescription('w:tcPr/w:tcMar', 'w:bottom', 'w:w', True),
                 'margin_bottom_type': PropertyDescription('w:tcPr/w:tcMar', 'w:bottom', 'w:type', True),
-                'margin_left': PropertyDescription('w:tcPr/w:tcMar', 'w:left', 'w:w', True),
-                'margin_left_type': PropertyDescription('w:tcPr/w:tcMar', 'w:left', 'w:type', True),
-                'margin_right': PropertyDescription('w:tcPr/w:tcMar', 'w:right', 'w:w', True),
-                'margin_right_type': PropertyDescription('w:tcPr/w:tcMar', 'w:right', 'w:type', True)
+                'margin_left': PropertyDescription('w:tcPr/w:tcMar', ['w:left', 'w:start'], 'w:w', True),
+                'margin_left_type': PropertyDescription('w:tcPr/w:tcMar', ['w:left', 'w:start'], 'w:type', True),
+                'margin_right': PropertyDescription('w:tcPr/w:tcMar', ['w:right', 'w:end'], 'w:w', True),
+                'margin_right_type': PropertyDescription('w:tcPr/w:tcMar', ['w:right', 'w:end'], 'w:type', True)
             }
             from translators import CellTranslatorToHTML
             translators = {

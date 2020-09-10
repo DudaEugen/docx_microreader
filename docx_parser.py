@@ -170,7 +170,7 @@ class XMLement(Parser):
     # first element of Tuple is correct variant of property value; second element is variants of this value
     # _properties_validate method set correct variant if find value equal of one of variant
     # if value of property not equal one of variants or correct variant set None
-    _properties_validators: Dict[str, List[Tuple[str, List[str]]]] = {}
+    _properties_unificators: Dict[str, List[Tuple[str, List[str]]]] = {}
 
     def _init(self):
         pass
@@ -180,23 +180,23 @@ class XMLement(Parser):
         super(XMLement, self).__init__(element)
         self._init()
         self._properties: Dict[str, Property] = self._parse_properties()
-        self._properties_validate()
+        self._properties_unificate()
         self._remove_raw_xml()
 
     def __str__(self):
         return self.translators[self.str_format].translate(self)
 
-    def _properties_validate(self):
+    def _properties_unificate(self):
         """
         first element of _properties_validators[key] is correct variant of property value;
         second element is variants of this value
         set correct variant if find value equal of one of variant
         if value of property not equal one of variants or correct variant set None
         """
-        for key in self._properties_validators:
+        for key in self._properties_unificators:
             if key in self._properties:
                 is_finding_value: bool = False
-                for correct_value, variants in self._properties_validators[key]:
+                for correct_value, variants in self._properties_unificators[key]:
                     if self._properties[key].value == correct_value:
                         is_finding_value = True
                         break
