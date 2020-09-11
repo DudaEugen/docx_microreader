@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 from namespaces import namespaces
 from typing import Dict, Union, List, Tuple
 import re
-from propepty_models import PropertyDescription, Property
+from properties import PropertyDescription, Property, create_properties_dict
 
 
 """
@@ -179,6 +179,7 @@ class XMLement(Parser):
         self.parent: Union[XMLement, None] = parent
         super(XMLement, self).__init__(element)
         self._init()
+        self._all_properties = create_properties_dict(self)
         self._properties: Dict[str, Property] = self._parse_properties()
         self._properties_unificate()
         self._remove_raw_xml()

@@ -1,4 +1,4 @@
-from propepty_models import Property
+from properties import Property
 from typing import Dict, Callable, List, Tuple, Union
 
 
