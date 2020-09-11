@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as ET
 from namespaces import namespaces
-from typing import Dict, Tuple, Union, List
+from typing import Dict, Union, List, Tuple
 import re
-from propepty_models import PropertyDescription, Property
+from properties import PropertyDescription, Property, create_properties_dict
 
 
 """
@@ -42,6 +42,34 @@ class Parser:
             if key + ':' in tag:
                 return tag.replace(key + ':', '{' + namespaces[key] + '}')
 
+    def __find_property_element(self, description: PropertyDescription) -> Union[ET.Element, None]:
+        """
+        find element by propertyDescription
+        """
+        if isinstance(description.get_wrapped_tags(), list):
+            for tag in description.get_wrapped_tags():
+                result: Union[ET.Element, None] = self._element.find(tag, namespaces)
+                if result is not None:
+                    return result
+            return None
+        return self._element.find(description.get_wrapped_tags(), namespaces)
+
+    def __find_property(self, property_element: ET.Element, pr: PropertyDescription,
+                        tags: Union[List[str], str, None]) -> Property:
+        """
+        find property in element
+        """
+        if pr.value_type == 'str':
+            if isinstance(tags, list):
+                for tag_prop in tags:
+                    prop: Union[None, str] = property_element.get(self.__check_namespace(tag_prop))
+                    if prop is not None:
+                        return Property(prop, pr)
+                return Property(None, pr)
+            else:
+                return Property(property_element.get(self.__check_namespace(tags)), pr)
+        return Property(True, pr)
+
     def _parse_element(self, element: ET.Element):
         from models import Document, Table, Paragraph
         tags = {
@@ -79,14 +107,9 @@ class Parser:
         result: Dict[str, Property] = {}
         for key in self._all_properties:
             pr: PropertyDescription = self._all_properties[key]
-            property_element: ET.Element = self._element.find(pr.get_wrapped_tag(), namespaces)
+            property_element: Union[ET.Element, None] = self.__find_property_element(pr)
             if property_element is not None:
-                if pr.value_type == 'str':
-                    result[key] = Property(
-                        property_element.get(self.__check_namespace(self._all_properties[key].tag_property)), pr
-                    )
-                else:
-                    result[key] = Property(True, pr)
+                result[key] = self.__find_property(property_element, pr, self._all_properties[key].tag_property)
             else:
                 if pr.value_type == 'str':
                     result[key] = Property(None, pr)
@@ -144,6 +167,11 @@ class XMLement(Parser):
     _is_unique: bool = False   # True if parent can containing only one this element
     # all_style_properties: Dict[str, Tuple[str, Union[str, None], bool]] = {}
 
+    # first element of Tuple is correct variant of property value; second element is variants of this value
+    # _properties_validate method set correct variant if find value equal of one of variant
+    # if value of property not equal one of variants or correct variant set None
+    _properties_unificators: Dict[str, List[Tuple[str, List[str]]]] = {}
+
     def _init(self):
         pass
 
@@ -151,11 +179,38 @@ class XMLement(Parser):
         self.parent: Union[XMLement, None] = parent
         super(XMLement, self).__init__(element)
         self._init()
+        self._all_properties = create_properties_dict(self)
         self._properties: Dict[str, Property] = self._parse_properties()
+        self._properties_unificate()
         self._remove_raw_xml()
 
     def __str__(self):
         return self.translators[self.str_format].translate(self)
+
+    def _properties_unificate(self):
+        """
+        first element of _properties_validators[key] is correct variant of property value;
+        second element is variants of this value
+        set correct variant if find value equal of one of variant
+        if value of property not equal one of variants or correct variant set None
+        """
+        for key in self._properties_unificators:
+            if key in self._properties:
+                is_finding_value: bool = False
+                for correct_value, variants in self._properties_unificators[key]:
+                    if self._properties[key].value == correct_value:
+                        is_finding_value = True
+                        break
+                    else:
+                        for variant in variants:
+                            if self._properties[key].value == variant:
+                                self._properties[key].value = correct_value
+                                is_finding_value = True
+                                break
+                if not is_finding_value:
+                    self._properties[key].value = None
+            else:
+                raise KeyError(f'not found key "{key}" from _properties_validators in _all_properties')
 
     def get_inner_text(self) -> Union[str, None]:
         return None
