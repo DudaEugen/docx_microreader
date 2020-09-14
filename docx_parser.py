@@ -2,7 +2,8 @@ import xml.etree.ElementTree as ET
 from namespaces import namespaces
 from typing import Dict, Union, List, Tuple, Callable
 import re
-from properties import PropertyDescription, Property, XMLementPropertyDescriptions
+from properties import PropertyDescription, Property
+from constants import get_properties_dict
 
 
 """
@@ -168,7 +169,7 @@ class XMLement(Parser):
     # all_style_properties: Dict[str, Tuple[str, Union[str, None], bool]] = {}
 
     # function that return Dict of property descriptions
-    _property_descriptions_getter: Callable = XMLementPropertyDescriptions.get_properties_dict
+    _property_descriptions_getter: Callable = get_properties_dict
 
     # first element of Tuple is correct variant of property value; second element is variants of this value
     # _properties_validate method set correct variant if find value equal of one of variant
