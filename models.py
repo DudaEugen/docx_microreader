@@ -344,7 +344,8 @@ class Table(XMLement):
 
     def __set_margins_for_cells(self):
         for direction in PDs.Const_directions:
-            if self._is_have_viewing_property(rf'{PDs.Const_prefixes["cell_margin"]}{PDs.Const_directions[direction]}'):
+            if self._is_have_viewing_property(rf'{PDs.Const_prefixes["cell_margin"]}{PDs.Const_directions[direction]}' \
+                                              rf'{PDs.Const_property_names["type"]}'):
                 for row in self.rows:
                     for cell in row.cells:
                         if cell.get_property_value(rf'{PDs.Const_prefixes["margin"]}' \
@@ -363,7 +364,7 @@ class Table(XMLement):
     def __set_inside_borders(self):                                              # TO DO: testing this method
         for direction in PDs.Const_directions:
             d: str = 'horizontal' if (direction == 'top' or direction == 'bottom') else 'vertical'
-            if self._is_have_viewing_property(rf'borders_inside_{d}'):
+            if self._is_have_viewing_property(rf'borders_inside_{d}{PDs.Const_property_names["type"]}'):
                 for i in range(len(self.rows)):
                     for j in range(len(self.rows[i].cells)):
                         if not (i == 0 and direction == 'top') and \
@@ -381,10 +382,12 @@ class Table(XMLement):
                                                      rf'_{d}{PDs.Const_property_names["color"]}'].value
                                 )
                             if self.rows[i].cells[j].get_property_value(rf'{PDs.Const_prefixes["border"]}' \
-                                                                        rf'{PDs.Const_directions[direction]}') is None:
+                                                                        rf'{PDs.Const_directions[direction]}' \
+                                                                        rf'{PDs.Const_property_names["type"]}') is None:
                                 self.rows[i].cells[j].set_property_value(
-                                    rf'{PDs.Const_prefixes["border"]}_{direction}',
-                                    self._properties[rf'{PDs.Const_prefixes["borders_inside"]}_{d}'].value
+                                    rf'{PDs.Const_prefixes["border"]}_{direction}{PDs.Const_property_names["type"]}',
+                                    self._properties[rf'{PDs.Const_prefixes["borders_inside"]}_{d}' 
+                                                     rf'{PDs.Const_property_names["type"]}'].value
                                 )
                                 self.rows[i].cells[j].set_property_value(
                                     rf'{PDs.Const_prefixes["border"]}_{direction}{PDs.Const_property_names["size"]}',

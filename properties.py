@@ -37,7 +37,7 @@ class XMLementPropertyDescriptions:
         'color': '_color',
         'size': '_size',
         'space': '_space',
-        'type': '',
+        'type': '_type',
     }
     Const_prefixes: Dict[str, str] = {
         'margin': 'margin',
