@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as ET
 from namespaces import namespaces
-from typing import Dict, Union, List, Tuple
+from typing import Dict, Union, List, Tuple, Callable
 import re
-from properties import PropertyDescription, Property, create_properties_dict
+from properties import PropertyDescription, Property, XMLementPropertyDescriptions
 
 
 """
@@ -167,6 +167,9 @@ class XMLement(Parser):
     _is_unique: bool = False   # True if parent can containing only one this element
     # all_style_properties: Dict[str, Tuple[str, Union[str, None], bool]] = {}
 
+    # function that return Dict of property descriptions
+    _property_descriptions_getter: Callable = XMLementPropertyDescriptions.get_properties_dict
+
     # first element of Tuple is correct variant of property value; second element is variants of this value
     # _properties_validate method set correct variant if find value equal of one of variant
     # if value of property not equal one of variants or correct variant set None
@@ -179,7 +182,7 @@ class XMLement(Parser):
         self.parent: Union[XMLement, None] = parent
         super(XMLement, self).__init__(element)
         self._init()
-        self._all_properties = create_properties_dict(self)
+        self._all_properties = XMLement._property_descriptions_getter(self)
         self._properties: Dict[str, Property] = self._parse_properties()
         self._properties_unificate()
         self._remove_raw_xml()

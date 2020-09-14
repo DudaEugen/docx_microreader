@@ -26,8 +26,8 @@ class Property:
         return self.description.is_view and (self.value is not None and self.value is not False)
 
 
-def create_paragraph_properties_dict() -> Dict[str, PropertyDescription]:
-    return {
+class XMLementPropertyDescriptions:
+    paragraph_property_descriptions: Dict[str, PropertyDescription] = {
         'align': PropertyDescription('w:pPr', 'w:jc', 'w:val', True),
         'indent_left': PropertyDescription('w:pPr', 'w:ind', ['w:left', 'w:start'], True),
         'indent_right': PropertyDescription('w:pPr', 'w:ind', ['w:right', 'w:end'], True),
@@ -54,9 +54,7 @@ def create_paragraph_properties_dict() -> Dict[str, PropertyDescription]:
         'border_left_space': PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:space', True),
     }
 
-
-def create_run_properties_dict() -> Dict[str, PropertyDescription]:
-    return {
+    run_property_descriptions: Dict[str, PropertyDescription] = {
             'size': PropertyDescription('w:rPr', 'w:sz', 'w:val', True),
             'is_bold': PropertyDescription('w:rPr', 'w:b', None, True),
             'is_italic': PropertyDescription('w:rPr', 'w:i', None, True),
@@ -75,9 +73,7 @@ def create_run_properties_dict() -> Dict[str, PropertyDescription]:
             'border_space': PropertyDescription('w:rPr', 'w:bdr', 'w:space', True),
         }
 
-
-def create_table_properties_dict() -> Dict[str, PropertyDescription]:
-    return {
+    table_property_descriptions: Dict[str, PropertyDescription] = {
         'layout': PropertyDescription('w:tblPr', 'w:tblLayout', 'w:type', True),
         'width': PropertyDescription('w:tblPr', 'w:tblW', 'w:w', True),
         'width_type': PropertyDescription('w:tblPr', 'w:tblW', 'w:type', True),
@@ -112,17 +108,13 @@ def create_table_properties_dict() -> Dict[str, PropertyDescription]:
         'indentation_type': PropertyDescription('w:tblPr', 'w:tblInd', 'w:type', True),
     }
 
-
-def create_row_properties_dict() -> Dict[str, PropertyDescription]:
-    return {
+    row_property_descriptions: Dict[str, PropertyDescription] = {
         'is_header': PropertyDescription('w:trPr', 'w:tblHeader', None, True),
         'height': PropertyDescription('w:trPr', 'w:trHeight', 'w:val', True),
         'height_rule': PropertyDescription('w:trPr', 'w:trHeight', 'w:hRule', True),
     }
 
-
-def create_cell_properties_dict() -> Dict[str, PropertyDescription]:
-    return {
+    cell_property_descriptions: Dict[str, PropertyDescription] = {
         'fill_color': PropertyDescription('w:tcPr', 'w:shd', 'w:fill', True),
         'fill_theme': PropertyDescription('w:tcPr', 'w:shd', 'w:themeFill', True),
         'border_top': PropertyDescription('w:tcPr/w:tcBorders', 'w:top', 'w:val', True),
@@ -154,26 +146,46 @@ def create_cell_properties_dict() -> Dict[str, PropertyDescription]:
         'margin_right_type': PropertyDescription('w:tcPr/w:tcMar', ['w:right', 'w:end'], 'w:type', True)
     }
 
+    @staticmethod
+    def get_paragraph_properties_dict() -> Dict[str, PropertyDescription]:
+        return XMLementPropertyDescriptions.paragraph_property_descriptions
 
-def empty_properties_dict() -> Dict[str, PropertyDescription]:
-    return {}
+    @staticmethod
+    def get_run_properties_dict() -> Dict[str, PropertyDescription]:
+        return XMLementPropertyDescriptions.run_property_descriptions
 
+    @staticmethod
+    def get_table_properties_dict() -> Dict[str, PropertyDescription]:
+        return XMLementPropertyDescriptions.table_property_descriptions
 
-def create_properties_dict(ob) -> Dict[str, PropertyDescription]:
-    from models import Paragraph, Table, Document
-    if isinstance(ob, Paragraph):
-        return create_paragraph_properties_dict()
-    elif isinstance(ob, Paragraph.Run):
-        return create_run_properties_dict()
-    elif isinstance(ob, Paragraph.Run.Text):
-        return empty_properties_dict()
-    elif isinstance(ob, Table):
-        return create_table_properties_dict()
-    elif isinstance(ob, Table.Row):
-        return create_row_properties_dict()
-    elif isinstance(ob, Table.Row.Cell):
-        return create_cell_properties_dict()
-    elif isinstance(ob, Document) or isinstance(ob, Document.Body):
-        return empty_properties_dict()
+    @staticmethod
+    def get_row_properties_dict() -> Dict[str, PropertyDescription]:
+        return XMLementPropertyDescriptions.row_property_descriptions
 
-    raise ValueError('argument in create properties dict function is mistake')
+    @staticmethod
+    def get_cell_properties_dict() -> Dict[str, PropertyDescription]:
+        return XMLementPropertyDescriptions.cell_property_descriptions
+
+    @staticmethod
+    def empty_properties_dict() -> Dict[str, PropertyDescription]:
+        return {}
+
+    @staticmethod
+    def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
+        from models import Paragraph, Table, Document
+        if isinstance(ob, Paragraph):
+            return XMLementPropertyDescriptions.get_paragraph_properties_dict()
+        elif isinstance(ob, Paragraph.Run):
+            return XMLementPropertyDescriptions.get_run_properties_dict()
+        elif isinstance(ob, Paragraph.Run.Text):
+            return XMLementPropertyDescriptions.empty_properties_dict()
+        elif isinstance(ob, Table):
+            return XMLementPropertyDescriptions.get_table_properties_dict()
+        elif isinstance(ob, Table.Row):
+            return XMLementPropertyDescriptions.get_row_properties_dict()
+        elif isinstance(ob, Table.Row.Cell):
+            return XMLementPropertyDescriptions.get_cell_properties_dict()
+        elif isinstance(ob, Document) or isinstance(ob, Document.Body):
+            return XMLementPropertyDescriptions.empty_properties_dict()
+
+        raise ValueError('argument in create properties dict function is mistake')
