@@ -586,7 +586,7 @@ class Document(XMLement):
     def __init__(self, path: str):
         self.__path: str = path
         self.body: Document.Body
-        super(Document, self).__init__(Parser.get_xml_file(self, 'document'), None)
+        super(Document, self).__init__(Parser.get_xml_file(self.__path, 'document'), None)
         # self._parse_styles(self._get_xml_file('styles'), [Table])
 
     def _init(self):
@@ -597,6 +597,3 @@ class Document(XMLement):
 
     def get_inner_text(self) -> Union[str, None]:
         return str(self.body)
-
-    def get_path(self) -> str:
-        return self.__path

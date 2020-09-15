@@ -28,12 +28,17 @@ class Parser:
         del self._element
 
     @staticmethod
-    def get_xml_file(doc, file_name: str) -> ET.Element:
+    def get_xml_file(path: str, file_name: str) -> ET.Element:
+        """
+        :param path: path to document (include name of document)
+        :param file_name: name of xml file in document in directory word
+        :return: ElementTree of xml file
+        """
         import xml.dom.minidom
         import zipfile
 
         raw_xml: Union[str, None] = xml.dom.minidom.parseString(
-            zipfile.ZipFile(doc.get_path()).read(rf'word/{file_name}.xml')
+            zipfile.ZipFile(path).read(rf'word/{file_name}.xml')
         ).toprettyxml()
         return ET.fromstring(raw_xml)
 
