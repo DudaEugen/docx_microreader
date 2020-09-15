@@ -3,6 +3,7 @@ from docx_parser import Parser, XMLement, XMLcontainer
 from typing import Union, List, Tuple
 from properties import Property
 from constants import *
+from styles import *
 
 
 class Paragraph(XMLement):
@@ -251,36 +252,6 @@ class Table(XMLement):
                     ('right', ['end']),
                     ('center', [])]
     }
-    '''
-    all_style_properties = {
-        'borders_inside_horizontal': ('w:tblPr/w:tblBorders/w:insideH', 'w:val', True),
-        'borders_inside_horizontal_color': ('w:tblPr/w:tblBorders/w:insideH', 'w:color', True),
-        'borders_inside_horizontal_size': ('w:tblPr/w:tblBorders/w:insideH', 'w:size', True),
-        'borders_inside_vertical': ('w:tblPr/w:tblBorders/w:insideH', 'w:val', True),
-        'borders_inside_vertical_color': ('w:tblPr/w:tblBorders/w:insideH', 'w:color', True),
-        'borders_inside_vertical_size': ('w:tblPr/w:tblBorders/w:insideH', 'w:size', True),
-        'border_top': ('w:tblPr/w:tblBorders/w:top', 'w:val', True),
-        'border_top_color': ('w:tblPr/w:tblBorders/w:top', 'w:color', True),
-        'border_top_size': ('w:tblPr/w:tblBorders/w:top', 'w:sz', True),
-        'border_bottom': ('w:tblPr/w:tblBorders/w:bottom', 'w:val', True),
-        'border_bottom_color': ('w:tblPr/w:tblBorders/w:bottom', 'w:color', True),
-        'border_bottom_size': ('w:tblPr/w:tblBorders/w:bottom', 'w:sz', True),
-        'border_right': ('w:tblPr/w:tblBorders/w:right', 'w:val', True),
-        'border_right_color': ('w:tblPr/w:tblBorders/w:right', 'w:color', True),
-        'border_right_size': ('w:tblPr/w:tblBorders/w:right', 'w:sz', True),
-        'border_left': ('w:tblPr/w:tblBorders/w:left', 'w:val', True),
-        'border_left_color': ('w:tblPr/w:tblBorders/w:left', 'w:color', True),
-        'border_left_size': ('w:tblPr/w:tblBorders/w:left', 'w:sz', True),
-        'cell_margin_top': ('w:tblPr/w:tblCellMar/w:top', 'w:w', True),
-        'cell_margin_top_type': ('w:tblPr/w:tblCellMar/w:top', 'w:type', True),
-        'cell_margin_left': ('w:tblPr/w:tblCellMar/w:left', 'w:w', True),
-        'cell_margin_left_type': ('w:tblPr/w:tblCellMar/w:left', 'w:type', True),
-        'cell_margin_bottom': ('w:tblPr/w:tblCellMar/w:bottom', 'w:w', True),
-        'cell_margin_bottom_type': ('w:tblPr/w:tblCellMar/w:bottom', 'w:type', True),
-        'cell_margin_right': ('w:tblPr/w:tblCellMar/w:right', 'w:w', True),
-        'cell_margin_right_type': ('w:tblPr/w:tblCellMar/w:right', 'w:type', True),
-    }
-    '''
     from translators import TableTranslatorToHTML
     translators = {
         'html': TableTranslatorToHTML(),
@@ -587,9 +558,10 @@ class Document(XMLement):
         self.__path: str = path
         self.body: Document.Body
         super(Document, self).__init__(Parser.get_xml_file(self.__path, 'document'), None)
-        # self._parse_styles(self._get_xml_file('styles'), [Table])
 
     def _init(self):
+        style_file: ET.Element = Parser.get_xml_file(self.__path, 'styles')
+        styles: list = self._get_styles(style_file)
         self.body: Document.Body = self._get_elements(Document.Body)
 
     def __str__(self):

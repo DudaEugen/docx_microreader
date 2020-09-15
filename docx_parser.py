@@ -6,18 +6,6 @@ from properties import PropertyDescription, Property
 from constants import get_properties_dict
 
 
-"""
-class Style:
-    def __init__(self, style_type: str, style_id: str, is_default: bool,
-                 style_dictionary: Dict[str, Union[str, bool, None]], base_style_id: Union[str, None]):
-        self.style_type: str = style_type
-        self.style_id: str = style_id
-        self.is_default: bool = is_default
-        self.dictionary: Dict[str, Union[str, bool, None]] = style_dictionary
-        self.base_style_id: Union[str, None] = base_style_id
-"""
-
-
 class Parser:
     _all_properties: Dict[str, PropertyDescription] = {}
 
@@ -78,7 +66,8 @@ class Parser:
 
     def _parse_element(self, element: ET.Element):
         from models import Document, Table, Paragraph
-        tags = {
+
+        tags: Dict[str, Callable] = {
             Parser.__check_namespace(Document.Body.tag): Document.Body,
             Parser.__check_namespace(Table.tag): Table,
             Parser.__check_namespace(Table.Row.tag): Table.Row,
@@ -89,6 +78,27 @@ class Parser:
         }
 
         return tags[element.tag](element, self) if element.tag in tags else None
+
+    def _get_styles(self, styles_file: ET.Element):
+        from styles import Style
+
+        result: list = []
+        for el in styles_file.findall('./' + Style.tag, namespaces):
+            elem = Parser.__parse_style(el, self)
+            if elem is not None:
+                result.append(elem)
+        return result
+
+    @staticmethod
+    def __parse_style(element: ET.Element, parent):
+        from styles import ParagraphStyle
+
+        types: Dict[str, Callable] = {
+            ParagraphStyle.type: ParagraphStyle,
+        }
+
+        t: str = element.get(Parser.__check_namespace('w:type'))
+        return types[t](element, parent) if t in types else None
 
     def _get_elements(self, class_of_element):
         if class_of_element._is_unique:
@@ -131,43 +141,12 @@ class Parser:
                 return '#' + color
         return color
 
-    """
-        @staticmethod
-        def _parse_styles(raw_styles: ET.Element, models) -> Dict[str, Style]:
-            result: Dict[str, Style] = {}
-            styles: List[ET.Element] = raw_styles.findall('./w:style', namespaces)
-            for style in styles:
-                style_type: str = style.get(Parser.__check_namespace('w:type'))
-                style_id: str = style.get(Parser.__check_namespace('w:styleId'))
-                is_default: bool = True if style.get(Parser.__check_namespace('w:default')) is not None else False
-                for model in models:
-                    if style_type == model.type:
-                        dictionary: Dict[str, Union[str, bool, None]] = {}
-                        for key in model.all_style_properties:
-                            st = style.find(model.all_style_properties[key][0], namespaces)
-                            if st is not None:
-                                if model.all_style_properties[key][1] is not None:
-                                    dictionary[key] = st.get(Parser.__check_namespace(model.all_style_properties[key][1]))
-                                else:
-                                    dictionary[key] = True
-                            else:
-                                if model.all_style_properties[key][1] is not None:
-                                    dictionary[key] = None
-                                else:
-                                    dictionary[key] = False
-                        base: Union[ET.Element, None] = style.find('w:basedOn', namespaces)
-                        base_style_id: Union[str, None] = base.get(Parser.__check_namespace('w:val')) \
-                            if base is not None else None
-                        result[style_id] = Style(style_type, style_id, is_default, dictionary, base_style_id)
-            return result
-    """
-
 
 class XMLement(Parser):
     from translators import TranslatorToHTML
 
     tag: str
-    type: str
+    type: str = ''
     translators = {}
     str_format: str = 'html'
     _is_unique: bool = False   # True if parent can containing only one this element
