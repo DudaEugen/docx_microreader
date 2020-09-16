@@ -17,9 +17,10 @@ class Parser:
 
     @staticmethod
     def _check_namespace(tag: str) -> str:
-        for key in namespaces:
-            if key + ':' in tag:
-                return tag.replace(key + ':', '{' + namespaces[key] + '}')
+        if ':' in tag:
+            key = re.split(':', tag)[0]
+            return tag.replace(key + ':', '{' + namespaces[key] + '}')
+        raise ValueError(rf"tag '{tag}' don't have namespace")
 
     def __find_property_element(self, description: PropertyDescription) -> Union[ET.Element, None]:
         """
