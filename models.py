@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from docx_parser import Parser, XMLement, XMLcontainer
+from docx_parser import Parser, XMLement, XMLcontainer, DocumentParser
 from typing import Union, List, Tuple
 from properties import Property
 from constants import *
@@ -545,7 +545,7 @@ class Table(XMLement):
                 self._properties[get_key('margin', direction, "type")].value = value_type
 
 
-class Document(XMLement):
+class Document(DocumentParser):
 
     class Body(XMLcontainer):
         tag: str = 'w:body'
@@ -557,10 +557,10 @@ class Document(XMLement):
     def __init__(self, path: str):
         self.__path: str = path
         self.body: Document.Body
-        super(Document, self).__init__(Parser.get_xml_file(self.__path, 'document'), None)
+        super(Document, self).__init__(DocumentParser.get_xml_file(self.__path, 'document'))
 
     def _init(self):
-        style_file: ET.Element = Parser.get_xml_file(self.__path, 'styles')
+        style_file: ET.Element = DocumentParser.get_xml_file(self.__path, 'styles')
         styles: list = self._get_styles(style_file)
         self.body: Document.Body = self._get_elements(Document.Body)
 

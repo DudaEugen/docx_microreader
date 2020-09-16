@@ -16,22 +16,7 @@ class Parser:
         del self._element
 
     @staticmethod
-    def get_xml_file(path: str, file_name: str) -> ET.Element:
-        """
-        :param path: path to document (include name of document)
-        :param file_name: name of xml file in document in directory word
-        :return: ElementTree of xml file
-        """
-        import xml.dom.minidom
-        import zipfile
-
-        raw_xml: Union[str, None] = xml.dom.minidom.parseString(
-            zipfile.ZipFile(path).read(rf'word/{file_name}.xml')
-        ).toprettyxml()
-        return ET.fromstring(raw_xml)
-
-    @staticmethod
-    def __check_namespace(tag: str) -> str:
+    def _check_namespace(tag: str) -> str:
         for key in namespaces:
             if key + ':' in tag:
                 return tag.replace(key + ':', '{' + namespaces[key] + '}')
@@ -56,49 +41,28 @@ class Parser:
         if pr.value_type == 'str':
             if isinstance(tags, list):
                 for tag_prop in tags:
-                    prop: Union[None, str] = property_element.get(self.__check_namespace(tag_prop))
+                    prop: Union[None, str] = property_element.get(self._check_namespace(tag_prop))
                     if prop is not None:
                         return Property(prop, pr)
                 return Property(None, pr)
             else:
-                return Property(property_element.get(self.__check_namespace(tags)), pr)
+                return Property(property_element.get(self._check_namespace(tags)), pr)
         return Property(True, pr)
 
     def _parse_element(self, element: ET.Element):
         from models import Document, Table, Paragraph
 
         tags: Dict[str, Callable] = {
-            Parser.__check_namespace(Document.Body.tag): Document.Body,
-            Parser.__check_namespace(Table.tag): Table,
-            Parser.__check_namespace(Table.Row.tag): Table.Row,
-            Parser.__check_namespace(Table.Row.Cell.tag): Table.Row.Cell,
-            Parser.__check_namespace(Paragraph.tag): Paragraph,
-            Parser.__check_namespace(Paragraph.Run.tag): Paragraph.Run,
-            Parser.__check_namespace(Paragraph.Run.Text.tag): Paragraph.Run.Text,
+            Parser._check_namespace(Document.Body.tag): Document.Body,
+            Parser._check_namespace(Table.tag): Table,
+            Parser._check_namespace(Table.Row.tag): Table.Row,
+            Parser._check_namespace(Table.Row.Cell.tag): Table.Row.Cell,
+            Parser._check_namespace(Paragraph.tag): Paragraph,
+            Parser._check_namespace(Paragraph.Run.tag): Paragraph.Run,
+            Parser._check_namespace(Paragraph.Run.Text.tag): Paragraph.Run.Text,
         }
 
         return tags[element.tag](element, self) if element.tag in tags else None
-
-    def _get_styles(self, styles_file: ET.Element):
-        from styles import Style
-
-        result: list = []
-        for el in styles_file.findall('./' + Style.tag, namespaces):
-            elem = Parser.__parse_style(el, self)
-            if elem is not None:
-                result.append(elem)
-        return result
-
-    @staticmethod
-    def __parse_style(element: ET.Element, parent):
-        from styles import ParagraphStyle
-
-        types: Dict[str, Callable] = {
-            ParagraphStyle.type: ParagraphStyle,
-        }
-
-        t: str = element.get(Parser.__check_namespace('w:type'))
-        return types[t](element, parent) if t in types else None
 
     def _get_elements(self, class_of_element):
         if class_of_element._is_unique:
@@ -140,6 +104,53 @@ class Parser:
             if color == match.group(0):
                 return '#' + color
         return color
+
+
+class DocumentParser(Parser):
+
+    def __init__(self, element: ET.Element):
+        super(DocumentParser, self).__init__(element)
+        self._init()
+        self._remove_raw_xml()
+
+    def _init(self):
+        pass
+
+    @staticmethod
+    def get_xml_file(path: str, file_name: str) -> ET.Element:
+        """
+        :param path: path to document (include name of document)
+        :param file_name: name of xml file in document in directory word
+        :return: ElementTree of xml file
+        """
+        import xml.dom.minidom
+        import zipfile
+
+        raw_xml: Union[str, None] = xml.dom.minidom.parseString(
+            zipfile.ZipFile(path).read(rf'word/{file_name}.xml')
+        ).toprettyxml()
+        return ET.fromstring(raw_xml)
+
+    @staticmethod
+    def __parse_style(element: ET.Element, parent):
+        from styles import ParagraphStyle
+
+        types: Dict[str, Callable] = {
+            ParagraphStyle.type: ParagraphStyle,
+        }
+
+        t: str = element.get(Parser._check_namespace('w:type'))
+        return types[t](element, parent) if t in types else None
+
+    def _get_styles(self, styles_file: ET.Element):
+        from styles import Style
+
+        result: list = []
+        for el in styles_file.findall('./' + Style.tag, namespaces):
+            elem = DocumentParser.__parse_style(el, self)
+            if elem is not None:
+                result.append(elem)
+        return result
 
 
 class XMLement(Parser):

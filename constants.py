@@ -299,7 +299,7 @@ def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
         return get_row_properties_dict()
     elif isinstance(ob, Table.Row.Cell):
         return get_cell_properties_dict()
-    elif isinstance(ob, Document) or isinstance(ob, Document.Body):
+    elif isinstance(ob, Document.Body):
         return empty_properties_dict()
     elif isinstance(ob, ParagraphStyle):
         return empty_properties_dict()
