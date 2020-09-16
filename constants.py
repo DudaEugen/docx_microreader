@@ -285,23 +285,23 @@ def empty_properties_dict() -> Dict[str, PropertyDescription]:
 
 def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
     from models import Paragraph, Table, Document
-    from models import ParagraphStyle
+    from models import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
 
-    if isinstance(ob, Paragraph):
+    if isinstance(ob, Paragraph) or isinstance(ob, ParagraphStyle):
         return get_paragraph_properties_dict()
-    elif isinstance(ob, Paragraph.Run):
+    elif isinstance(ob, Paragraph.Run) or isinstance(ob, CharacterStyle):
         return get_run_properties_dict()
     elif isinstance(ob, Paragraph.Run.Text):
         return empty_properties_dict()
-    elif isinstance(ob, Table):
-         return get_table_properties_dict()
+    elif isinstance(ob, Table) or isinstance(ob, TableStyle):
+        return get_table_properties_dict()
     elif isinstance(ob, Table.Row):
         return get_row_properties_dict()
     elif isinstance(ob, Table.Row.Cell):
         return get_cell_properties_dict()
     elif isinstance(ob, Document.Body):
         return empty_properties_dict()
-    elif isinstance(ob, ParagraphStyle):
+    elif isinstance(ob, NumberingStyle):
         return empty_properties_dict()
 
     raise ValueError('argument in create properties dict function is mistake')

@@ -134,10 +134,13 @@ class DocumentParser(Parser):
 
     @staticmethod
     def __parse_style(element: ET.Element, parent):
-        from styles import ParagraphStyle
+        from styles import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
 
         types: Dict[str, Callable] = {
             ParagraphStyle.type: ParagraphStyle,
+            CharacterStyle.type: CharacterStyle,
+            TableStyle.type: TableStyle,
+            NumberingStyle.type: NumberingStyle,
         }
 
         t: str = element.get(Parser._check_namespace('w:type'))
