@@ -7,7 +7,7 @@ from styles import *
 
 
 class Paragraph(XMLement):
-    tag: str = 'w:p'
+    tag: str = Par_tag
     _properties_unificators = {
         Par_align: [('left', ['start']),
                     ('right', ['end']),
@@ -102,7 +102,7 @@ class Paragraph(XMLement):
         self._properties[get_key('border', direction, property_name)].value = value
 
     class Run(XMLement):
-        tag: str = 'w:r'
+        tag: str = Run_tag
 
         from translators import RunTranslatorToHTML
         translators = {
@@ -222,7 +222,7 @@ class Paragraph(XMLement):
             self._properties[get_key('border', property_name=property_name)].value = value
 
         class Text(XMLement):
-            tag: str = 'w:t'
+            tag: str = Text_tag
             _is_unique = True
             from translators import TextTranslatorToHTML
             translators = {
@@ -246,7 +246,7 @@ class Paragraph(XMLement):
 
 
 class Table(XMLement):
-    tag: str = 'w:tbl'
+    tag: str = Tab_tag
     _properties_unificators = {
         Tab_align: [('left', ['start']),
                     ('right', ['end']),
@@ -416,7 +416,7 @@ class Table(XMLement):
         self._properties[get_key('cell_margin', direction, "type")].value = value_type
 
     class Row(XMLement):
-        tag: str = 'w:tr'
+        tag: str = Row_tag
         from translators import RowTranslatorToHTML
         translators = {
             'html': RowTranslatorToHTML(),
@@ -461,7 +461,7 @@ class Table(XMLement):
             self._properties[Row_height_rule].value = height_rule
 
         class Cell(XMLcontainer):
-            tag: str = 'w:tc'
+            tag: str = Cell_tag
             from translators import CellTranslatorToHTML
             translators = {
                 'html': CellTranslatorToHTML(),
@@ -548,7 +548,7 @@ class Table(XMLement):
 class Document(DocumentParser):
 
     class Body(XMLcontainer):
-        tag: str = 'w:body'
+        tag: str = Body_tag
         _is_unique = True
 
         def __str__(self):

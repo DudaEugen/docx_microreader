@@ -1,6 +1,23 @@
 from typing import Dict
 from properties import PropertyDescription
 
+# tags of classes constants
+Par_tag: str = 'w:p'
+Run_tag: str = 'w:r'
+Text_tag: str = 'w:t'
+Tab_tag: str = 'w:tbl'
+Row_tag: str = 'w:tr'
+Cell_tag: str = 'w:tc'
+Body_tag: str = 'w:body'
+Style_tag: str = 'w:style'
+
+# style types constants
+ParStyle_type: str = 'paragraph'
+NumStyle_type: str = 'numbering'
+CharStyle_type: str = 'character'
+TabStyle_type: str = 'table'
+
+# properties constants
 Const_directions: Dict[str, str] = {
     'top': '_top',
     'bottom': '_bottom',

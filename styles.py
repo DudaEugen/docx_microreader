@@ -1,21 +1,22 @@
 from docx_parser import XMLement
+from constants import *
 
 
 class Style(XMLement):
-    tag = 'w:style'
+    tag = Style_tag
 
 
 class ParagraphStyle(Style):
-    type = 'paragraph'
+    type = ParStyle_type
 
 
 class NumberingStyle(Style):
-    type = 'numbering'
+    type = NumStyle_type
 
 
 class CharacterStyle(Style):
-    type = 'character'
+    type = CharStyle_type
 
 
 class TableStyle(Style):
-    type = 'table'
+    type = TabStyle_type
