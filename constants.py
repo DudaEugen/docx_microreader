@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Tuple
 from properties import PropertyDescription
 
 # tags of classes constants
@@ -16,6 +16,19 @@ ParStyle_type: str = 'paragraph'
 NumStyle_type: str = 'numbering'
 CharStyle_type: str = 'character'
 TabStyle_type: str = 'table'
+
+# parameters of style
+StyleParam_type: str = 'type'
+StyleParam_id: str = 'id'
+StyleParam_is_default: str = 'is_default'
+StyleParam_is_custom: str = 'is_custom'
+
+Style_parameters: Dict[str, str] = {
+    StyleParam_type: 'w:type',
+    StyleParam_id: 'w:styleId',
+    StyleParam_is_default: 'w:default',
+    StyleParam_is_custom: 'w:customStyle',
+}
 
 # properties constants
 Const_directions: Dict[str, str] = {

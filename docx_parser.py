@@ -3,7 +3,7 @@ from namespaces import namespaces
 from typing import Dict, Union, List, Tuple, Callable
 import re
 from properties import PropertyDescription, Property
-from constants import get_properties_dict
+from constants import *
 
 
 class Parser:
@@ -143,8 +143,14 @@ class DocumentParser(Parser):
             NumberingStyle.type: NumberingStyle,
         }
 
-        t: str = element.get(Parser._check_namespace('w:type'))
-        return types[t](element, parent) if t in types else None
+        parameters: Tuple[str, str, bool, bool] = (
+            element.get(Parser._check_namespace(Style_parameters[StyleParam_type])),
+            element.get(Parser._check_namespace(Style_parameters[StyleParam_id])),
+            False if element.get(Parser._check_namespace(Style_parameters[StyleParam_is_default])) is None else True,
+            False if element.get(Parser._check_namespace(Style_parameters[StyleParam_is_custom])) is None else True,
+        )
+        return types[parameters[0]](element, parent, parameters[1],
+                                    parameters[2], parameters[3]) if parameters[0] in types else None
 
     def _get_styles(self, styles_file: ET.Element):
         from styles import Style
