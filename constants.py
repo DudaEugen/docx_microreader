@@ -17,6 +17,11 @@ NumStyle_type: str = 'numbering'
 CharStyle_type: str = 'character'
 TabStyle_type: str = 'table'
 
+ParStyle: str = 'paragraph_style'
+TabStyle: str = 'table_style'
+CharStyle: str = 'character_style'
+NumStyle: str = 'numbering_style'
+
 # parameters of style
 StyleParam_type: str = 'type'
 StyleParam_id: str = 'id'
@@ -169,7 +174,8 @@ Cell_margin_left_type: str = get_key('margin', 'left', 'type')
 Cell_margin_right: str = get_key('margin', 'right', 'size')
 Cell_margin_right_type: str = get_key('margin', 'right', 'type')
 
-paragraph_property_descriptions: Dict[str, PropertyDescription] = {
+# description of properties Paragraph and ParagraphStyle
+paragraph_style_property_description: Dict[str, PropertyDescription] = {
     Par_align: PropertyDescription('w:pPr', 'w:jc', 'w:val', True),
     Par_indent_left: PropertyDescription('w:pPr', 'w:ind', ['w:left', 'w:start'], True),
     Par_indent_right: PropertyDescription('w:pPr', 'w:ind', ['w:right', 'w:end'], True),
@@ -196,7 +202,13 @@ paragraph_property_descriptions: Dict[str, PropertyDescription] = {
     Par_border_left_space: PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:space', True),
 }
 
-run_property_descriptions: Dict[str, PropertyDescription] = {
+# description of properties Paragraph, but not ParagraphStyle
+paragraph_property_description: Dict[str, PropertyDescription] = {
+    ParStyle: PropertyDescription('w:pPr', 'w:pStyle', 'w:val', True),
+}
+
+# description of properties Run and RunStyle
+run_style_property_descriptions: Dict[str, PropertyDescription] = {
     Run_size: PropertyDescription('w:rPr', 'w:sz', 'w:val', True),
     Run_is_bold: PropertyDescription('w:rPr', 'w:b', None, True),
     Run_is_italic: PropertyDescription('w:rPr', 'w:i', None, True),
@@ -215,7 +227,13 @@ run_property_descriptions: Dict[str, PropertyDescription] = {
     Run_border_space: PropertyDescription('w:rPr', 'w:bdr', 'w:space', True),
 }
 
-table_property_descriptions: Dict[str, PropertyDescription] = {
+# description of properties Run, but not RunStyle
+run_property_descriptions: Dict[str, PropertyDescription] = {
+    CharStyle: PropertyDescription('w:rPr', 'w:rStyle', 'w:val', True),
+}
+
+# description of properties Table and TableStyle
+table_style_property_descriptions: Dict[str, PropertyDescription] = {
     Tab_layout: PropertyDescription('w:tblPr', 'w:tblLayout', 'w:type', True),
     Tab_width: PropertyDescription('w:tblPr', 'w:tblW', 'w:w', True),
     Tab_width_type: PropertyDescription('w:tblPr', 'w:tblW', 'w:type', True),
@@ -248,6 +266,11 @@ table_property_descriptions: Dict[str, PropertyDescription] = {
     Tab_cell_margin_right_type: PropertyDescription('w:tblPr/w:tblCellMar', ['w:right', 'w:end'], 'w:type', True),
     Tab_indentation: PropertyDescription('w:tblPr', 'w:tblInd', ['w:w', 'w:val'], True),
     Tab_indentation_type: PropertyDescription('w:tblPr', 'w:tblInd', 'w:type', True),
+}
+
+# description of properties Table, but not TableStyle
+table_property_descriptions: Dict[str, PropertyDescription] = {
+    TabStyle: PropertyDescription('w:tblPr', 'w:tblStyle', 'w:val', True),
 }
 
 row_property_descriptions: Dict[str, PropertyDescription] = {
@@ -289,49 +312,38 @@ cell_property_descriptions: Dict[str, PropertyDescription] = {
 }
 
 
-def get_paragraph_properties_dict() -> Dict[str, PropertyDescription]:
-    return paragraph_property_descriptions
-
-
-def get_run_properties_dict() -> Dict[str, PropertyDescription]:
-    return run_property_descriptions
-
-
-def get_table_properties_dict() -> Dict[str, PropertyDescription]:
-    return table_property_descriptions
-
-
-def get_row_properties_dict() -> Dict[str, PropertyDescription]:
-    return row_property_descriptions
-
-
-def get_cell_properties_dict() -> Dict[str, PropertyDescription]:
-    return cell_property_descriptions
-
-
-def empty_properties_dict() -> Dict[str, PropertyDescription]:
-    return {}
+def merge_dicts(*args) -> dict:
+    result = {}
+    for arg in args:
+        result.update(arg)
+    return result
 
 
 def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
     from models import Paragraph, Table, Document
     from models import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
 
-    if isinstance(ob, Paragraph) or isinstance(ob, ParagraphStyle):
-        return get_paragraph_properties_dict()
-    elif isinstance(ob, Paragraph.Run) or isinstance(ob, CharacterStyle):
-        return get_run_properties_dict()
+    if isinstance(ob, Paragraph):
+        return merge_dicts(paragraph_property_description, paragraph_style_property_description)
+    elif isinstance(ob, Paragraph.Run):
+        return merge_dicts(run_property_descriptions, run_style_property_descriptions)
     elif isinstance(ob, Paragraph.Run.Text):
-        return empty_properties_dict()
-    elif isinstance(ob, Table) or isinstance(ob, TableStyle):
-        return get_table_properties_dict()
+        return {}
+    elif isinstance(ob, Table):
+        return merge_dicts(table_property_descriptions, table_style_property_descriptions)
     elif isinstance(ob, Table.Row):
-        return get_row_properties_dict()
+        return row_property_descriptions
     elif isinstance(ob, Table.Row.Cell):
-        return get_cell_properties_dict()
+        return cell_property_descriptions
     elif isinstance(ob, Document.Body):
-        return empty_properties_dict()
+        return {}
     elif isinstance(ob, NumberingStyle):
-        return empty_properties_dict()
+        return {}
+    elif isinstance(ob, TableStyle):
+        return table_style_property_descriptions
+    elif isinstance(ob, CharacterStyle):
+        return run_style_property_descriptions
+    elif isinstance(ob, ParagraphStyle):
+        return paragraph_style_property_description
 
     raise ValueError('argument in create properties dict function is mistake')

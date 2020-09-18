@@ -565,3 +565,6 @@ class Document(DocumentParser):
 
     def get_inner_text(self) -> Union[str, None]:
         return str(self.body)
+
+    def _get_document(self):
+        return self

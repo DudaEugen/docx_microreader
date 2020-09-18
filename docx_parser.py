@@ -112,7 +112,7 @@ class DocumentParser(Parser):
     def __init__(self, path: str):
         self._path = path
         super(DocumentParser, self).__init__(self.get_xml_file('document'))
-        styles: list = self._get_styles(self.get_xml_file('styles'))
+        styles: list = self._parse_styles(self.get_xml_file('styles'))
         self._styles: dict = {style.id: style for style in styles}
 
     def get_xml_file(self, file_name: str) -> ET.Element:
@@ -148,7 +148,7 @@ class DocumentParser(Parser):
         return types[parameters[0]](element, parent, parameters[1],
                                     parameters[2], parameters[3]) if parameters[0] in types else None
 
-    def _get_styles(self, styles_file: ET.Element):
+    def _parse_styles(self, styles_file: ET.Element):
         from styles import Style
 
         result: list = []
@@ -157,6 +157,9 @@ class DocumentParser(Parser):
             if elem is not None:
                 result.append(elem)
         return result
+
+    def get_style(self, style_id: str):
+        return self._styles[style_id]
 
 
 class XMLement(Parser):
@@ -191,6 +194,9 @@ class XMLement(Parser):
 
     def __str__(self):
         return self.translators[self.str_format].translate(self)
+
+    def _get_document(self):
+        return self.parent._get_document()
 
     def _properties_unificate(self):
         """
@@ -240,6 +246,9 @@ class XMLement(Parser):
         return True if property is not None and this property is viewing
         """
         return self._properties[property_name].is_view_and_not_none()
+
+    def _get_style_from_document(self, style_id: str):
+        return self._get_document().get_style(style_id)
 
 
 class XMLcontainer(XMLement):
