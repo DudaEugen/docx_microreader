@@ -1,8 +1,6 @@
-import xml.etree.ElementTree as ET
-from docx_parser import Parser, XMLement, XMLcontainer, DocumentParser
-from typing import Union, List, Tuple
+from docx_parser import XMLcontainer, DocumentParser
+from typing import Union, List
 from properties import Property
-from constants import *
 from styles import *
 
 
@@ -15,7 +13,7 @@ class Paragraph(XMLement):
                     ('both', []),
                     ('distribute', [])]
     }
-    from translators import ParagraphTranslatorToHTML
+    from translators.html_translators import ParagraphTranslatorToHTML
     translators = {
         'html': ParagraphTranslatorToHTML(),
     }
@@ -104,7 +102,7 @@ class Paragraph(XMLement):
     class Run(XMLement):
         tag: str = Run_tag
 
-        from translators import RunTranslatorToHTML
+        from translators.html_translators import RunTranslatorToHTML
         translators = {
             'html': RunTranslatorToHTML(),
         }
@@ -224,7 +222,7 @@ class Paragraph(XMLement):
         class Text(XMLement):
             tag: str = Text_tag
             _is_unique = True
-            from translators import TextTranslatorToHTML
+            from translators.html_translators import TextTranslatorToHTML
             translators = {
                 'html': TextTranslatorToHTML(),
             }
@@ -252,7 +250,7 @@ class Table(XMLement):
                     ('right', ['end']),
                     ('center', [])]
     }
-    from translators import TableTranslatorToHTML
+    from translators.html_translators import TableTranslatorToHTML
     translators = {
         'html': TableTranslatorToHTML(),
     }
@@ -417,7 +415,7 @@ class Table(XMLement):
 
     class Row(XMLement):
         tag: str = Row_tag
-        from translators import RowTranslatorToHTML
+        from translators.html_translators import RowTranslatorToHTML
         translators = {
             'html': RowTranslatorToHTML(),
         }
@@ -462,7 +460,7 @@ class Table(XMLement):
 
         class Cell(XMLcontainer):
             tag: str = Cell_tag
-            from translators import CellTranslatorToHTML
+            from translators.html_translators import CellTranslatorToHTML
             translators = {
                 'html': CellTranslatorToHTML(),
             }

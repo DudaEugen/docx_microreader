@@ -1,6 +1,6 @@
 from docx_parser import XMLement
 import xml.etree.ElementTree as ET
-from constants import *
+from constants.properties_consts import *
 
 
 class Style(XMLement):

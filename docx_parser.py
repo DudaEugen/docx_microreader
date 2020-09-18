@@ -1,9 +1,9 @@
 import xml.etree.ElementTree as ET
 from namespaces import namespaces
-from typing import Dict, Union, List, Tuple, Callable
+from typing import Union, List, Callable
 import re
-from properties import PropertyDescription, Property
-from constants import *
+from properties import Property
+from constants.properties_consts import *
 
 
 class Parser:
@@ -163,8 +163,6 @@ class DocumentParser(Parser):
 
 
 class XMLement(Parser):
-    from translators import TranslatorToHTML
-
     tag: str
     type: str = ''
     translators = {}
