@@ -555,14 +555,10 @@ class Document(DocumentParser):
             return self.get_inner_text()
 
     def __init__(self, path: str):
-        self.__path: str = path
         self.body: Document.Body
-        super(Document, self).__init__(DocumentParser.get_xml_file(self.__path, 'document'))
-
-    def _init(self):
-        style_file: ET.Element = DocumentParser.get_xml_file(self.__path, 'styles')
-        styles: list = self._get_styles(style_file)
+        super(Document, self).__init__(path)
         self.body: Document.Body = self._get_elements(Document.Body)
+        self._remove_raw_xml()
 
     def __str__(self):
         return str(self.body)

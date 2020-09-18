@@ -109,18 +109,14 @@ class Parser:
 
 class DocumentParser(Parser):
 
-    def __init__(self, element: ET.Element):
-        super(DocumentParser, self).__init__(element)
-        self._init()
-        self._remove_raw_xml()
+    def __init__(self, path: str):
+        self._path = path
+        super(DocumentParser, self).__init__(self.get_xml_file('document'))
+        styles: list = self._get_styles(self.get_xml_file('styles'))
+        self._styles: dict = {style.id: style for style in styles}
 
-    def _init(self):
-        pass
-
-    @staticmethod
-    def get_xml_file(path: str, file_name: str) -> ET.Element:
+    def get_xml_file(self, file_name: str) -> ET.Element:
         """
-        :param path: path to document (include name of document)
         :param file_name: name of xml file in document in directory word
         :return: ElementTree of xml file
         """
@@ -128,7 +124,7 @@ class DocumentParser(Parser):
         import zipfile
 
         raw_xml: Union[str, None] = xml.dom.minidom.parseString(
-            zipfile.ZipFile(path).read(rf'word/{file_name}.xml')
+            zipfile.ZipFile(self._path).read(rf'word/{file_name}.xml')
         ).toprettyxml()
         return ET.fromstring(raw_xml)
 
