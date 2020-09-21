@@ -2,16 +2,17 @@ from docx_parser import XMLcontainer, DocumentParser
 from typing import List
 from styles import *
 from mixins.getters_setters import *
+from constants import keys_consts as k_const
 
 
 class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
-    tag: str = Par_tag
+    tag: str = k_const.Par_tag
     _properties_unificators = {
-        Par_align: [('left', ['start']),
-                    ('right', ['end']),
-                    ('center', []),
-                    ('both', []),
-                    ('distribute', [])]
+        k_const.Par_align: [('left', ['start']),
+                            ('right', ['end']),
+                            ('center', []),
+                            ('both', []),
+                            ('distribute', [])]
     }
     from translators.html_translators import ParagraphTranslatorToHTML
     translators = {
@@ -32,7 +33,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
         return result
 
     class Run(XMLement, RunPropertiesGetSetMixin):
-        tag: str = Run_tag
+        tag: str = k_const.Run_tag
 
         from translators.html_translators import RunTranslatorToHTML
         translators = {
@@ -50,7 +51,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
             return str(self.text)
 
         class Text(XMLement):
-            tag: str = Text_tag
+            tag: str = k_const.Text_tag
             _is_unique = True
             from translators.html_translators import TextTranslatorToHTML
             translators = {
@@ -74,11 +75,11 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
 
 
 class Table(XMLement, TablePropertiesGetSetMixin):
-    tag: str = Tab_tag
+    tag: str = k_const.Tab_tag
     _properties_unificators = {
-        Tab_align: [('left', ['start']),
-                    ('right', ['end']),
-                    ('center', [])]
+        k_const.Tab_align: [('left', ['start']),
+                            ('right', ['end']),
+                            ('center', [])]
     }
     from translators.html_translators import TableTranslatorToHTML
     translators = {
@@ -129,10 +130,10 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     for k in range(col_span_number):
                         cells.append(row.cells[i])
                 j += col_span_number
-                if row.cells[i].get_property_value(Cell_vertical_merge) == 'restart':
+                if row.cells[i].get_property_value(k_const.Cell_vertical_merge) == 'restart':
                     cells[j] = row.cells[i]
                     cells[j].row_span = 1
-                elif row.cells[i].get_property_value(Cell_vertical_merge) == 'continue':
+                elif row.cells[i].get_property_value(k_const.Cell_vertical_merge) == 'continue':
                     cells[j].row_span += 1
                     cells_for_delete.append(row.cells[i])
             for cell in cells_for_delete:
@@ -140,40 +141,40 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 
     def __set_margins_for_cells(self):
         for direction in "top", "bottom", "left", "right":
-            if self._is_have_viewing_property(get_key('cell_margin', direction, "type")):
+            if self._is_have_viewing_property(k_const.get_key('cell_margin', direction, "type")):
                 for row in self.rows:
                     for cell in row.cells:
-                        if cell.get_property_value(get_key('margin', direction, "size")) is None:
-                            cell.set_property_value(get_key('margin', direction, "size"),
-                                                    self._properties[get_key('cell_margin', direction, "size")].value)
-                            cell.set_property_value(get_key('margin', direction, "type"),
-                                                    self._properties[get_key('cell_margin', direction, "type")].value)
+                        if cell.get_property_value(k_const.get_key('margin', direction, "size")) is None:
+                            cell.set_property_value(k_const.get_key('margin', direction, "size"),
+                                        self._properties[k_const.get_key('cell_margin', direction, "size")].value)
+                            cell.set_property_value(k_const.get_key('margin', direction, "type"),
+                                        self._properties[k_const.get_key('cell_margin', direction, "type")].value)
 
     def __set_inside_borders(self):                                              # TO DO: testing this method
         for direction in "top", "bottom", "left", "right":
             d: str = 'horizontal' if (direction == 'top' or direction == 'bottom') else 'vertical'
-            if self._is_have_viewing_property(get_key('borders_inside', d, "type")):
+            if self._is_have_viewing_property(k_const.get_key('borders_inside', d, "type")):
                 for i in range(len(self.rows)):
                     for j in range(len(self.rows[i].cells)):
                         if not (i == 0 and direction == 'top') and \
                                 not (i == (len(self.rows) - 1) and direction == 'bottom') and \
                                 not (j == 0 and direction == 'left') and \
                                 not (j == (len(self.rows[i].cells) - 1) and direction == 'right'):
-                            if self.rows[i].cells[j].get_property_value(get_key('border', direction, "color")) is None or \
-                                    self.rows[i].cells[j].get_property_value(get_key('border', direction, "color")) == 'auto':
-                                self.rows[i].cells[j].set_property_value(get_key('border', direction, "color"),
-                                    self._properties[get_key('borders_inside', d, "color")].value
+                            if self.rows[i].cells[j].get_property_value(k_const.get_key('border', direction, "color")) is None or \
+                                    self.rows[i].cells[j].get_property_value(k_const.get_key('border', direction, "color")) == 'auto':
+                                self.rows[i].cells[j].set_property_value(k_const.get_key('border', direction, "color"),
+                                    self._properties[k_const.get_key('borders_inside', d, "color")].value
                                 )
-                            if self.rows[i].cells[j].get_property_value(get_key('border', direction, "type")) is None:
-                                self.rows[i].cells[j].set_property_value(get_key('border', direction, "type"),
-                                    self._properties[get_key('borders_inside', d, "type")].value
+                            if self.rows[i].cells[j].get_property_value(k_const.get_key('border', direction, "type")) is None:
+                                self.rows[i].cells[j].set_property_value(k_const.get_key('border', direction, "type"),
+                                    self._properties[k_const.get_key('borders_inside', d, "type")].value
                                 )
-                                self.rows[i].cells[j].set_property_value(get_key('border', direction, "size"),
-                                    self._properties[get_key('borders_inside', d, "size")].value
+                                self.rows[i].cells[j].set_property_value(k_const.get_key('border', direction, "size"),
+                                    self._properties[k_const.get_key('borders_inside', d, "size")].value
                                 )
 
     class Row(XMLement, RowPropertiesGetSetMixin):
-        tag: str = Row_tag
+        tag: str = k_const.Row_tag
         from translators.html_translators import RowTranslatorToHTML
         translators = {
             'html': RowTranslatorToHTML(),
@@ -184,7 +185,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             self.is_first_row_in_header: bool = False
             self.is_last_row_in_header: bool = False
             super(Table.Row, self).__init__(element, parent)
-            if self._properties[Row_is_header].value:
+            if self._properties[k_const.Row_is_header].value:
                 self.__set_cells_as_header()
 
         def _init(self):
@@ -205,7 +206,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             self.__set_cells_as_header()
 
         class Cell(XMLcontainer, CellPropertiesGetSetMixin):
-            tag: str = Cell_tag
+            tag: str = k_const.Cell_tag
             from translators.html_translators import CellTranslatorToHTML
             translators = {
                 'html': CellTranslatorToHTML(),
@@ -220,7 +221,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 class Document(DocumentParser):
 
     class Body(XMLcontainer):
-        tag: str = Body_tag
+        tag: str = k_const.Body_tag
         _is_unique = True
 
         def __str__(self):
