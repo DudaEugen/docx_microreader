@@ -193,7 +193,7 @@ class XMLement(Parser):
         self._all_properties = XMLement._property_descriptions_getter(self)
         self._properties: Dict[str, Property] = self._parse_properties()
         self._properties_unificate()
-        self._style = self._get_style_from_document()
+        self._base_style = self._get_style_from_document()
         self._remove_raw_xml()
 
     def __str__(self):
@@ -233,17 +233,14 @@ class XMLement(Parser):
     def get_inner_text(self) -> Union[str, None]:
         return None
 
-    def get_properties(self) -> List[Property]:
-        return [self._properties[k] for k in self._properties]
-
     def get_property(self, property_name: str) -> Property:
         return self._properties[property_name]
 
     def get_style(self):
-        return self._style
+        return self._base_style
 
     def set_style(self, style_id: str):
-        self._style = self._get_document().get_style(style_id)
+        self._base_style = self._get_document().get_style(style_id)
 
     def get_property_value(self, property_name: str) -> Union[str, bool, None]:
         return self._properties[property_name].value
@@ -253,12 +250,6 @@ class XMLement(Parser):
 
     def set_property_view(self, property_name: str, is_view: bool):
         self._all_properties[property_name].is_view = is_view
-
-    def _is_have_viewing_property(self, property_name: str) -> bool:
-        """
-        return True if property is not None and this property is viewing
-        """
-        return self._properties[property_name].is_view_and_not_none()
 
     def _get_style_from_document(self):
         style_id = self._get_style_id()

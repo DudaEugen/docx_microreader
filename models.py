@@ -150,7 +150,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 
     def __set_margins_for_cells(self):
         for direction in "top", "bottom", "left", "right":
-            if self._is_have_viewing_property(k_const.get_key('cell_margin', direction, "type")):
+            if self.get_property(k_const.get_key('cell_margin', direction, "type")).is_view_and_not_none():
                 for row in self.rows:
                     for cell in row.cells:
                         if cell.get_property_value(k_const.get_key('margin', direction, "size")) is None:
@@ -159,10 +159,10 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                             cell.set_property_value(k_const.get_key('margin', direction, "type"),
                                         self._properties[k_const.get_key('cell_margin', direction, "type")].value)
 
-    def __set_inside_borders(self):                                              # TO DO: testing this method
+    def __set_inside_borders(self):
         for direction in "top", "bottom", "left", "right":
             d: str = 'horizontal' if (direction == 'top' or direction == 'bottom') else 'vertical'
-            if self._is_have_viewing_property(k_const.get_key('borders_inside', d, "type")):
+            if self.get_property(k_const.get_key('borders_inside', d, "type")).is_view_and_not_none():
                 for i in range(len(self.rows)):
                     for j in range(len(self.rows[i].cells)):
                         if not (i == 0 and direction == 'top') and \
