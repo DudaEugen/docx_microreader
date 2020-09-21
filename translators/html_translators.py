@@ -636,7 +636,7 @@ class RowTranslatorToHTML(TranslatorToHTML):
 
     def __to_attribute_or_css_height(self, row):
         height, height_type = row.get_height()
-        if height is not None and height_type is not None:
+        if height is not None:
             if height_type is None:
                 self.attributes['height'] = str(int(height) // 20) + 'px'
             elif height_type == 'exact':
