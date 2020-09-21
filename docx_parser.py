@@ -1,9 +1,9 @@
 import xml.etree.ElementTree as ET
 from namespaces import namespaces
-from typing import Union, List, Callable
+from typing import Union, List, Callable, Dict, Tuple
 import re
-from properties import Property
-from constants.properties_consts import *
+from properties import Property, PropertyDescription
+from constants import properties_consts as p_consts
 
 
 class Parser:
@@ -140,10 +140,14 @@ class DocumentParser(Parser):
         }
 
         parameters: Tuple[str, str, bool, bool] = (
-            element.get(Parser._check_namespace(Style_parameters[StyleParam_type])),
-            element.get(Parser._check_namespace(Style_parameters[StyleParam_id])),
-            False if element.get(Parser._check_namespace(Style_parameters[StyleParam_is_default])) is None else True,
-            False if element.get(Parser._check_namespace(Style_parameters[StyleParam_is_custom])) is None else True,
+            element.get(Parser._check_namespace(p_consts.Style_parameters[p_consts.StyleParam_type])),
+            element.get(Parser._check_namespace(p_consts.Style_parameters[p_consts.StyleParam_id])),
+            False if element.get(Parser._check_namespace(
+                p_consts.Style_parameters[p_consts.StyleParam_is_default])
+            ) is None else True,
+            False if element.get(Parser._check_namespace(
+                p_consts.Style_parameters[p_consts.StyleParam_is_custom])
+            ) is None else True,
         )
         return types[parameters[0]](element, parent, parameters[1],
                                     parameters[2], parameters[3]) if parameters[0] in types else None
@@ -171,7 +175,7 @@ class XMLement(Parser):
     # all_style_properties: Dict[str, Tuple[str, Union[str, None], bool]] = {}
 
     # function that return Dict of property descriptions
-    _property_descriptions_getter: Callable = get_properties_dict
+    _property_descriptions_getter: Callable = p_consts.get_properties_dict
 
     # first element of Tuple is correct variant of property value; second element is variants of this value
     # _properties_validate method set correct variant if find value equal of one of variant
