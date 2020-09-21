@@ -1,6 +1,7 @@
 from docx_parser import XMLement
 import xml.etree.ElementTree as ET
 from constants.properties_consts import *
+from mixins.getters_setters import *
 
 
 class Style(XMLement):
@@ -14,7 +15,7 @@ class Style(XMLement):
         super(Style, self).__init__(element, parent)
 
 
-class ParagraphStyle(Style):
+class ParagraphStyle(Style, ParagraphPropertiesGetSetMixin):
     type = ParStyle_type
 
 
@@ -22,9 +23,9 @@ class NumberingStyle(Style):
     type = NumStyle_type
 
 
-class CharacterStyle(Style):
+class CharacterStyle(Style, RunPropertiesGetSetMixin):
     type = CharStyle_type
 
 
-class TableStyle(Style):
+class TableStyle(Style, TablePropertiesGetSetMixin):
     type = TabStyle_type
