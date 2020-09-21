@@ -230,19 +230,18 @@ class XMLement(Parser):
     def get_inner_text(self) -> Union[str, None]:
         return None
 
-    def get_property(self, property_name: str) -> Property:
-        if self._properties[property_name].value is None and self._base_style is not None:
-            return self._base_style.get_property(property_name)
-        return self._properties[property_name]
+    def get_property(self, property_name: str) -> Union[str, None, bool]:
+        if self._properties[property_name].description.is_view:
+            if self._properties[property_name].value is None and self._base_style is not None:
+                return self._base_style.get_property(property_name)
+            return self._properties[property_name].value
+        return None
 
     def get_style(self):
         return self._base_style
 
     def set_style(self, style_id: str):
         self._base_style = self._get_document().get_style(style_id)
-
-    def get_property_value(self, property_name: str) -> Union[str, bool, None]:
-        return self._properties[property_name].value
 
     def set_property_value(self, property_name: str, value: Union[str, bool, None]):
         self._properties[property_name].value = value

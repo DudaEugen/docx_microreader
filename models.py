@@ -134,15 +134,15 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             j: int = -1
             for i in range(len(row.cells)):
                 if len(cells) == (j + 1):
-                    col_span_number: int = int(row.cells[i].get_col_span().value) \
-                        if row.cells[i].get_col_span().value is not None else 1
+                    col_span_number: int = int(row.cells[i].get_col_span()) \
+                        if row.cells[i].get_col_span() is not None else 1
                     for k in range(col_span_number):
                         cells.append(row.cells[i])
                 j += col_span_number
-                if row.cells[i].get_property_value(k_const.Cell_vertical_merge) == 'restart':
+                if row.cells[i].get_property(k_const.Cell_vertical_merge) == 'restart':
                     cells[j] = row.cells[i]
                     cells[j].row_span = 1
-                elif row.cells[i].get_property_value(k_const.Cell_vertical_merge) == 'continue':
+                elif row.cells[i].get_property(k_const.Cell_vertical_merge) == 'continue':
                     cells[j].row_span += 1
                     cells_for_delete.append(row.cells[i])
             for cell in cells_for_delete:
@@ -150,10 +150,10 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 
     def __set_margins_for_cells(self):
         for direction in "top", "bottom", "left", "right":
-            if self.get_property(k_const.get_key('cell_margin', direction, "type")).is_view_and_not_none():
+            if self.get_property(k_const.get_key('cell_margin', direction, "type")) is not None:
                 for row in self.rows:
                     for cell in row.cells:
-                        if cell.get_property_value(k_const.get_key('margin', direction, "size")) is None:
+                        if cell.get_property(k_const.get_key('margin', direction, "size")) is None:
                             cell.set_property_value(k_const.get_key('margin', direction, "size"),
                                         self._properties[k_const.get_key('cell_margin', direction, "size")].value)
                             cell.set_property_value(k_const.get_key('margin', direction, "type"),
@@ -162,19 +162,19 @@ class Table(XMLement, TablePropertiesGetSetMixin):
     def __set_inside_borders(self):
         for direction in "top", "bottom", "left", "right":
             d: str = 'horizontal' if (direction == 'top' or direction == 'bottom') else 'vertical'
-            if self.get_property(k_const.get_key('borders_inside', d, "type")).is_view_and_not_none():
+            if self.get_property(k_const.get_key('borders_inside', d, "type")) is not None:
                 for i in range(len(self.rows)):
                     for j in range(len(self.rows[i].cells)):
                         if not (i == 0 and direction == 'top') and \
                                 not (i == (len(self.rows) - 1) and direction == 'bottom') and \
                                 not (j == 0 and direction == 'left') and \
                                 not (j == (len(self.rows[i].cells) - 1) and direction == 'right'):
-                            if self.rows[i].cells[j].get_property_value(k_const.get_key('border', direction, "color")) is None or \
-                                    self.rows[i].cells[j].get_property_value(k_const.get_key('border', direction, "color")) == 'auto':
+                            if self.rows[i].cells[j].get_property(k_const.get_key('border', direction, "color")) is None or \
+                                    self.rows[i].cells[j].get_property(k_const.get_key('border', direction, "color")) == 'auto':
                                 self.rows[i].cells[j].set_property_value(k_const.get_key('border', direction, "color"),
                                     self._properties[k_const.get_key('borders_inside', d, "color")].value
                                 )
-                            if self.rows[i].cells[j].get_property_value(k_const.get_key('border', direction, "type")) is None:
+                            if self.rows[i].cells[j].get_property(k_const.get_key('border', direction, "type")) is None:
                                 self.rows[i].cells[j].set_property_value(k_const.get_key('border', direction, "type"),
                                     self._properties[k_const.get_key('borders_inside', d, "type")].value
                                 )

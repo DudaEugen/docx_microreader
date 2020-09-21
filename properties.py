@@ -27,6 +27,3 @@ class Property:
     def __init__(self, value: Union[str, None, bool], description: PropertyDescription):
         self.description: PropertyDescription = description
         self.value: Union[str, None, bool] = value
-
-    def is_view_and_not_none(self) -> bool:
-        return self.description.is_view and (self.value is not None and self.value is not False)

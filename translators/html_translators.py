@@ -1,4 +1,3 @@
-from properties import Property
 from typing import Dict, Callable, List, Tuple, Union
 
 
@@ -126,7 +125,7 @@ class TranslatorToHTML:
                 return '#' + color
         return color
 
-    def _pass(self, pr: Property):
+    def _pass(self, pr):
         pass
 
     def _add_to_many_properties_style(self, t: Union[Tuple[str, str], None]):
@@ -137,9 +136,9 @@ class TranslatorToHTML:
                 self.styles[t[0]] += rf' {t[1]}'
 
     def _to_css_border(self, element, direction: str) -> Union[Tuple[str, str], None]:
-        border: Property = element.get_border(direction, 'type')
-        if border.is_view_and_not_none():
-            return rf'border-{direction}', self.border_types_corresponding.get(border.value, 'solid')
+        border = element.get_border(direction, 'type')
+        if border is not None:
+            return rf'border-{direction}', self.border_types_corresponding.get(border, 'solid')
         return None
 
     def _to_css_border_top(self, element):
@@ -156,12 +155,11 @@ class TranslatorToHTML:
 
     @staticmethod
     def _to_css_border_color(element, direction: str) -> Union[Tuple[str, str], None]:
-        border_color: Property = element.get_border(direction, 'color')
-        if border_color.is_view_and_not_none():
-            if border_color.value == 'auto':
+        border_color = element.get_border(direction, 'color')
+        if border_color is not None:
+            if border_color == 'auto':
                 return rf'border-{direction}', 'black'
-            elif border_color.description.is_view:
-                return rf'border-{direction}', CellTranslatorToHTML._translate_color(border_color.value)
+            return rf'border-{direction}', CellTranslatorToHTML._translate_color(border_color)
         return None
 
     def _to_css_border_top_color(self, element):
@@ -178,9 +176,9 @@ class TranslatorToHTML:
 
     @staticmethod
     def _to_css_border_size(cell, direction: str) -> Union[Tuple[str, str], None]:
-        border_size: Property = cell.get_border(direction, 'size')
-        if border_size.is_view_and_not_none():
-            return rf'border-{direction}', str(int(border_size.value) / 8) + 'pt'
+        border_size = cell.get_border(direction, 'size')
+        if border_size is not None:
+            return rf'border-{direction}', str(int(border_size) / 8) + 'pt'
         return None
 
     def _to_css_border_top_size(self, element):
@@ -229,28 +227,28 @@ class ParagraphTranslatorToHTML(TranslatorToHTML):
         return 'p'
 
     def __to_attribute_align(self, paragraph):
-        align: Property = paragraph.get_align()
-        if align.is_view_and_not_none():
-            if align.value in self.aligns and align.value != 'left':    # left is default in browsers
-                self.attributes['align'] = self.aligns[align.value]
+        align = paragraph.get_align()
+        if align is not None:
+            if align in self.aligns and align != 'left':    # left is default in browsers
+                self.attributes['align'] = self.aligns[align]
 
     def __to_css_margin_left(self, paragraph):
-        margin_left: Property = paragraph.get_indent_left()
-        if margin_left.is_view_and_not_none():
-            self.styles['margin-left'] = str(int(margin_left.value) // 20) + 'px'
+        margin_left = paragraph.get_indent_left()
+        if margin_left is not None:
+            self.styles['margin-left'] = str(int(margin_left) // 20) + 'px'
 
     def __to_css_margin_right(self, paragraph):
-        margin_right: Property = paragraph.get_indent_right()
-        if margin_right.is_view_and_not_none():
-            self.styles['margin-left'] = str(int(margin_right.value) // 20) + 'px'
+        margin_right = paragraph.get_indent_right()
+        if margin_right is not None:
+            self.styles['margin-left'] = str(int(margin_right) // 20) + 'px'
 
     def __to_css_text_indent(self, paragraph):
-        hanging: Property = paragraph.get_hanging()
-        first_line: Property = paragraph.get_first_line()
-        if hanging.is_view_and_not_none():
-            self.styles['text-indent'] = str(-int(hanging.value) // 20) + 'px'
-        elif first_line.is_view_and_not_none():
-            self.styles['text-indent'] = str(int(first_line.value) // 20) + 'px'
+        hanging = paragraph.get_hanging()
+        first_line = paragraph.get_first_line()
+        if hanging is not None:
+            self.styles['text-indent'] = str(-int(hanging) // 20) + 'px'
+        elif first_line is not None:
+            self.styles['text-indent'] = str(int(first_line) // 20) + 'px'
 
 
 class RunTranslatorToHTML(TranslatorToHTML):
@@ -290,9 +288,9 @@ class RunTranslatorToHTML(TranslatorToHTML):
         return ''
 
     def __to_css_size(self, run):
-        size: Property = run.get_size()
-        if size.is_view_and_not_none():
-            self.styles['font-size'] = size.value
+        size = run.get_size()
+        if size is not None:
+            self.styles['font-size'] = size
 
     def __to_ext_tag_bold(self, run):
         if run.is_bold():
@@ -303,50 +301,50 @@ class RunTranslatorToHTML(TranslatorToHTML):
             self._add_to_ext_tags(self.external_tags['italic'])
 
     def __to_ext_tags_vertical_align(self, run):
-        vert_align: Property = run.get_vertical_align()
-        if vert_align.is_view_and_not_none():
-            if vert_align.value == 'subscript':
+        vert_align = run.get_vertical_align()
+        if vert_align is not None:
+            if vert_align == 'subscript':
                 self._add_to_ext_tags('sub')
-            elif vert_align.value == 'superscript':
+            elif vert_align == 'superscript':
                 self._add_to_ext_tags('sup')
 
     def __to_css_background_color(self, run):
-        background_color: Property = run.get_background_color()
-        background_fill: Property = run.get_background_fill()
-        if background_color.is_view_and_not_none():
-            if background_color.value != 'none':
-                self.styles['background-color'] = background_color.value
-        elif background_fill.is_view_and_not_none():
-            self.styles['background-color'] = TranslatorToHTML._translate_color(background_fill.value)
+        background_color = run.get_background_color()
+        background_fill = run.get_background_fill()
+        if background_color is not None:
+            if background_color != 'none':
+                self.styles['background-color'] = background_color
+        elif background_fill is not None:
+            self.styles['background-color'] = TranslatorToHTML._translate_color(background_fill)
 
     def __to_css_color(self, run):
-        color: Property = run.get_color()
-        if color.is_view_and_not_none():
-            self.styles['color'] = TranslatorToHTML._translate_color(color.value)
+        color = run.get_color()
+        if color is not None:
+            self.styles['color'] = TranslatorToHTML._translate_color(color)
 
     def __to_css_line_throught(self, run):
         if run.is_strike():
             self._add_to_many_properties_style(('text-decoration', 'line-through'))
 
     def __to_css_underline(self, run):
-        underline: Property = run.get_underline()
-        if underline.is_view_and_not_none():
+        underline = run.get_underline()
+        if underline is not None:
             self._add_to_many_properties_style(('text-decoration', 'underline'))
-            if underline.value in self.underlines:
-                self.styles['text-decoration-style'] = self.underlines[underline.value]
+            if underline in self.underlines:
+                self.styles['text-decoration-style'] = self.underlines[underline]
 
     def __to_css_underline_color(self, run):
         """
         must called after self.__to_css_underline
         """
-        underline_color: Property = run.get_underline_color()
-        if underline_color.is_view_and_not_none():
-            self.styles['text-decoration-color'] = TranslatorToHTML._translate_color(underline_color.value)
+        underline_color = run.get_underline_color()
+        if underline_color is not None:
+            self.styles['text-decoration-color'] = TranslatorToHTML._translate_color(underline_color)
 
     def _to_css_border(self, run, direction: str) -> Union[Tuple[str, str], None]:
-        border: Property = run.get_border('type')
-        if border.is_view_and_not_none():
-            return rf'border-{direction}', self.border_types_corresponding.get(border.value, 'solid')
+        border = run.get_border('type')
+        if border is not None:
+            return rf'border-{direction}', self.border_types_corresponding.get(border, 'solid')
         return None
 
     def _to_css_border_all(self, run):
@@ -357,12 +355,12 @@ class RunTranslatorToHTML(TranslatorToHTML):
 
     @staticmethod
     def _to_css_border_color(run, direction: str) -> Union[Tuple[str, str], None]:
-        border_color: Property = run.get_border('color')
-        if border_color.is_view_and_not_none():
-            if border_color.value == 'auto':
+        border_color = run.get_border('color')
+        if border_color is not None:
+            if border_color == 'auto':
                 return rf'border-{direction}', 'black'
-            elif border_color.description.is_view:
-                return rf'border-{direction}', CellTranslatorToHTML._translate_color(border_color.value)
+            elif border_color is not None:
+                return rf'border-{direction}', CellTranslatorToHTML._translate_color(border_color)
         return None
 
     def _to_css_border_all_color(self, element):
@@ -373,9 +371,9 @@ class RunTranslatorToHTML(TranslatorToHTML):
 
     @staticmethod
     def _to_css_border_size(run, direction: str) -> Union[Tuple[str, str], None]:
-        border_size: Property = run.get_border('size')
-        if border_size.is_view_and_not_none():
-            return rf'border-{direction}', str(int(border_size.value) / 8) + 'pt'
+        border_size = run.get_border('size')
+        if border_size is not None:
+            return rf'border-{direction}', str(int(border_size) / 8) + 'pt'
         return None
 
     def _to_css_border_all_size(self, element):
@@ -587,34 +585,34 @@ class TableTranslatorToHTML(TranslatorToHTML):
 
     def __to_attribute_width(self, table):
         width, width_type, layout = table.get_width()
-        if width.is_view_and_not_none() and width_type.is_view_and_not_none():
-            if (layout.value is not None and layout.value != 'autofit') or not layout.is_view_and_not_none():
+        if width is not None and width_type is not None:
+            if (layout is not None and layout != 'autofit') or layout is None:
                 if width_type == 'dxa':
-                    self.attributes['width'] = str(int(width.value) // 20) + 'px'
+                    self.attributes['width'] = str(int(width) // 20) + 'px'
                 elif width_type == 'pct':
-                    self.attributes['width'] = str(int(width.value) / 50) + '%'
+                    self.attributes['width'] = str(int(width) / 50) + '%'
                 elif width_type == 'nil':
                     self.attributes['width'] = '0pt'
                 elif width_type == 'auto':
                     return
 
     def __to_attribute_align(self, table):
-        align: Property = table.get_align()
-        if align.is_view_and_not_none():
-            self.attributes['align'] = align.value
+        align = table.get_align()
+        if align is not None:
+            self.attributes['align'] = align
 
     def __to_css_margin(self, table):
-        align: Property = table.get_align()
-        if not align.is_view_and_not_none() or align.value != 'center' and align.value != 'right':
+        align = table.get_align()
+        if align is None or align != 'center' and align != 'right':
             margin, indentation_type = table.get_indentation()
-            if margin.is_view_and_not_none() and indentation_type.is_view_and_not_none():
-                if indentation_type.value == 'dxa':
-                    self.styles['margin-left'] = str(int(margin.value) // 20) + 'px'
-                elif indentation_type.value == 'nil':
+            if margin is not None and indentation_type is not None:
+                if indentation_type == 'dxa':
+                    self.styles['margin-left'] = str(int(margin) // 20) + 'px'
+                elif indentation_type == 'nil':
                     self.styles['margin-left'] = '0px'
-                elif indentation_type.value == 'pct':
+                elif indentation_type == 'pct':
                     return
-                elif indentation_type.value == 'auto':
+                elif indentation_type == 'auto':
                     return
 
 
@@ -638,16 +636,15 @@ class RowTranslatorToHTML(TranslatorToHTML):
 
     def __to_attribute_or_css_height(self, row):
         height, height_type = row.get_height()
-        if height.is_view_and_not_none():
-            if height_type.description.is_view:
-                if height_type.value is None:
-                    self.attributes['height'] = str(int(height.value) // 20) + 'px'
-                elif height_type.value == 'exact':
-                    self.attributes['height'] = str(int(height.value) // 20) + 'px'
-                elif height_type.value == 'atLeast':
-                    self.styles['min-height'] = str(int(height.value) // 20) + 'px'
-                elif height_type.value == 'auto':
-                    return
+        if height is not None and height_type is not None:
+            if height_type is None:
+                self.attributes['height'] = str(int(height) // 20) + 'px'
+            elif height_type == 'exact':
+                self.attributes['height'] = str(int(height) // 20) + 'px'
+            elif height_type == 'atLeast':
+                self.styles['min-height'] = str(int(height) // 20) + 'px'
+            elif height_type == 'auto':
+                return
 
 
 class CellTranslatorToHTML(TranslatorToHTML):
@@ -703,41 +700,41 @@ class CellTranslatorToHTML(TranslatorToHTML):
         self.__tag_for_header = 'th' if value is True else 'td'
 
     def __to_css_fill_color(self, cell):
-        color: Property = cell.get_fill_color()
-        if color.is_view_and_not_none():
+        color = cell.get_fill_color()
+        if color is not None:
             if color != 'auto':
-                self.styles['background-color'] = TranslatorToHTML._translate_color(color.value)
+                self.styles['background-color'] = TranslatorToHTML._translate_color(color)
 
     def __to_css_padding_top(self, cell):
-        padding: Property = cell.get_margin('top')[0]
-        if padding.is_view_and_not_none():
-            self.styles['padding-top'] = padding.value
+        padding = cell.get_margin('top')[0]
+        if padding is not None:
+            self.styles['padding-top'] = padding
 
     def __to_css_padding_bottom(self, cell):
-        padding: Property = cell.get_margin('bottom')[0]
-        if padding.is_view_and_not_none():
-            self.styles['padding-bottom'] = padding.value
+        padding = cell.get_margin('bottom')[0]
+        if padding is not None:
+            self.styles['padding-bottom'] = padding
 
     def __to_css_padding_left(self, cell):
-        padding: Property = cell.get_margin('left')[0]
-        if padding.is_view_and_not_none():
-            self.styles['padding-left'] = padding.value
+        padding = cell.get_margin('left')[0]
+        if padding is not None:
+            self.styles['padding-left'] = padding
 
     def __to_css_padding_right(self, cell):
-        padding: Property = cell.get_margin('right')[0]
-        if padding.is_view_and_not_none():
-            self.styles['padding-right'] = padding.value
+        padding = cell.get_margin('right')[0]
+        if padding is not None:
+            self.styles['padding-right'] = padding
 
     def __to_css_padding_type(self, cell, direction: str):
         """
         self.__to_css_padding_... need run before this method
         """
-        padding_type: Property = cell.get_margin(direction)[1]
-        if padding_type.is_view_and_not_none():
-            if padding_type.value == 'dxa':
+        padding_type = cell.get_margin(direction)[1]
+        if padding_type is not None:
+            if padding_type == 'dxa':
                 self.styles[rf'padding-{direction}'] = \
                     str(int(self.styles[rf'padding-{direction}']) // 20) + 'px'
-            elif padding_type.value == 'nil':
+            elif padding_type == 'nil':
                 self.styles[rf'padding-{direction}'] = '0px'
             else:
                 if rf'padding-{direction}' in self.attributes:
@@ -760,34 +757,33 @@ class CellTranslatorToHTML(TranslatorToHTML):
 
     def __to_attribute_width(self, cell):
         width, width_type = cell.get_width()
-        if width.is_view_and_not_none():
-            if width_type.is_view_and_not_none():
-                if width_type.value == 'dxa':
-                    self.attributes['width'] = str(int(width.value) // 20) + 'px'
-                elif width_type.value == 'pct':
-                    self.attributes['width'] = str(int(width.value) / 50) + '%'
-                elif width_type.value == 'nil':
-                    self.attributes['width'] = '0px'
-                elif width_type.value == 'auto':
-                    return
+        if width is not None and width_type is not None:
+            if width_type == 'dxa':
+                self.attributes['width'] = str(int(width) // 20) + 'px'
+            elif width_type == 'pct':
+                self.attributes['width'] = str(int(width) / 50) + '%'
+            elif width_type == 'nil':
+                self.attributes['width'] = '0px'
+            elif width_type == 'auto':
+                return
 
     def __to_attribute_col_span(self, cell):
-        col_span: Property = cell.get_col_span()
-        if col_span.is_view_and_not_none():
-            if int(col_span.value) > 1:
-                self.attributes['colspan'] = col_span.value
+        col_span = cell.get_col_span()
+        if col_span is not None:
+            if int(col_span) > 1:
+                self.attributes['colspan'] = col_span
 
     def __to_attribute_row_span(self, cell):
         if cell.row_span > 1:
             self.attributes['rowspan'] = str(cell.row_span)
 
     def __to_css_text_direction(self, cell):
-        text_direction: Property = cell.get_text_direction()
-        if text_direction.is_view_and_not_none():
-            if text_direction.value in self.text_directions:
-                self.inner_html_wrapper_styles['writing-mode'] = self.text_directions[text_direction.value]
+        text_direction = cell.get_text_direction()
+        if text_direction is not None:
+            if text_direction in self.text_directions:
+                self.inner_html_wrapper_styles['writing-mode'] = self.text_directions[text_direction]
 
     def __to_attribute_vertical_align(self, cell):
-        vertical_align: Property = cell.get_vertical_align()
-        if vertical_align.is_view_and_not_none():
-            self.attributes['valign'] = vertical_align.value
+        vertical_align = cell.get_vertical_align()
+        if vertical_align is not None:
+            self.attributes['valign'] = vertical_align
