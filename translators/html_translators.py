@@ -604,16 +604,18 @@ class TableTranslatorToHTML(TranslatorToHTML):
             self.attributes['align'] = align.value
 
     def __to_css_margin(self, table):
-        margin, indentation_type = table.get_indentation()
-        if margin.is_view_and_not_none() and indentation_type.is_view_and_not_none():
-            if indentation_type.value == 'dxa':
-                self.styles['margin-left'] = str(int(margin.value) // 20) + 'px'
-            elif indentation_type.value == 'nil':
-                self.styles['margin-left'] = '0px'
-            elif indentation_type.value == 'pct':
-                return
-            elif indentation_type.value == 'auto':
-                return
+        align: Property = table.get_align()
+        if not align.is_view_and_not_none() or align.value != 'center' and align.value != 'right':
+            margin, indentation_type = table.get_indentation()
+            if margin.is_view_and_not_none() and indentation_type.is_view_and_not_none():
+                if indentation_type.value == 'dxa':
+                    self.styles['margin-left'] = str(int(margin.value) // 20) + 'px'
+                elif indentation_type.value == 'nil':
+                    self.styles['margin-left'] = '0px'
+                elif indentation_type.value == 'pct':
+                    return
+                elif indentation_type.value == 'auto':
+                    return
 
 
 class RowTranslatorToHTML(TranslatorToHTML):
