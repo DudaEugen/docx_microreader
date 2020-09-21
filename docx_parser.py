@@ -4,6 +4,7 @@ from typing import Union, List, Callable, Dict, Tuple
 import re
 from properties import Property, PropertyDescription
 from constants import properties_consts as p_consts
+from constants import keys_consts as k_consts
 
 
 class Parser:
@@ -192,6 +193,7 @@ class XMLement(Parser):
         self._all_properties = XMLement._property_descriptions_getter(self)
         self._properties: Dict[str, Property] = self._parse_properties()
         self._properties_unificate()
+        self._style = self._get_style_from_document()
         self._remove_raw_xml()
 
     def __str__(self):
@@ -199,6 +201,9 @@ class XMLement(Parser):
 
     def _get_document(self):
         return self.parent._get_document()
+
+    def _get_style_id(self) -> Union[str, None]:
+        return None
 
     def _properties_unificate(self):
         """
@@ -234,6 +239,12 @@ class XMLement(Parser):
     def get_property(self, property_name: str) -> Property:
         return self._properties[property_name]
 
+    def get_style(self):
+        return self._style
+
+    def set_style(self, style_id: str):
+        self._style = self._get_document().get_style(style_id)
+
     def get_property_value(self, property_name: str) -> Union[str, bool, None]:
         return self._properties[property_name].value
 
@@ -249,8 +260,11 @@ class XMLement(Parser):
         """
         return self._properties[property_name].is_view_and_not_none()
 
-    def _get_style_from_document(self, style_id: str):
-        return self._get_document().get_style(style_id)
+    def _get_style_from_document(self):
+        style_id = self._get_style_id()
+        if style_id is not None:
+            return self._get_document().get_style(style_id)
+        return None
 
 
 class XMLcontainer(XMLement):

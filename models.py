@@ -26,6 +26,9 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
     def _init(self):
         self.runs = self._get_elements(Paragraph.Run)
 
+    def _get_style_id(self) -> Union[str, None]:
+        return self._properties[k_const.ParStyle].value
+
     def get_inner_text(self) -> Union[str, None]:
         result: str = ''
         for run in self.runs:
@@ -46,6 +49,9 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
 
         def _init(self):
             self.text = self._get_elements(Paragraph.Run.Text)
+
+        def _get_style_id(self) -> Union[str, None]:
+            return self._properties[k_const.CharStyle].value
 
         def get_inner_text(self) -> Union[str, None]:
             return str(self.text)
@@ -99,6 +105,9 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 
     def _init(self):
         self.rows = self._get_elements(Table.Row)
+
+    def _get_style_id(self) -> Union[str, None]:
+        return self._properties[k_const.TabStyle].value
 
     def get_inner_text(self) -> Union[str, None]:
         result: str = ''
