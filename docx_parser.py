@@ -4,7 +4,6 @@ from typing import Union, List, Callable, Dict, Tuple
 import re
 from properties import Property, PropertyDescription
 from constants import properties_consts as p_consts
-from constants import keys_consts as k_consts
 
 
 class Parser:
@@ -113,8 +112,8 @@ class DocumentParser(Parser):
     def __init__(self, path: str):
         self._path = path
         super(DocumentParser, self).__init__(self.get_xml_file('document'))
-        styles: list = self._parse_styles(self.get_xml_file('styles'))
-        self._styles: dict = {style.id: style for style in styles}
+        self._styles: dict = {}
+        self._parse_styles(self.get_xml_file('styles'))
 
     def get_xml_file(self, file_name: str) -> ET.Element:
         """
@@ -156,12 +155,10 @@ class DocumentParser(Parser):
     def _parse_styles(self, styles_file: ET.Element):
         from styles import Style
 
-        result: list = []
         for el in styles_file.findall('./' + Style.tag, namespaces):
             elem = DocumentParser.__parse_style(el, self)
             if elem is not None:
-                result.append(elem)
-        return result
+                self._styles[elem.id] = elem
 
     def get_style(self, style_id: str):
         return self._styles[style_id]
@@ -234,6 +231,8 @@ class XMLement(Parser):
         return None
 
     def get_property(self, property_name: str) -> Property:
+        if self._properties[property_name].value is None and self._base_style is not None:
+            return self._base_style.get_property(property_name)
         return self._properties[property_name]
 
     def get_style(self):

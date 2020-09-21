@@ -9,6 +9,11 @@ Style_parameters: Dict[str, str] = {
     StyleParam_is_custom: 'w:customStyle',
 }
 
+# description of properties of styles
+style_properties: Dict[str, PropertyDescription] = {
+    StyleBasedOn: PropertyDescription(None, 'w:basedOn', 'w:val', True),
+}
+
 # description of properties Paragraph and ParagraphStyle
 paragraph_style_property_description: Dict[str, PropertyDescription] = {
     Par_align: PropertyDescription('w:pPr', 'w:jc', 'w:val', True),
@@ -173,12 +178,12 @@ def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
     elif isinstance(ob, Document.Body):
         return {}
     elif isinstance(ob, NumberingStyle):
-        return {}
+        return style_properties
     elif isinstance(ob, TableStyle):
-        return table_style_property_descriptions
+        return merge_dicts(table_style_property_descriptions, style_properties)
     elif isinstance(ob, CharacterStyle):
-        return run_style_property_descriptions
+        return merge_dicts(run_style_property_descriptions, style_properties)
     elif isinstance(ob, ParagraphStyle):
-        return paragraph_style_property_description
+        return merge_dicts(paragraph_style_property_description, style_properties)
 
     raise ValueError('argument in create properties dict function is mistake')

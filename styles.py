@@ -2,6 +2,7 @@ from docx_parser import XMLement
 import xml.etree.ElementTree as ET
 from mixins.getters_setters import ParagraphPropertiesGetSetMixin, RunPropertiesGetSetMixin, TablePropertiesGetSetMixin
 from constants import keys_consts as k_const
+from typing import Union
 
 
 class Style(XMLement):
@@ -13,6 +14,9 @@ class Style(XMLement):
         self.is_default = is_default
         self.is_custom_style = is_custom_style
         super(Style, self).__init__(element, parent)
+
+    def _get_style_id(self) -> Union[str, None]:
+        return self._properties[k_const.StyleBasedOn].value
 
 
 class ParagraphStyle(Style, ParagraphPropertiesGetSetMixin):

@@ -27,6 +27,9 @@ StyleParam_id: str = 'id'
 StyleParam_is_default: str = 'is_default'
 StyleParam_is_custom: str = 'is_custom'
 
+# styles properties
+StyleBasedOn: str = 'based_on'
+
 # properties constants
 Const_directions: Dict[str, str] = {
     'top': '_top',
