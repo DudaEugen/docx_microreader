@@ -155,6 +155,8 @@ cell_property_descriptions: Dict[str, PropertyDescription] = {
 def merge_dicts(*args) -> dict:
     result = {}
     for arg in args:
+        if len(set(arg.keys()) & set(result.keys())) > 0:
+            raise KeyError('keys_consts have same keys')
         result.update(arg)
     return result
 
@@ -184,6 +186,6 @@ def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
     elif isinstance(ob, CharacterStyle):
         return merge_dicts(run_style_property_descriptions, style_properties)
     elif isinstance(ob, ParagraphStyle):
-        return merge_dicts(paragraph_style_property_description, style_properties)
+        return merge_dicts(paragraph_style_property_description, style_properties, run_style_property_descriptions)
 
     raise ValueError('argument in create properties dict function is mistake')

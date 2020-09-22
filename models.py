@@ -56,6 +56,12 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
         def get_inner_text(self) -> Union[str, None]:
             return str(self.text)
 
+        def get_property(self, property_name: str) -> Union[str, None, bool]:
+            result: Union[str, None, bool] = super(Paragraph.Run, self).get_property(property_name)
+            if result is None:
+                return self.parent.get_property(property_name)
+            return result
+
         class Text(XMLement):
             tag: str = k_const.Text_tag
             _is_unique = True
