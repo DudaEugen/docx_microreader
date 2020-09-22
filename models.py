@@ -1,5 +1,5 @@
 from docx_parser import XMLcontainer, DocumentParser
-from typing import List
+from typing import List, Dict
 from styles import *
 from mixins.getters_setters import *
 from constants import keys_consts as k_const
@@ -136,23 +136,19 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     previous_row = row
 
     def __calculate_rowspan_for_cells(self):
-        cells: List[Table.Row.Cell] = []
+        cell_for_row_span: Dict[int, Table.Row.Cell] = {}
         for row in self.rows:
             cells_for_delete: List[Table.Row.Cell] = []
-            j: int = -1
-            for i in range(len(row.cells)):
-                if len(cells) == (j + 1):
-                    col_span_number: int = int(row.cells[i].get_col_span()) \
-                        if row.cells[i].get_col_span() is not None else 1
-                    for k in range(col_span_number):
-                        cells.append(row.cells[i])
-                j += col_span_number
-                if row.cells[i].get_property(k_const.Cell_vertical_merge) == 'restart':
-                    cells[j] = row.cells[i]
-                    cells[j].row_span = 1
-                elif row.cells[i].get_property(k_const.Cell_vertical_merge) == 'continue':
-                    cells[j].row_span += 1
-                    cells_for_delete.append(row.cells[i])
+            col: int = 0
+            for cell in row.cells:
+                if cell.get_property(k_const.Cell_vertical_merge) == 'restart':
+                    cell_for_row_span[col] = cell
+                    cell_for_row_span[col].row_span = 1
+                elif cell.get_property(k_const.Cell_is_vertical_merge_continue):
+                    cell_for_row_span[col].row_span += 1
+                    cells_for_delete.append(cell)
+                col_span = cell.get_col_span()
+                col += int(col_span) if col_span is not None else 1
             for cell in cells_for_delete:
                 row.cells.remove(cell)
 
