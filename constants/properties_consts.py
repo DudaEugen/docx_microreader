@@ -156,7 +156,7 @@ def merge_dicts(*args) -> dict:
     result = {}
     for arg in args:
         if len(set(arg.keys()) & set(result.keys())) > 0:
-            raise KeyError('keys_consts have same keys')
+            raise KeyError(rf'keys_consts have same keys: {set(arg.keys()) & set(result.keys())}')
         result.update(arg)
     return result
 
@@ -182,7 +182,9 @@ def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
     elif isinstance(ob, NumberingStyle):
         return style_properties
     elif isinstance(ob, TableStyle):
-        return merge_dicts(table_style_property_descriptions, style_properties)
+        return merge_dicts(table_style_property_descriptions, style_properties,
+                           row_property_descriptions, cell_property_descriptions,
+                           paragraph_style_property_description, run_style_property_descriptions)
     elif isinstance(ob, CharacterStyle):
         return merge_dicts(run_style_property_descriptions, style_properties)
     elif isinstance(ob, ParagraphStyle):

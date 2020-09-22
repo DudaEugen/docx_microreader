@@ -53,6 +53,8 @@ Const_quantities: Dict[str, str] = {
     'cell_margin': 'cell_margin',
     'borders_inside': 'borders_inside',
     'border': 'border',
+    'paragraph_border': 'paragraph_border',
+    'cell_border': 'cell_border',
 }
 
 
@@ -67,7 +69,7 @@ def get_key(quantity: str, direction: str = '', property_name: str = '') -> str:
     return rf'{Const_quantities[quantity]}{dir}{p_name}'
 
 
-Par_align: str = 'align'
+Par_align: str = 'paragraph_align'
 Par_indent_left: str = 'indent_left'
 Par_indent_right: str = 'indent_right'
 Par_hanging: str = 'hanging'
@@ -75,22 +77,22 @@ Par_first_line: str = 'first_line'
 Par_keep_lines: str = 'keep_lines'
 Par_keep_next: str = 'keep_next'
 Par_outline_level: str = 'outline_level'
-Par_border_top: str = get_key('border', 'top', 'type')
-Par_border_top_color: str = get_key('border', 'top', 'color')
-Par_border_top_size: str = get_key('border', 'top', 'size')
-Par_border_top_space: str = get_key('border', 'top', 'space')
-Par_border_bottom: str = get_key('border', 'bottom', 'type')
-Par_border_bottom_color: str = get_key('border', 'bottom', 'color')
-Par_border_bottom_size: str = get_key('border', 'bottom', 'size')
-Par_border_bottom_space: str = get_key('border', 'bottom', 'space')
-Par_border_right: str = get_key('border', 'right', 'type')
-Par_border_right_color: str = get_key('border', 'right', 'color')
-Par_border_right_size: str = get_key('border', 'right', 'size')
-Par_border_right_space: str = get_key('border', 'right', 'space')
-Par_border_left: str = get_key('border', 'left', 'type')
-Par_border_left_color: str = get_key('border', 'left', 'color')
-Par_border_left_size: str = get_key('border', 'left', 'size')
-Par_border_left_space: str = get_key('border', 'left', 'space')
+Par_border_top: str = get_key('paragraph_border', 'top', 'type')
+Par_border_top_color: str = get_key('paragraph_border', 'top', 'color')
+Par_border_top_size: str = get_key('paragraph_border', 'top', 'size')
+Par_border_top_space: str = get_key('paragraph_border', 'top', 'space')
+Par_border_bottom: str = get_key('paragraph_border', 'bottom', 'type')
+Par_border_bottom_color: str = get_key('paragraph_border', 'bottom', 'color')
+Par_border_bottom_size: str = get_key('paragraph_border', 'bottom', 'size')
+Par_border_bottom_space: str = get_key('paragraph_border', 'bottom', 'space')
+Par_border_right: str = get_key('paragraph_border', 'right', 'type')
+Par_border_right_color: str = get_key('paragraph_border', 'right', 'color')
+Par_border_right_size: str = get_key('paragraph_border', 'right', 'size')
+Par_border_right_space: str = get_key('paragraph_border', 'right', 'space')
+Par_border_left: str = get_key('paragraph_border', 'left', 'type')
+Par_border_left_color: str = get_key('paragraph_border', 'left', 'color')
+Par_border_left_size: str = get_key('paragraph_border', 'left', 'size')
+Par_border_left_space: str = get_key('paragraph_border', 'left', 'space')
 Run_size: str = 'size'
 Run_is_bold: str = 'is_bold'
 Run_is_italic: str = 'is_italic'
@@ -144,24 +146,24 @@ Row_height: str = 'height'
 Row_height_rule: str = 'height_rule'
 Cell_fill_color: str = 'fill_color'
 Cell_fill_theme: str = 'fill_theme'
-Cell_border_top: str = get_key('border', 'top', 'type')
-Cell_border_top_color: str = get_key('border', 'top', 'color')
-Cell_border_top_size: str = get_key('border', 'top', 'size')
-Cell_border_bottom: str = get_key('border', 'bottom', 'type')
-Cell_border_bottom_color: str = get_key('border', 'bottom', 'color')
-Cell_border_bottom_size: str = get_key('border', 'bottom', 'size')
-Cell_border_right: str = get_key('border', 'right', 'type')
-Cell_border_right_color: str = get_key('border', 'right', 'color')
-Cell_border_right_size: str = get_key('border', 'right', 'size')
-Cell_border_left: str = get_key('border', 'left', 'type')
-Cell_border_left_color: str = get_key('border', 'left', 'color')
-Cell_border_left_size: str = get_key('border', 'left', 'size')
-Cell_width: str = 'width'
-Cell_width_type: str = 'width_type'
+Cell_border_top: str = get_key('cell_border', 'top', 'type')
+Cell_border_top_color: str = get_key('cell_border', 'top', 'color')
+Cell_border_top_size: str = get_key('cell_border', 'top', 'size')
+Cell_border_bottom: str = get_key('cell_border', 'bottom', 'type')
+Cell_border_bottom_color: str = get_key('cell_border', 'bottom', 'color')
+Cell_border_bottom_size: str = get_key('cell_border', 'bottom', 'size')
+Cell_border_right: str = get_key('cell_border', 'right', 'type')
+Cell_border_right_color: str = get_key('cell_border', 'right', 'color')
+Cell_border_right_size: str = get_key('cell_border', 'right', 'size')
+Cell_border_left: str = get_key('cell_border', 'left', 'type')
+Cell_border_left_color: str = get_key('cell_border', 'left', 'color')
+Cell_border_left_size: str = get_key('cell_border', 'left', 'size')
+Cell_width: str = 'cell_width'
+Cell_width_type: str = 'cell_width_type'
 Cell_col_span: str = 'col_span'
 Cell_vertical_merge: str = 'vertical_merge'
 Cell_is_vertical_merge_continue: str = 'is_vertical_merge_continue'
-Cell_vertical_align: str = 'vertical_align'
+Cell_vertical_align: str = 'cell_vertical_align'
 Cell_text_direction: str = 'text_direction'
 Cell_margin_top: str = get_key('margin', 'top', 'size')
 Cell_margin_top_type: str = get_key('margin', 'top', 'type')

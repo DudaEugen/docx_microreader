@@ -35,6 +35,10 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
             result += str(run)
         return result
 
+    def get_property(self, property_name: str) -> Union[str, None, bool]:
+        result: Union[str, None, bool] = super(Paragraph, self).get_property(property_name)
+        return result if result is not None else self.parent.get_property(property_name)
+
     class Run(XMLement, RunPropertiesGetSetMixin):
         tag: str = k_const.Run_tag
 
@@ -58,9 +62,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
 
         def get_property(self, property_name: str) -> Union[str, None, bool]:
             result: Union[str, None, bool] = super(Paragraph.Run, self).get_property(property_name)
-            if result is None:
-                return self.parent.get_property(property_name)
-            return result
+            return result if result is not None else self.parent.get_property(property_name)
 
         class Text(XMLement):
             tag: str = k_const.Text_tag
@@ -175,16 +177,16 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                                 not (i == (len(self.rows) - 1) and direction == 'bottom') and \
                                 not (j == 0 and direction == 'left') and \
                                 not (j == (len(self.rows[i].cells) - 1) and direction == 'right'):
-                            if self.rows[i].cells[j].get_property(k_const.get_key('border', direction, "color")) is None or \
-                                    self.rows[i].cells[j].get_property(k_const.get_key('border', direction, "color")) == 'auto':
-                                self.rows[i].cells[j].set_property_value(k_const.get_key('border', direction, "color"),
+                            if self.rows[i].cells[j].get_property(k_const.get_key('cell_border', direction, "color")) is None or \
+                                    self.rows[i].cells[j].get_property(k_const.get_key('cell_border', direction, "color")) == 'auto':
+                                self.rows[i].cells[j].set_property_value(k_const.get_key('cell_border', direction, "color"),
                                     self._properties[k_const.get_key('borders_inside', d, "color")].value
                                 )
-                            if self.rows[i].cells[j].get_property(k_const.get_key('border', direction, "type")) is None:
-                                self.rows[i].cells[j].set_property_value(k_const.get_key('border', direction, "type"),
+                            if self.rows[i].cells[j].get_property(k_const.get_key('cell_border', direction, "type")) is None:
+                                self.rows[i].cells[j].set_property_value(k_const.get_key('cell_border', direction, "type"),
                                     self._properties[k_const.get_key('borders_inside', d, "type")].value
                                 )
-                                self.rows[i].cells[j].set_property_value(k_const.get_key('border', direction, "size"),
+                                self.rows[i].cells[j].set_property_value(k_const.get_key('cell_border', direction, "size"),
                                     self._properties[k_const.get_key('borders_inside', d, "size")].value
                                 )
 
@@ -220,6 +222,10 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             super(Table.Row, self).set_as_header(is_header)
             self.__set_cells_as_header()
 
+        def get_property(self, property_name: str) -> Union[str, None, bool]:
+            result: Union[str, None, bool] = super(Table.Row, self).get_property(property_name)
+            return result if result is not None else self.parent.get_property(property_name)
+
         class Cell(XMLcontainer, CellPropertiesGetSetMixin):
             tag: str = k_const.Cell_tag
             from translators.html_translators import CellTranslatorToHTML
@@ -231,6 +237,10 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 self.row_span: int = 1
                 self.is_header = False
                 super(Table.Row.Cell, self).__init__(element, parent)
+
+            def get_property(self, property_name: str) -> Union[str, None, bool]:
+                result: Union[str, None, bool] = super(Table.Row.Cell, self).get_property(property_name)
+                return result if result is not None else self.parent.get_property(property_name)
 
 
 class Document(DocumentParser):

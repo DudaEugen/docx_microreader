@@ -76,14 +76,14 @@ class ParagraphPropertiesGetSetMixin(GetSetMixin, ABC):
         :param direction: top, bottom, right, left     (keys of XMLementPropertyDescriptions.Const_directions dict)
         :param property_name: color, size, space, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        return self.get_property(k_const.get_key('border', direction, property_name))
+        return self.get_property(k_const.get_key('paragraph_border', direction, property_name))
 
     def set_border_value(self, direction: str, property_name: str, value: Union[str, None]):
         """
         :param direction: top, bottom, right, left     (keys of XMLementPropertyDescriptions.Const_directions dict)
         :param property_name: color, size, space, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        self.set_property_value(k_const.get_key('border', direction, property_name), value)
+        self.set_property_value(k_const.get_key('paragraph_border', direction, property_name), value)
 
 
 class RunPropertiesGetSetMixin(GetSetMixin, ABC):
@@ -309,14 +309,14 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
         :param direction: top, bottom, right, left  (keys of XMLementPropertyDescriptions.Const_directions dict)
         :param property_name: color, size, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        return self.get_property(k_const.get_key('border', direction, property_name))
+        return self.get_property(k_const.get_key('cell_border', direction, property_name))
 
     def set_border_value(self, direction: str, property_name: str, value: Union[str, None]):
         """
         :param direction: top, bottom, right, left  (keys of XMLementPropertyDescriptions.Const_directions dict)
         :param property_name: color, size, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        self.set_property_value(k_const.get_key('border', direction, property_name), value)
+        self.set_property_value(k_const.get_key('cell_border', direction, property_name), value)
 
     def get_width(self) -> Tuple[Union[str, None], Union[str, None]]:
         """
