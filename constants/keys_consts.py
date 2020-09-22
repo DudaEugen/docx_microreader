@@ -30,6 +30,9 @@ StyleParam_is_custom: str = 'is_custom'
 # styles properties
 StyleBasedOn: str = 'based_on'
 
+# value of bool property
+BoolPropertyValue: str = 'w:val'
+
 # properties constants
 Const_directions: Dict[str, str] = {
     'top': '_top',

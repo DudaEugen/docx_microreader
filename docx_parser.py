@@ -4,6 +4,7 @@ from typing import Union, List, Callable, Dict, Tuple
 import re
 from properties import Property, PropertyDescription
 from constants import properties_consts as p_consts
+from constants import keys_consts as k_consts
 
 
 class Parser:
@@ -48,7 +49,12 @@ class Parser:
                 return Property(None, pr)
             else:
                 return Property(property_element.get(self._check_namespace(tags)), pr)
-        return Property(True, pr)
+        else:
+            value: Union[str, None] = property_element.get(self._check_namespace(k_consts.BoolPropertyValue))
+            if value is not None and value == '0':
+                return Property(False, pr)
+            else:
+                return Property(True, pr)
 
     def _parse_element(self, element: ET.Element):
         from models import Document, Table, Paragraph
@@ -92,10 +98,7 @@ class Parser:
             if property_element is not None:
                 result[key] = self.__find_property(property_element, pr, self._all_properties[key].tag_property)
             else:
-                if pr.value_type == 'str':
-                    result[key] = Property(None, pr)
-                else:
-                    result[key] = Property(False, pr)
+                result[key] = Property(None, pr)
         return result
 
     @staticmethod
