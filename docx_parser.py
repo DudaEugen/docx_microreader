@@ -233,6 +233,9 @@ class XMLement(Parser):
     def get_inner_text(self) -> Union[str, None]:
         return None
 
+    def get_parent(self):
+        return self.parent
+
     def get_property(self, property_name: str) -> Union[str, None, bool]:
         is_view: bool = True
         if property_name in self._properties:

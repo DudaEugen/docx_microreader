@@ -13,6 +13,10 @@ class GetSetMixin(ABC):
                                   'Your class must implement this method or'
                                   'GetSetMixin must be inherited after the class that implements this method')
 
+    def get_parent(self):
+        raise NotImplementedError('method get_parent is not implemented. Your class must implement this method or'
+                                  'GetSetMixin must be inherited after the class that implements this method')
+
 
 class ParagraphPropertiesGetSetMixin(GetSetMixin, ABC):
     def get_align(self) -> Union[str, None]:
@@ -352,6 +356,11 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
         (keys of XMLementPropertyDescriptions.Const_directions dict)
         :return: (margin, type)
         """
+        if self.get_property(k_const.get_key('margin', direction, "size")) is None:
+            return (
+                self.get_parent().get_parent().get_property(k_const.get_key('cell_margin', direction, "size")),
+                self.get_parent().get_parent().get_property(k_const.get_key('cell_margin', direction, "type"))
+            )
         return (
             self.get_property(k_const.get_key('margin', direction, "size")),
             self.get_property(k_const.get_key('margin', direction, "type"))

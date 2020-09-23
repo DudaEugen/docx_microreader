@@ -107,7 +107,6 @@ class Table(XMLement, TablePropertiesGetSetMixin):
     def __str__(self):
         self.__define_first_and_last_head_rows()
         self.__calculate_rowspan_for_cells()
-        self.__set_margins_for_cells()
         self.__set_inside_borders()
         return super(Table, self).__str__()
 
@@ -144,24 +143,14 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 if cell.get_property(k_const.Cell_vertical_merge) == 'restart':
                     cell_for_row_span[col] = cell
                     cell_for_row_span[col].row_span = 1
-                elif cell.get_property(k_const.Cell_is_vertical_merge_continue):
+                elif cell.get_property(k_const.Cell_vertical_merge) == 'continue' or \
+                        cell.get_property(k_const.Cell_is_vertical_merge_continue):
                     cell_for_row_span[col].row_span += 1
                     cells_for_delete.append(cell)
                 col_span = cell.get_col_span()
                 col += int(col_span) if col_span is not None else 1
             for cell in cells_for_delete:
                 row.cells.remove(cell)
-
-    def __set_margins_for_cells(self):
-        for direction in "top", "bottom", "left", "right":
-            if self.get_property(k_const.get_key('cell_margin', direction, "type")) is not None:
-                for row in self.rows:
-                    for cell in row.cells:
-                        if cell.get_property(k_const.get_key('margin', direction, "size")) is None:
-                            cell.set_property_value(k_const.get_key('margin', direction, "size"),
-                                        self._properties[k_const.get_key('cell_margin', direction, "size")].value)
-                            cell.set_property_value(k_const.get_key('margin', direction, "type"),
-                                        self._properties[k_const.get_key('cell_margin', direction, "type")].value)
 
     def __set_inside_borders(self):
         for direction in "top", "bottom", "left", "right":
