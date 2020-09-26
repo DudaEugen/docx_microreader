@@ -296,6 +296,16 @@ class RowPropertiesGetSetMixin(GetSetMixin, ABC):
 
 
 class CellPropertiesGetSetMixin(GetSetMixin, ABC):
+    def is_first_in_row(self) -> bool:
+        raise NotImplementedError('method is_first_in_row is not implemented. Your class must implement this method or'
+                                  'CellPropertiesGetSetMixin must be inherited after the class that implements this '
+                                  'method')
+
+    def is_last_in_row(self) -> bool:
+        raise NotImplementedError('method is_last_in_row is not implemented. Your class must implement this method or'
+                                  'CellPropertiesGetSetMixin must be inherited after the class that implements this '
+                                  'method')
+
     def get_fill_color(self) -> Union[str, None]:
         return self.get_property(k_const.Cell_fill_color)
 
@@ -313,7 +323,15 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
         :param direction: top, bottom, right, left  (keys of XMLementPropertyDescriptions.Const_directions dict)
         :param property_name: color, size, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        return self.get_property(k_const.get_key('cell_border', direction, property_name))
+        result = self.get_property(k_const.get_key('cell_border', direction, property_name))
+        if result is None or (property_name == 'color' and result == 'auto'):
+            if not (self.is_first_in_row() and direction == 'left') and \
+               not (self.is_last_in_row() and direction == 'right') and \
+               not (self.get_parent().is_first_in_table() and direction == 'top') and \
+               not (self.get_parent().is_last_in_table() and direction == 'bottom'):
+                d: str = 'horizontal' if (direction == 'top' or direction == 'bottom') else 'vertical'
+                return self.get_parent().get_parent().get_inside_border(d, property_name)
+        return result
 
     def set_border_value(self, direction: str, property_name: str, value: Union[str, None]):
         """

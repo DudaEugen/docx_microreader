@@ -107,11 +107,11 @@ class Table(XMLement, TablePropertiesGetSetMixin):
     def __str__(self):
         self.__define_first_and_last_head_rows()
         self.__calculate_rowspan_for_cells()
-        self.__set_inside_borders()
         return super(Table, self).__str__()
 
     def _init(self):
         self.rows = self._get_elements(Table.Row)
+        self.__set_index_in_table_for_rows()
 
     def _get_style_id(self) -> Union[str, None]:
         return self._properties[k_const.TabStyle].value
@@ -121,6 +121,10 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         for row in self.rows:
             result += str(row)
         return result
+
+    def __set_index_in_table_for_rows(self):
+        for index in range(len(self.rows)):
+            self.rows[index].index_in_table = index
 
     def __define_first_and_last_head_rows(self):
         if self.rows:
@@ -152,29 +156,6 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             for cell in cells_for_delete:
                 row.cells.remove(cell)
 
-    def __set_inside_borders(self):
-        for direction in "top", "bottom", "left", "right":
-            d: str = 'horizontal' if (direction == 'top' or direction == 'bottom') else 'vertical'
-            if self.get_property(k_const.get_key('borders_inside', d, "type")) is not None:
-                for i in range(len(self.rows)):
-                    for j in range(len(self.rows[i].cells)):
-                        if not (i == 0 and direction == 'top') and \
-                                not (i == (len(self.rows) - 1) and direction == 'bottom') and \
-                                not (j == 0 and direction == 'left') and \
-                                not (j == (len(self.rows[i].cells) - 1) and direction == 'right'):
-                            if self.rows[i].cells[j].get_property(k_const.get_key('cell_border', direction, "color")) is None or \
-                                    self.rows[i].cells[j].get_property(k_const.get_key('cell_border', direction, "color")) == 'auto':
-                                self.rows[i].cells[j].set_property_value(k_const.get_key('cell_border', direction, "color"),
-                                    self._properties[k_const.get_key('borders_inside', d, "color")].value
-                                )
-                            if self.rows[i].cells[j].get_property(k_const.get_key('cell_border', direction, "type")) is None:
-                                self.rows[i].cells[j].set_property_value(k_const.get_key('cell_border', direction, "type"),
-                                    self._properties[k_const.get_key('borders_inside', d, "type")].value
-                                )
-                                self.rows[i].cells[j].set_property_value(k_const.get_key('cell_border', direction, "size"),
-                                    self._properties[k_const.get_key('borders_inside', d, "size")].value
-                                )
-
     class Row(XMLement, RowPropertiesGetSetMixin):
         tag: str = k_const.Row_tag
         from translators.html_translators import RowTranslatorToHTML
@@ -186,12 +167,14 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             self.cells: List[Table.Row.Cell] = []
             self.is_first_row_in_header: bool = False
             self.is_last_row_in_header: bool = False
+            self.index_in_table: int = -1
             super(Table.Row, self).__init__(element, parent)
             if self._properties[k_const.Row_is_header].value:
                 self.__set_cells_as_header()
 
         def _init(self):
             self.cells = self._get_elements(Table.Row.Cell)
+            self.__set_index_in_row_for_cells()
 
         def get_inner_text(self) -> Union[str, None]:
             result: str = ''
@@ -203,6 +186,10 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             for cell in self.cells:
                 cell.is_header = True
 
+        def __set_index_in_row_for_cells(self):
+            for index in range(len(self.cells)):
+                self.cells[index].index_in_row = index
+
         def set_as_header(self, is_header: bool = True):
             super(Table.Row, self).set_as_header(is_header)
             self.__set_cells_as_header()
@@ -210,6 +197,12 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         def get_property(self, property_name: str) -> Union[str, None, bool]:
             result: Union[str, None, bool] = super(Table.Row, self).get_property(property_name)
             return result if result is not None else self.parent.get_property(property_name)
+
+        def is_first_in_table(self) -> bool:
+            return self.index_in_table == 0
+
+        def is_last_in_table(self) -> bool:
+            return self.index_in_table == (len(self.get_parent().rows) - 1)
 
         class Cell(XMLcontainer, CellPropertiesGetSetMixin):
             tag: str = k_const.Cell_tag
@@ -220,12 +213,19 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 
             def __init__(self, element: ET.Element, parent):
                 self.row_span: int = 1
-                self.is_header = False
+                self.is_header: bool = False
+                self.index_in_row: int = -1
                 super(Table.Row.Cell, self).__init__(element, parent)
 
             def get_property(self, property_name: str) -> Union[str, None, bool]:
                 result: Union[str, None, bool] = super(Table.Row.Cell, self).get_property(property_name)
                 return result if result is not None else self.parent.get_property(property_name)
+
+            def is_first_in_row(self) -> bool:
+                return self.index_in_row == 0
+
+            def is_last_in_row(self) -> bool:
+                return self.index_in_row == (len(self.get_parent().cells) - 1)
 
 
 class Document(DocumentParser):
