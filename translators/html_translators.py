@@ -46,8 +46,8 @@ class TranslatorToHTML:
         self.ext_tags = []
 
     def translate(self, element) -> str:
-        self._reset_value()     # it is need, because one translator can using for many objects
         inner_text: str = element.get_inner_text()
+        self._reset_value()     # it is need, because one translator can using for many objects
         # it is need convert inner element before tacking styles, attributes etc
         # because one translator can using for many objects, but this objects can containing each other
         # In this algorithm styles, attributes etc. takes from inner elements to outher elements
