@@ -1,5 +1,5 @@
 from docx_parser import XMLcontainer, DocumentParser
-from typing import List, Dict
+from typing import List
 from styles import *
 from mixins.getters_setters import *
 from constants import keys_consts as k_const
@@ -194,15 +194,17 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             super(Table.Row, self).set_as_header(is_header)
             self.__set_cells_as_header()
 
-        def get_property(self, property_name: str) -> Union[str, None, bool]:
-            result: Union[str, None, bool] = super(Table.Row, self).get_property(property_name)
-            return result if result is not None else self.parent.get_property(property_name)
-
         def is_first_in_table(self) -> bool:
             return self.index_in_table == 0
 
         def is_last_in_table(self) -> bool:
             return self.index_in_table == (len(self.get_parent().rows) - 1)
+
+        def is_odd(self) -> bool:
+            return self.index_in_table % 2 == 1
+
+        def is_even(self) -> bool:
+            return self.index_in_table % 2 == 0
 
         class Cell(XMLcontainer, CellPropertiesGetSetMixin):
             tag: str = k_const.Cell_tag
@@ -217,15 +219,96 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 self.index_in_row: int = -1
                 super(Table.Row.Cell, self).__init__(element, parent)
 
+            def __get_table_area_style(self, table_area_style_type: str):
+                return self.get_parent().get_parent().get_style().get_table_area_style(table_area_style_type)
+
+            def __get_property_of_table_area_style(self, property_name: str, table_area_style_type: str):
+                table_area_style = self.__get_table_area_style(table_area_style_type)
+                if table_area_style is not None:
+                    return table_area_style.get_property(property_name)
+                return None
+
             def get_property(self, property_name: str) -> Union[str, None, bool]:
-                result: Union[str, None, bool] = super(Table.Row.Cell, self).get_property(property_name)
-                return result if result is not None else self.parent.get_property(property_name)
+                result = self._properties.get(property_name)
+                if result is not None and result.value is not None:
+                    return result.value
+                if self.is_top_left():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabTopLeftCellStyle_type)
+                    if result is not None:
+                        return result
+                if self.is_top_right():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabTopRightCellStyle_type)
+                    if result is not None:
+                        return result
+                if self.is_bottom_left():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabBottomLeftCellStyle_type)
+                    if result is not None:
+                        return result
+                if self.is_bottom_right():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabBottomRightCellStyle_type)
+                    if result is not None:
+                        return result
+                if self.is_first_in_row():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabFirstColumnStyle_type)
+                    if result is not None:
+                        return result
+                if self.is_last_in_row():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabLastColumnStyle_type)
+                    if result is not None:
+                        return result
+                if self.get_parent().is_first_in_table():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabFirsRowStyle_type)
+                    if result is not None:
+                        return result
+                if self.get_parent().is_last_in_table():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabLastRowStyle_type)
+                    if result is not None:
+                        return result
+                if self.is_odd():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabOddColumnStyle_type)
+                    if result is not None:
+                        return result
+                if self.is_even():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenColumnStyle_type)
+                    if result is not None:
+                        return result
+                if self.get_parent().is_odd():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabOddRowStyle_type)
+                    if result is not None:
+                        return result
+                if self.get_parent().is_even():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenRowStyle_type)
+                    if result is not None:
+                        return result
+                if self._base_style is not None:
+                    base_style_property = self._base_style.get_property(property_name)
+                    if base_style_property is not None:
+                        return base_style_property
+                return self.get_parent().get_property(property_name)
 
             def is_first_in_row(self) -> bool:
                 return self.index_in_row == 0
 
             def is_last_in_row(self) -> bool:
                 return self.index_in_row == (len(self.get_parent().cells) - 1)
+
+            def is_odd(self) -> bool:
+                return self.index_in_row % 2 == 1
+
+            def is_even(self) -> bool:
+                return self.index_in_row % 2 == 0
+
+            def is_top_left(self) -> bool:
+                return self.is_first_in_row() and self.get_parent().is_first_in_table()
+
+            def is_top_right(self) -> bool:
+                return self.is_last_in_row() and self.get_parent().is_first_in_table()
+
+            def is_bottom_left(self) -> bool:
+                return self.is_first_in_row() and self.get_parent().is_last_in_table()
+
+            def is_bottom_right(self) -> bool:
+                return self.is_last_in_row() and self.get_parent().is_last_in_table()
 
 
 class Document(DocumentParser):

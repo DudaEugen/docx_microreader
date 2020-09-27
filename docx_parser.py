@@ -73,7 +73,8 @@ class Parser:
 
     def _get_elements(self, class_of_element):
         if class_of_element._is_unique:
-            return class_of_element(self._element.find(class_of_element.tag, namespaces), self)
+            element: Union[ET.Element, None] = self._element.find(class_of_element.tag, namespaces)
+            return class_of_element(element, self) if element is not None else None
         else:
             result: list = []
             for el in self._element.findall('./' + class_of_element.tag, namespaces):

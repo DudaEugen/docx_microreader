@@ -185,6 +185,9 @@ def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
         return merge_dicts(table_style_property_descriptions, style_properties,
                            row_property_descriptions, cell_property_descriptions,
                            paragraph_style_property_description, run_style_property_descriptions)
+    elif isinstance(ob, TableStyle.TableAreaStyle):
+        return merge_dicts(table_style_property_descriptions, row_property_descriptions, cell_property_descriptions,
+                           paragraph_style_property_description, run_style_property_descriptions)
     elif isinstance(ob, CharacterStyle):
         return merge_dicts(run_style_property_descriptions, style_properties)
     elif isinstance(ob, ParagraphStyle):
