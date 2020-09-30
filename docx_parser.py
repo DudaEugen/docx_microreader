@@ -238,14 +238,10 @@ class XMLement(Parser):
         return self.parent
 
     def get_property(self, property_name: str) -> Union[str, None, bool]:
-        is_view: bool = True
         if property_name in self._properties:
-            is_view = self._properties[property_name].description.is_view
-            if is_view:
-                if self._properties[property_name].value is not None:
-                    return self._properties[property_name].value
-
-        if is_view and self._base_style is not None:
+            if self._properties[property_name].value is not None:
+                return self._properties[property_name].value
+        if self._base_style is not None:
             return self._base_style.get_property(property_name)
         return None
 
@@ -257,9 +253,6 @@ class XMLement(Parser):
 
     def set_property_value(self, property_name: str, value: Union[str, bool, None]):
         self._properties[property_name].value = value
-
-    def set_property_view(self, property_name: str, is_view: bool):
-        self._all_properties[property_name].is_view = is_view
 
     def _get_style_from_document(self):
         style_id = self._get_style_id()
