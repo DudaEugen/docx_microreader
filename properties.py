@@ -23,6 +23,5 @@ class PropertyDescription:
 
 class Property:
 
-    def __init__(self, value: Union[str, None, bool], description: PropertyDescription):
-        self.description: PropertyDescription = description
+    def __init__(self, value: Union[str, None, bool]):
         self.value: Union[str, None, bool] = value

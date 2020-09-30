@@ -45,16 +45,16 @@ class Parser:
                 for tag_prop in tags:
                     prop: Union[None, str] = property_element.get(self._check_namespace(tag_prop))
                     if prop is not None:
-                        return Property(prop, pr)
-                return Property(None, pr)
+                        return Property(prop)
+                return Property(None)
             else:
-                return Property(property_element.get(self._check_namespace(tags)), pr)
+                return Property(property_element.get(self._check_namespace(tags)))
         else:
             value: Union[str, None] = property_element.get(self._check_namespace(k_consts.BoolPropertyValue))
             if value is not None and value == '0':
-                return Property(False, pr)
+                return Property(False)
             else:
-                return Property(True, pr)
+                return Property(True)
 
     def _parse_element(self, element: ET.Element):
         from models import Document, Table, Paragraph
@@ -99,7 +99,7 @@ class Parser:
             if property_element is not None:
                 result[key] = self.__find_property(property_element, pr, self._all_properties[key].tag_property)
             else:
-                result[key] = Property(None, pr)
+                result[key] = Property(None)
         return result
 
     @staticmethod
