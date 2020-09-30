@@ -540,6 +540,8 @@ class TextTranslatorToHTML:
         '¥': '&yen;',
         '¢': '&cent;',
         '¿': '&iquest;',
+        'Ґ': '&#1168',
+        'ґ': '&#1169',
     }
 
     def translate(self, text_element) -> str:
