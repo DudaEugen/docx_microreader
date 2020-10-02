@@ -325,6 +325,12 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                         return base_style_property
                 return self.get_parent_row().get_property(property_name)
 
+            def get_col_span(self) -> Union[str, None]:
+                return self._properties[k_const.Cell_col_span].value
+
+            def set_col_span_value(self, value: Union[str, int]):
+                self._properties[k_const.Cell_col_span].value = str(value)
+
             def get_parent_row(self):
                 return self.get_parent()
 
@@ -341,7 +347,8 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 return self.index_in_row == 0
 
             def is_last_in_row(self) -> bool:
-                return self.index_in_row + self.row_span >= (len(self.get_parent_row().cells) - 1)
+                col_span: int = 1 if self.get_col_span() is None else int(self.get_col_span())
+                return self.index_in_row + col_span >= len(self.get_parent_row().cells)
 
             def is_odd(self) -> bool:
                 return self.index_in_row % 2 == 1

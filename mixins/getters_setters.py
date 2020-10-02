@@ -361,12 +361,6 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
         self.set_property_value(k_const.Cell_width, width)
         self.set_property_value(k_const.Cell_width_type, width_type)
 
-    def get_col_span(self) -> Union[str, None]:
-        return self.get_property(k_const.Cell_col_span)
-
-    def set_col_span_value(self, value: Union[str, int]):
-        self.set_property_value(k_const.Cell_col_span, str(value))
-
     def get_vertical_align(self) -> Union[str, None]:
         return self.get_property(k_const.Cell_vertical_align)
 
