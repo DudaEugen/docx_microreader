@@ -190,6 +190,9 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             for index in range(len(self.cells)):
                 self.cells[index].index_in_row = index
 
+        def get_parent_table(self):
+            return self.get_parent()
+
         def set_as_header(self, is_header: bool = True):
             super(Table.Row, self).set_as_header(is_header)
             self.__set_cells_as_header()
@@ -198,7 +201,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             return self.index_in_table == 0
 
         def is_last_in_table(self) -> bool:
-            return self.index_in_table == (len(self.get_parent().rows) - 1)
+            return self.index_in_table == (len(self.get_parent_table().rows) - 1)
 
         def is_odd(self) -> bool:
             return self.index_in_table % 2 == 1
@@ -220,7 +223,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 super(Table.Row.Cell, self).__init__(element, parent)
 
             def __get_table_area_style(self, table_area_style_type: str):
-                return self.get_parent().get_parent().get_style().get_table_area_style(table_area_style_type)
+                return self.get_parent_table().get_style().get_table_area_style(table_area_style_type)
 
             def __get_property_of_table_area_style(self, property_name: str, table_area_style_type: str):
                 table_area_style = self.__get_table_area_style(table_area_style_type)
@@ -256,11 +259,11 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabLastColumnStyle_type)
                     if result is not None:
                         return result
-                if self.get_parent().is_first_in_table():
+                if self.get_parent_row().is_first_in_table():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabFirsRowStyle_type)
                     if result is not None:
                         return result
-                if self.get_parent().is_last_in_table():
+                if self.get_parent_row().is_last_in_table():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabLastRowStyle_type)
                     if result is not None:
                         return result
@@ -272,11 +275,11 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenColumnStyle_type)
                     if result is not None:
                         return result
-                if self.get_parent().is_odd():
+                if self.get_parent_row().is_odd():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabOddRowStyle_type)
                     if result is not None:
                         return result
-                if self.get_parent().is_even():
+                if self.get_parent_row().is_even():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenRowStyle_type)
                     if result is not None:
                         return result
@@ -284,19 +287,25 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     base_style_property = self._base_style.get_property(property_name)
                     if base_style_property is not None:
                         return base_style_property
-                return self.get_parent().get_property(property_name)
+                return self.get_parent_row().get_property(property_name)
+
+            def get_parent_row(self):
+                return self.get_parent()
+
+            def get_parent_table(self):
+                return self.get_parent_row().get_parent()
 
             def is_top(self) -> bool:
-                return self.get_parent().is_first_in_table()
+                return self.get_parent_row().is_first_in_table()
 
             def is_bottom(self) -> bool:
-                return self.get_parent().index_in_table + self.row_span >= len(self.get_parent().get_parent().rows)
+                return self.get_parent_row().index_in_table + self.row_span >= len(self.get_parent_table().rows)
 
             def is_first_in_row(self) -> bool:
                 return self.index_in_row == 0
 
             def is_last_in_row(self) -> bool:
-                return self.index_in_row + self.row_span >= (len(self.get_parent().cells) - 1)
+                return self.index_in_row + self.row_span >= (len(self.get_parent_row().cells) - 1)
 
             def is_odd(self) -> bool:
                 return self.index_in_row % 2 == 1

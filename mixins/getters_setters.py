@@ -13,10 +13,6 @@ class GetSetMixin(ABC):
                                   'Your class must implement this method or'
                                   'GetSetMixin must be inherited after the class that implements this method')
 
-    def get_parent(self):
-        raise NotImplementedError('method get_parent is not implemented. Your class must implement this method or'
-                                  'GetSetMixin must be inherited after the class that implements this method')
-
 
 class ParagraphPropertiesGetSetMixin(GetSetMixin, ABC):
     def get_align(self) -> Union[str, None]:
@@ -296,6 +292,11 @@ class RowPropertiesGetSetMixin(GetSetMixin, ABC):
 
 
 class CellPropertiesGetSetMixin(GetSetMixin, ABC):
+    def get_parent_table(self):
+        raise NotImplementedError('method get_parent_table is not implemented. Your class must implement this method or'
+                                  'CellPropertiesGetSetMixin must be inherited after the class that implements this '
+                                  'method')
+
     def is_top(self) -> bool:
         raise NotImplementedError('method is_top is not implemented. Your class must implement this method or'
                                   'CellPropertiesGetSetMixin must be inherited after the class that implements this '
@@ -340,7 +341,7 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
                not (self.is_top() and direction == 'top') and \
                not (self.is_bottom() and direction == 'bottom'):
                 d: str = 'horizontal' if (direction == 'top' or direction == 'bottom') else 'vertical'
-                return self.get_parent().get_parent().get_inside_border(d, property_name)
+                return self.get_parent_table().get_inside_border(d, property_name)
         return result
 
     def set_border_value(self, direction: str, property_name: str, value: Union[str, None]):
@@ -386,8 +387,8 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
         """
         if self.get_property(k_const.get_key('margin', direction, "size")) is None:
             return (
-                self.get_parent().get_parent().get_property(k_const.get_key('cell_margin', direction, "size")),
-                self.get_parent().get_parent().get_property(k_const.get_key('cell_margin', direction, "type"))
+                self.get_parent_table().get_property(k_const.get_key('cell_margin', direction, "size")),
+                self.get_parent_table().get_property(k_const.get_key('cell_margin', direction, "type"))
             )
         return (
             self.get_property(k_const.get_key('margin', direction, "size")),
