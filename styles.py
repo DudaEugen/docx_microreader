@@ -36,18 +36,6 @@ class TableStyle(Style, TablePropertiesGetSetMixin):
 
     def __init__(self, element: ET.Element, parent,
                  style_id: str, is_default: bool = False, is_custom_style: bool = False):
-        self.first_row: Union[TableStyle.TableAreaStyle, None] = None
-        self.last_row: Union[TableStyle.TableAreaStyle, None] = None
-        self.first_col: Union[TableStyle.TableAreaStyle, None] = None
-        self.last_col: Union[TableStyle.TableAreaStyle, None] = None
-        self.odd_col: Union[TableStyle.TableAreaStyle, None] = None
-        self.even_col: Union[TableStyle.TableAreaStyle, None] = None
-        self.odd_row: Union[TableStyle.TableAreaStyle, None] = None
-        self.even_row: Union[TableStyle.TableAreaStyle, None] = None
-        self.top_right_cell: Union[TableStyle.TableAreaStyle, None] = None
-        self.top_left_cell: Union[TableStyle.TableAreaStyle, None] = None
-        self.bottom_right_cell: Union[TableStyle.TableAreaStyle, None] = None
-        self.bottom_left_cell: Union[TableStyle.TableAreaStyle, None] = None
         super(TableStyle, self).__init__(element, parent, style_id, is_default, is_custom_style)
 
     def _init(self):

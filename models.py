@@ -157,40 +157,52 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 row.cells.remove(cell)
 
     def is_use_style_of_first_row(self) -> bool:
-        return self._properties[k_const.Tab_first_row_style_look].value is not None
+        if self._properties[k_const.Tab_first_row_style_look].value is None:
+            return False
+        return self._properties[k_const.Tab_first_row_style_look].value == '1'
 
     def set_as_use_style_of_first_row(self, is_use: bool):
-        self._properties[k_const.Tab_first_row_style_look].value = None if not is_use else is_use
+        self._properties[k_const.Tab_first_row_style_look].value = None if not is_use else '1'
 
     def is_use_style_of_first_column(self) -> bool:
-        return self._properties[k_const.Tab_first_column_style_look].value is not None
+        if self._properties[k_const.Tab_first_column_style_look].value is None:
+            return False
+        return self._properties[k_const.Tab_first_column_style_look].value == '1'
 
     def set_as_use_style_of_first_column(self, is_use: bool):
-        self._properties[k_const.Tab_first_column_style_look].value = None if not is_use else is_use
+        self._properties[k_const.Tab_first_column_style_look].value = None if not is_use else '1'
 
     def is_use_style_of_last_row(self) -> bool:
-        return self._properties[k_const.Tab_last_row_style_look].value is not None
+        if self._properties[k_const.Tab_last_row_style_look].value is None:
+            return False
+        return self._properties[k_const.Tab_last_row_style_look].value == '1'
 
     def set_as_use_style_of_last_row(self, is_use: bool):
-        self._properties[k_const.Tab_last_row_style_look].value = None if not is_use else is_use
+        self._properties[k_const.Tab_last_row_style_look].value = None if not is_use else '1'
 
     def is_use_style_of_last_column(self) -> bool:
-        return self._properties[k_const.Tab_last_column_style_look].value is not None
+        if self._properties[k_const.Tab_last_column_style_look].value is None:
+            return False
+        return self._properties[k_const.Tab_last_column_style_look].value == '1'
 
     def set_as_use_style_of_last_column(self, is_use: bool):
-        self._properties[k_const.Tab_last_column_style_look].value = None if not is_use else is_use
+        self._properties[k_const.Tab_last_column_style_look].value = None if not is_use else '1'
 
     def is_use_style_of_horizontal_banding(self) -> bool:
-        return self._properties[k_const.Tab_no_horizontal_banding].value is None
+        if self._properties[k_const.Tab_no_horizontal_banding].value is None:
+            return True
+        return self._properties[k_const.Tab_no_horizontal_banding].value == '0'
 
     def set_as_use_style_of_horizontal_banding(self, is_use: bool):
-        self._properties[k_const.Tab_no_horizontal_banding].value = None if is_use else is_use
+        self._properties[k_const.Tab_no_horizontal_banding].value = None if is_use else '0'
 
     def is_use_style_of_vertical_banding(self) -> bool:
-        return self._properties[k_const.Tab_no_vertical_banding].value is None
+        if self._properties[k_const.Tab_no_vertical_banding].value is None:
+            return True
+        return self._properties[k_const.Tab_no_vertical_banding].value == '0'
 
     def set_as_use_style_of_vertical_banding(self, is_use: bool):
-        self._properties[k_const.Tab_no_vertical_banding].value = None if is_use else is_use
+        self._properties[k_const.Tab_no_vertical_banding].value = None if is_use else '0'
 
     class Row(XMLement, RowPropertiesGetSetMixin):
         tag: str = k_const.Row_tag
