@@ -111,6 +111,12 @@ table_style_property_descriptions: Dict[str, PropertyDescription] = {
 # description of properties Table, but not TableStyle
 table_property_descriptions: Dict[str, PropertyDescription] = {
     TabStyle: PropertyDescription('w:tblPr', 'w:tblStyle', 'w:val'),
+    Tab_first_row_style_look: PropertyDescription('w:tblPr', 'w:tblLook', 'w:firstRow'),
+    Tab_first_column_style_look: PropertyDescription('w:tblPr', 'w:tblLook', 'w:firstColumn'),
+    Tab_last_row_style_look: PropertyDescription('w:tblPr', 'w:tblLook', 'w:lastRow'),
+    Tab_last_column_style_look: PropertyDescription('w:tblPr', 'w:tblLook', 'w:lastColumn'),
+    Tab_no_horizontal_banding: PropertyDescription('w:tblPr', 'w:tblLook', 'w:noHBand'),
+    Tab_no_vertical_banding: PropertyDescription('w:tblPr', 'w:tblLook', 'w:noVBand'),
 }
 
 row_property_descriptions: Dict[str, PropertyDescription] = {

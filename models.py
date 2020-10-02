@@ -156,6 +156,42 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             for cell in cells_for_delete:
                 row.cells.remove(cell)
 
+    def is_use_style_of_first_row(self) -> bool:
+        return self._properties[k_const.Tab_first_row_style_look].value is not None
+
+    def set_as_use_style_of_first_row(self, is_use: bool):
+        self._properties[k_const.Tab_first_row_style_look].value = None if not is_use else is_use
+
+    def is_use_style_of_first_column(self) -> bool:
+        return self._properties[k_const.Tab_first_column_style_look].value is not None
+
+    def set_as_use_style_of_first_column(self, is_use: bool):
+        self._properties[k_const.Tab_first_column_style_look].value = None if not is_use else is_use
+
+    def is_use_style_of_last_row(self) -> bool:
+        return self._properties[k_const.Tab_last_row_style_look].value is not None
+
+    def set_as_use_style_of_last_row(self, is_use: bool):
+        self._properties[k_const.Tab_last_row_style_look].value = None if not is_use else is_use
+
+    def is_use_style_of_last_column(self) -> bool:
+        return self._properties[k_const.Tab_last_column_style_look].value is not None
+
+    def set_as_use_style_of_last_column(self, is_use: bool):
+        self._properties[k_const.Tab_last_column_style_look].value = None if not is_use else is_use
+
+    def is_use_style_of_horizontal_banding(self) -> bool:
+        return self._properties[k_const.Tab_no_horizontal_banding].value is None
+
+    def set_as_use_style_of_horizontal_banding(self, is_use: bool):
+        self._properties[k_const.Tab_no_horizontal_banding].value = None if is_use else is_use
+
+    def is_use_style_of_vertical_banding(self) -> bool:
+        return self._properties[k_const.Tab_no_vertical_banding].value is None
+
+    def set_as_use_style_of_vertical_banding(self, is_use: bool):
+        self._properties[k_const.Tab_no_vertical_banding].value = None if is_use else is_use
+
     class Row(XMLement, RowPropertiesGetSetMixin):
         tag: str = k_const.Row_tag
         from translators.html_translators import RowTranslatorToHTML
@@ -251,35 +287,35 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabBottomRightCellStyle_type)
                     if result is not None:
                         return result
-                if self.is_first_in_row():
+                if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabFirstColumnStyle_type)
                     if result is not None:
                         return result
-                if self.is_last_in_row():
+                if self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabLastColumnStyle_type)
                     if result is not None:
                         return result
-                if self.get_parent_row().is_first_in_table():
+                if self.get_parent_row().is_first_in_table() and self.get_parent_table().is_use_style_of_first_row():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabFirsRowStyle_type)
                     if result is not None:
                         return result
-                if self.get_parent_row().is_last_in_table():
+                if self.get_parent_row().is_last_in_table() and self.get_parent_table().is_use_style_of_last_row():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabLastRowStyle_type)
                     if result is not None:
                         return result
-                if self.is_odd():
+                if self.is_odd() and self.get_parent_table().is_use_style_of_vertical_banding():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabOddColumnStyle_type)
                     if result is not None:
                         return result
-                if self.is_even():
+                if self.is_even() and self.get_parent_table().is_use_style_of_vertical_banding():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenColumnStyle_type)
                     if result is not None:
                         return result
-                if self.get_parent_row().is_odd():
+                if self.get_parent_row().is_odd() and self.get_parent_table().is_use_style_of_horizontal_banding():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabOddRowStyle_type)
                     if result is not None:
                         return result
-                if self.get_parent_row().is_even():
+                if self.get_parent_row().is_even() and self.get_parent_table().is_use_style_of_horizontal_banding():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenRowStyle_type)
                     if result is not None:
                         return result
