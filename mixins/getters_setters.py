@@ -296,6 +296,16 @@ class RowPropertiesGetSetMixin(GetSetMixin, ABC):
 
 
 class CellPropertiesGetSetMixin(GetSetMixin, ABC):
+    def is_top(self) -> bool:
+        raise NotImplementedError('method is_top is not implemented. Your class must implement this method or'
+                                  'CellPropertiesGetSetMixin must be inherited after the class that implements this '
+                                  'method')
+
+    def is_bottom(self) -> bool:
+        raise NotImplementedError('method is_bottom is not implemented. Your class must implement this method or'
+                                  'CellPropertiesGetSetMixin must be inherited after the class that implements this '
+                                  'method')
+
     def is_first_in_row(self) -> bool:
         raise NotImplementedError('method is_first_in_row is not implemented. Your class must implement this method or'
                                   'CellPropertiesGetSetMixin must be inherited after the class that implements this '
@@ -327,8 +337,8 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
         if result is None or (property_name == 'color' and result == 'auto'):
             if not (self.is_first_in_row() and direction == 'left') and \
                not (self.is_last_in_row() and direction == 'right') and \
-               not (self.get_parent().is_first_in_table() and direction == 'top') and \
-               not (self.get_parent().is_last_in_table() and direction == 'bottom'):
+               not (self.is_top() and direction == 'top') and \
+               not (self.is_bottom() and direction == 'bottom'):
                 d: str = 'horizontal' if (direction == 'top' or direction == 'bottom') else 'vertical'
                 return self.get_parent().get_parent().get_inside_border(d, property_name)
         return result

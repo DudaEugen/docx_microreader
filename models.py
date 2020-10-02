@@ -286,11 +286,17 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                         return base_style_property
                 return self.get_parent().get_property(property_name)
 
+            def is_top(self) -> bool:
+                return self.get_parent().is_first_in_table()
+
+            def is_bottom(self) -> bool:
+                return self.get_parent().index_in_table + self.row_span >= len(self.get_parent().get_parent().rows)
+
             def is_first_in_row(self) -> bool:
                 return self.index_in_row == 0
 
             def is_last_in_row(self) -> bool:
-                return self.index_in_row == (len(self.get_parent().cells) - 1)
+                return self.index_in_row + self.row_span >= (len(self.get_parent().cells) - 1)
 
             def is_odd(self) -> bool:
                 return self.index_in_row % 2 == 1
@@ -299,16 +305,16 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 return self.index_in_row % 2 == 0
 
             def is_top_left(self) -> bool:
-                return self.is_first_in_row() and self.get_parent().is_first_in_table()
+                return self.is_first_in_row() and self.is_top()
 
             def is_top_right(self) -> bool:
-                return self.is_last_in_row() and self.get_parent().is_first_in_table()
+                return self.is_last_in_row() and self.is_top()
 
             def is_bottom_left(self) -> bool:
-                return self.is_first_in_row() and self.get_parent().is_last_in_table()
+                return self.is_first_in_row() and self.is_bottom()
 
             def is_bottom_right(self) -> bool:
-                return self.is_last_in_row() and self.get_parent().is_last_in_table()
+                return self.is_last_in_row() and self.is_bottom()
 
 
 class Document(DocumentParser):
