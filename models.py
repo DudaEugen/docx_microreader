@@ -283,19 +283,23 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 result = self._properties.get(property_name)
                 if result is not None and result.value is not None:
                     return result.value
-                if self.is_top_left():
+                if self.is_top_left() and self.get_parent_table().is_use_style_of_first_column() \
+                        and self.get_parent_table().is_use_style_of_first_row():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabTopLeftCellStyle_type)
                     if result is not None:
                         return result
-                if self.is_top_right():
+                if self.is_top_right() and self.get_parent_table().is_use_style_of_last_column() \
+                        and self.get_parent_table().is_use_style_of_first_row():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabTopRightCellStyle_type)
                     if result is not None:
                         return result
-                if self.is_bottom_left():
+                if self.is_bottom_left() and self.get_parent_table().is_use_style_of_first_column() \
+                        and self.get_parent_table().is_use_style_of_last_row():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabBottomLeftCellStyle_type)
                     if result is not None:
                         return result
-                if self.is_bottom_right():
+                if self.is_bottom_right() and self.get_parent_table().is_use_style_of_last_column() \
+                        and self.get_parent_table().is_use_style_of_last_row():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabBottomRightCellStyle_type)
                     if result is not None:
                         return result
