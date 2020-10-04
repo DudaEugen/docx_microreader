@@ -279,74 +279,104 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     return table_area_style.get_property(property_name)
                 return None
 
-            def __define_table_area_style_and_get_property(self, property_name: str) -> Union[str, None, bool]:
+            def __define_table_area_style_and_get_property(self, property_name: str,
+                                            is_return_first_none: bool = False) -> Tuple[Union[str, None, bool], bool]:
                 if self.is_top() and self.get_parent_table().is_use_style_of_first_row():
                     if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
                         result = self.__get_property_of_table_area_style(property_name,
                                                                          k_const.TabTopLeftCellStyle_type)
-                        if result is not None:
-                            return result
+                        if result is not None or is_return_first_none:
+                            return result, True
                     if self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
                         result = self.__get_property_of_table_area_style(property_name,
                                                                          k_const.TabTopRightCellStyle_type)
-                        if result is not None:
-                            return result
+                        if result is not None or is_return_first_none:
+                            return result, True
                 if self.is_bottom() and self.get_parent_table().is_use_style_of_last_row():
                     if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
                         result = self.__get_property_of_table_area_style(property_name,
                                                                          k_const.TabBottomLeftCellStyle_type)
-                        if result is not None:
-                            return result
+                        if result is not None or is_return_first_none:
+                            return result, True
                     if self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
                         result = self.__get_property_of_table_area_style(property_name,
                                                                          k_const.TabBottomRightCellStyle_type)
-                        if result is not None:
-                            return result
+                        if result is not None or is_return_first_none:
+                            return result, True
                 if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabFirstColumnStyle_type)
-                    if result is not None:
-                        return result
+                    if result is not None or is_return_first_none:
+                        return result, True
                 if self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabLastColumnStyle_type)
-                    if result is not None:
-                        return result
+                    if result is not None or is_return_first_none:
+                        return result, True
                 if self.is_top() and self.get_parent_table().is_use_style_of_first_row():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabFirsRowStyle_type)
-                    if result is not None:
-                        return result
+                    if result is not None or is_return_first_none:
+                        return result, True
                 if self.is_bottom() and self.get_parent_table().is_use_style_of_last_row():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabLastRowStyle_type)
-                    if result is not None:
-                        return result
+                    if result is not None or is_return_first_none:
+                        return result, True
                 if self.get_parent_row().is_odd() and self.get_parent_table().is_use_style_of_horizontal_banding():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabOddRowStyle_type)
-                    if result is not None:
-                        return result
+                    if result is not None or is_return_first_none:
+                        return result, True
                 if self.get_parent_row().is_even() and self.get_parent_table().is_use_style_of_horizontal_banding():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenRowStyle_type)
-                    if result is not None:
-                        return result
+                    if result is not None or is_return_first_none:
+                        return result, True
                 if self.is_odd() and self.get_parent_table().is_use_style_of_vertical_banding():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabOddColumnStyle_type)
-                    if result is not None:
-                        return result
+                    if result is not None or is_return_first_none:
+                        return result, True
                 if self.is_even() and self.get_parent_table().is_use_style_of_vertical_banding():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenColumnStyle_type)
-                    if result is not None:
-                        return result
+                    if result is not None or is_return_first_none:
+                        return result, True
+                return None, False
 
             def get_property(self, property_name: str) -> Union[str, None, bool]:
                 result = self._properties.get(property_name)
                 if result is not None and result.value is not None:
                     return result.value
-                result = self.__define_table_area_style_and_get_property(property_name)
+                result = self.__define_table_area_style_and_get_property(property_name)[0]
                 if result is not None:
                     return result
-                if self._base_style is not None:
-                    base_style_property = self._base_style.get_property(property_name)
-                    if base_style_property is not None:
-                        return base_style_property
                 return self.get_parent_row().get_property(property_name)
+
+            def get_border(self, direction: str, property_name: str) -> Union[str, None]:
+                """
+                :param direction: top, bottom, right, left  (keys of XMLementPropertyDescriptions.Const_directions dict)
+                :param property_name: color, size, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
+                """
+                result = self._properties.get(k_const.get_key('cell_border', direction, property_name))
+                if result is not None:
+                    result = result.value
+                if result is None or (result == 'auto' and property_name == 'color'):
+                    if not (self.is_first_in_row() and direction == 'left') and \
+                            not (self.is_last_in_row() and direction == 'right') and \
+                            not (self.is_top() and direction == 'top') and \
+                            not (self.is_bottom() and direction == 'bottom'):
+                        d: str = 'horizontal' if (direction == 'top' or direction == 'bottom') else 'vertical'
+                        result = self.get_parent_table().get_inside_border(d, property_name)
+                        if result is None:
+                            result, is_defined_area_style = self.__define_table_area_style_and_get_property(
+                                k_const.get_key('cell_border', direction, property_name), True
+                            )
+                            if result is None:
+                                result = self.__define_table_area_style_and_get_property(
+                                    k_const.get_key('borders_inside', d, property_name), True
+                                )[0]
+                return result
+
+            def set_border_value(self, direction: str, property_name: str, value: Union[str, None]):
+                """
+                :param direction: top, bottom, right, left  (keys of XMLementPropertyDescriptions.Const_directions dict)
+                :param property_name: color, size, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
+                """
+                self.set_property_value(k_const.get_key('cell_border', direction, property_name), value)
 
             def get_col_span(self) -> Union[str, None]:
                 return self._properties[k_const.Cell_col_span].value

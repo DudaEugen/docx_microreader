@@ -344,13 +344,6 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
                 return self.get_parent_table().get_inside_border(d, property_name)
         return result
 
-    def set_border_value(self, direction: str, property_name: str, value: Union[str, None]):
-        """
-        :param direction: top, bottom, right, left  (keys of XMLementPropertyDescriptions.Const_directions dict)
-        :param property_name: color, size, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
-        """
-        self.set_property_value(k_const.get_key('cell_border', direction, property_name), value)
-
     def get_width(self) -> Tuple[Union[str, None], Union[str, None]]:
         """
         return: Tuple(width, type)
