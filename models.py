@@ -279,30 +279,29 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     return table_area_style.get_property(property_name)
                 return None
 
-            def get_property(self, property_name: str) -> Union[str, None, bool]:
-                result = self._properties.get(property_name)
-                if result is not None and result.value is not None:
-                    return result.value
-                if self.is_top_left() and self.get_parent_table().is_use_style_of_first_column() \
-                        and self.get_parent_table().is_use_style_of_first_row():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabTopLeftCellStyle_type)
-                    if result is not None:
-                        return result
-                if self.is_top_right() and self.get_parent_table().is_use_style_of_last_column() \
-                        and self.get_parent_table().is_use_style_of_first_row():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabTopRightCellStyle_type)
-                    if result is not None:
-                        return result
-                if self.is_bottom_left() and self.get_parent_table().is_use_style_of_first_column() \
-                        and self.get_parent_table().is_use_style_of_last_row():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabBottomLeftCellStyle_type)
-                    if result is not None:
-                        return result
-                if self.is_bottom_right() and self.get_parent_table().is_use_style_of_last_column() \
-                        and self.get_parent_table().is_use_style_of_last_row():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabBottomRightCellStyle_type)
-                    if result is not None:
-                        return result
+            def __define_table_area_style_and_get_property(self, property_name: str) -> Union[str, None, bool]:
+                if self.is_top() and self.get_parent_table().is_use_style_of_first_row():
+                    if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
+                        result = self.__get_property_of_table_area_style(property_name,
+                                                                         k_const.TabTopLeftCellStyle_type)
+                        if result is not None:
+                            return result
+                    if self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
+                        result = self.__get_property_of_table_area_style(property_name,
+                                                                         k_const.TabTopRightCellStyle_type)
+                        if result is not None:
+                            return result
+                if self.is_bottom() and self.get_parent_table().is_use_style_of_last_row():
+                    if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
+                        result = self.__get_property_of_table_area_style(property_name,
+                                                                         k_const.TabBottomLeftCellStyle_type)
+                        if result is not None:
+                            return result
+                    if self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
+                        result = self.__get_property_of_table_area_style(property_name,
+                                                                         k_const.TabBottomRightCellStyle_type)
+                        if result is not None:
+                            return result
                 if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabFirstColumnStyle_type)
                     if result is not None:
@@ -311,20 +310,12 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabLastColumnStyle_type)
                     if result is not None:
                         return result
-                if self.get_parent_row().is_first_in_table() and self.get_parent_table().is_use_style_of_first_row():
+                if self.is_top() and self.get_parent_table().is_use_style_of_first_row():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabFirsRowStyle_type)
                     if result is not None:
                         return result
-                if self.get_parent_row().is_last_in_table() and self.get_parent_table().is_use_style_of_last_row():
+                if self.is_bottom() and self.get_parent_table().is_use_style_of_last_row():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabLastRowStyle_type)
-                    if result is not None:
-                        return result
-                if self.is_odd() and self.get_parent_table().is_use_style_of_vertical_banding():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabOddColumnStyle_type)
-                    if result is not None:
-                        return result
-                if self.is_even() and self.get_parent_table().is_use_style_of_vertical_banding():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenColumnStyle_type)
                     if result is not None:
                         return result
                 if self.get_parent_row().is_odd() and self.get_parent_table().is_use_style_of_horizontal_banding():
@@ -335,6 +326,22 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenRowStyle_type)
                     if result is not None:
                         return result
+                if self.is_odd() and self.get_parent_table().is_use_style_of_vertical_banding():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabOddColumnStyle_type)
+                    if result is not None:
+                        return result
+                if self.is_even() and self.get_parent_table().is_use_style_of_vertical_banding():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenColumnStyle_type)
+                    if result is not None:
+                        return result
+
+            def get_property(self, property_name: str) -> Union[str, None, bool]:
+                result = self._properties.get(property_name)
+                if result is not None and result.value is not None:
+                    return result.value
+                result = self.__define_table_area_style_and_get_property(property_name)
+                if result is not None:
+                    return result
                 if self._base_style is not None:
                     base_style_property = self._base_style.get_property(property_name)
                     if base_style_property is not None:
@@ -354,7 +361,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 return self.get_parent_row().get_parent()
 
             def is_top(self) -> bool:
-                return self.get_parent_row().is_first_in_table()
+                return self.get_parent_row().is_first_in_table() or self.is_header
 
             def is_bottom(self) -> bool:
                 return self.get_parent_row().index_in_table + self.row_span >= len(self.get_parent_table().rows)
@@ -371,18 +378,6 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 
             def is_even(self) -> bool:
                 return self.index_in_row % 2 == 0
-
-            def is_top_left(self) -> bool:
-                return self.is_first_in_row() and self.is_top()
-
-            def is_top_right(self) -> bool:
-                return self.is_last_in_row() and self.is_top()
-
-            def is_bottom_left(self) -> bool:
-                return self.is_first_in_row() and self.is_bottom()
-
-            def is_bottom_right(self) -> bool:
-                return self.is_last_in_row() and self.is_bottom()
 
 
 class Document(DocumentParser):
