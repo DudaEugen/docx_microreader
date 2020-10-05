@@ -356,8 +356,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     return self.__get_property_of_table_area_style(property_name, k_const.TabEvenColumnStyle_type), True
                 return None, False
 
-            def __define_table_area_style_and_get_property(self, property_name: str,
-                                            is_return_first_none: bool = False) -> Tuple[Union[str, None, bool], bool]:
+            def __define_table_area_style_and_get_property(self, property_name: str) -> Union[str, None, bool]:
                 methods: List[Callable] = [
                     self.__get_property_of_top_left_cell_area_style,
                     self.__get_property_of_top_right_cell_area_style,
@@ -373,16 +372,53 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     self.__get_property_of_even_row_area_style,
                 ]
                 for method in methods:
+                    result = method(property_name)[0]
+                    if result is not None:
+                        return result
+
+            def __define_table_area_style_and_get_property_for_horizontal_inside_borders(self, property_name: str) -> \
+                    Union[str, None, bool]:
+                methods: List[Callable] = [
+                    self.__get_property_of_top_left_cell_area_style,
+                    self.__get_property_of_top_right_cell_area_style,
+                    self.__get_property_of_bottom_left_cell_area_style,
+                    self.__get_property_of_bottom_right_cell_area_style,
+                    self.__get_property_of_first_row_area_style,
+                    self.__get_property_of_last_row_area_style,
+                    self.__get_property_of_first_column_area_style,
+                    self.__get_property_of_last_column_area_style,
+                    self.__get_property_of_odd_column_area_style,
+                    self.__get_property_of_even_column_area_style,
+                ]
+                for method in methods:
                     result, is_met_contition = method(property_name)
-                    if result is not None or is_met_contition and is_return_first_none:
-                        return result, True
-                return None, False
+                    if result is not None or is_met_contition:
+                        return result
+
+            def __define_table_area_style_and_get_property_for_vertical_inside_borders(self, property_name: str) -> \
+                    Union[str, None, bool]:
+                methods: List[Callable] = [
+                    self.__get_property_of_top_left_cell_area_style,
+                    self.__get_property_of_top_right_cell_area_style,
+                    self.__get_property_of_bottom_left_cell_area_style,
+                    self.__get_property_of_bottom_right_cell_area_style,
+                    self.__get_property_of_first_row_area_style,
+                    self.__get_property_of_last_row_area_style,
+                    self.__get_property_of_first_column_area_style,
+                    self.__get_property_of_last_column_area_style,
+                    self.__get_property_of_odd_row_area_style,
+                    self.__get_property_of_even_row_area_style,
+                ]
+                for method in methods:
+                    result, is_met_contition = method(property_name)
+                    if result is not None or is_met_contition:
+                        return result
 
             def get_property(self, property_name: str) -> Union[str, None, bool]:
                 result = self._properties.get(property_name)
                 if result is not None and result.value is not None:
                     return result.value
-                result = self.__define_table_area_style_and_get_property(property_name)[0]
+                result = self.__define_table_area_style_and_get_property(property_name)
                 if result is not None:
                     return result
                 return self.get_parent_row().get_property(property_name)
@@ -405,11 +441,16 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                         if result is None:
                             result = self.__define_table_area_style_and_get_property(
                                 k_const.get_key('cell_border', direction, property_name)
-                            )[0]
+                            )
                             if result is None:
-                                result = self.__define_table_area_style_and_get_property(
-                                    k_const.get_key('borders_inside', d, property_name), True
-                                )[0]
+                                if d == 'horizontal':
+                                    result = self.__define_table_area_style_and_get_property_for_horizontal_inside_borders(
+                                        k_const.get_key('borders_inside', d, property_name)
+                                    )
+                                else:
+                                    result = self.__define_table_area_style_and_get_property_for_vertical_inside_borders(
+                                        k_const.get_key('borders_inside', d, property_name)
+                                    )
                 return result
 
             def set_border_value(self, direction: str, property_name: str, value: Union[str, None]):
