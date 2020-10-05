@@ -303,14 +303,6 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                                                                          k_const.TabBottomRightCellStyle_type)
                         if result is not None or is_return_first_none:
                             return result, True
-                if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabFirstColumnStyle_type)
-                    if result is not None or is_return_first_none:
-                        return result, True
-                if self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabLastColumnStyle_type)
-                    if result is not None or is_return_first_none:
-                        return result, True
                 if self.is_top() and self.get_parent_table().is_use_style_of_first_row():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabFirsRowStyle_type)
                     if result is not None or is_return_first_none:
@@ -319,12 +311,13 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabLastRowStyle_type)
                     if result is not None or is_return_first_none:
                         return result, True
-                if self.get_parent_row().is_odd() and self.get_parent_table().is_use_style_of_horizontal_banding():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabOddRowStyle_type)
+                if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
+                    result = self.__get_property_of_table_area_style(property_name,
+                                                                        k_const.TabFirstColumnStyle_type)
                     if result is not None or is_return_first_none:
                         return result, True
-                if self.get_parent_row().is_even() and self.get_parent_table().is_use_style_of_horizontal_banding():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenRowStyle_type)
+                if self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabLastColumnStyle_type)
                     if result is not None or is_return_first_none:
                         return result, True
                 if self.is_odd() and self.get_parent_table().is_use_style_of_vertical_banding():
@@ -333,6 +326,14 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                         return result, True
                 if self.is_even() and self.get_parent_table().is_use_style_of_vertical_banding():
                     result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenColumnStyle_type)
+                    if result is not None or is_return_first_none:
+                        return result, True
+                if self.get_parent_row().is_odd() and self.get_parent_table().is_use_style_of_horizontal_banding():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabOddRowStyle_type)
+                    if result is not None or is_return_first_none:
+                        return result, True
+                if self.get_parent_row().is_even() and self.get_parent_table().is_use_style_of_horizontal_banding():
+                    result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenRowStyle_type)
                     if result is not None or is_return_first_none:
                         return result, True
                 return None, False
@@ -362,9 +363,9 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                         d: str = 'horizontal' if (direction == 'top' or direction == 'bottom') else 'vertical'
                         result = self.get_parent_table().get_inside_border(d, property_name)
                         if result is None:
-                            result, is_defined_area_style = self.__define_table_area_style_and_get_property(
-                                k_const.get_key('cell_border', direction, property_name), True
-                            )
+                            result = self.__define_table_area_style_and_get_property(
+                                k_const.get_key('cell_border', direction, property_name)
+                            )[0]
                             if result is None:
                                 result = self.__define_table_area_style_and_get_property(
                                     k_const.get_key('borders_inside', d, property_name), True
