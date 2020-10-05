@@ -1,5 +1,5 @@
 from docx_parser import XMLcontainer, DocumentParser
-from typing import List
+from typing import List, Callable
 from styles import *
 from mixins.getters_setters import *
 from constants import keys_consts as k_const
@@ -279,62 +279,102 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     return table_area_style.get_property(property_name)
                 return None
 
+            def __get_property_of_top_left_cell_area_style(self, property_name: str) -> Tuple[Union[str, None, bool],
+                                                                                              bool]:
+                if self.is_top() and self.get_parent_table().is_use_style_of_first_row() and \
+                        self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
+                    return self.__get_property_of_table_area_style(property_name, k_const.TabTopLeftCellStyle_type), \
+                           True
+                return None, False
+
+            def __get_property_of_top_right_cell_area_style(self, property_name: str) -> Tuple[Union[str, None, bool],
+                                                                                               bool]:
+                if self.is_top() and self.get_parent_table().is_use_style_of_first_row() and \
+                        self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
+                    return self.__get_property_of_table_area_style(property_name, k_const.TabTopRightCellStyle_type), \
+                           True
+                return None, False
+
+            def __get_property_of_bottom_left_cell_area_style(self, property_name: str) -> Tuple[Union[str, None, bool],
+                                                                                                 bool]:
+                if self.is_bottom() and self.get_parent_table().is_use_style_of_last_row() and \
+                        self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
+                    return self.__get_property_of_table_area_style(property_name, k_const.TabBottomLeftCellStyle_type), \
+                           True
+                return None, False
+
+            def __get_property_of_bottom_right_cell_area_style(self, property_name: str) -> Tuple[Union[str, None,
+                                                                                                        bool], bool]:
+                if self.is_bottom() and self.get_parent_table().is_use_style_of_last_row() and \
+                        self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
+                    return self.__get_property_of_table_area_style(property_name, k_const.TabBottomRightCellStyle_type),\
+                           True
+                return None, False
+
+            def __get_property_of_first_column_area_style(self, property_name: str) -> Tuple[Union[str, None, bool],
+                                                                                             bool]:
+                if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
+                    return self.__get_property_of_table_area_style(property_name, k_const.TabFirstColumnStyle_type), \
+                           True
+                return None, False
+
+            def __get_property_of_last_column_area_style(self, property_name: str) -> Tuple[Union[str, None, bool],
+                                                                                            bool]:
+                if self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
+                    return self.__get_property_of_table_area_style(property_name, k_const.TabLastColumnStyle_type), True
+                return None, False
+
+            def __get_property_of_first_row_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+                if self.is_top() and self.get_parent_table().is_use_style_of_first_row():
+                    return self.__get_property_of_table_area_style(property_name, k_const.TabFirsRowStyle_type), True
+                return None, False
+
+            def __get_property_of_last_row_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+                if self.is_bottom() and self.get_parent_table().is_use_style_of_last_row():
+                    return self.__get_property_of_table_area_style(property_name, k_const.TabLastRowStyle_type), True
+                return None, False
+
+            def __get_property_of_odd_row_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+                if self.get_parent_row().is_odd() and self.get_parent_table().is_use_style_of_horizontal_banding():
+                    return self.__get_property_of_table_area_style(property_name, k_const.TabOddRowStyle_type), True
+                return None, False
+
+            def __get_property_of_even_row_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+                if self.get_parent_row().is_even() and self.get_parent_table().is_use_style_of_horizontal_banding():
+                    return self.__get_property_of_table_area_style(property_name, k_const.TabEvenRowStyle_type), True
+                return None, False
+
+            def __get_property_of_odd_column_area_style(self, property_name: str) -> Tuple[Union[str, None, bool],
+                                                                                           bool]:
+                if self.is_odd() and self.get_parent_table().is_use_style_of_vertical_banding():
+                    return self.__get_property_of_table_area_style(property_name, k_const.TabOddColumnStyle_type), True
+                return None, False
+
+            def __get_property_of_even_column_area_style(self, property_name: str) -> Tuple[Union[str, None, bool],
+                                                                                            bool]:
+                if self.is_even() and self.get_parent_table().is_use_style_of_vertical_banding():
+                    return self.__get_property_of_table_area_style(property_name, k_const.TabEvenColumnStyle_type), True
+                return None, False
+
             def __define_table_area_style_and_get_property(self, property_name: str,
                                             is_return_first_none: bool = False) -> Tuple[Union[str, None, bool], bool]:
-                if self.is_top() and self.get_parent_table().is_use_style_of_first_row():
-                    if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
-                        result = self.__get_property_of_table_area_style(property_name,
-                                                                         k_const.TabTopLeftCellStyle_type)
-                        if result is not None or is_return_first_none:
-                            return result, True
-                    if self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
-                        result = self.__get_property_of_table_area_style(property_name,
-                                                                         k_const.TabTopRightCellStyle_type)
-                        if result is not None or is_return_first_none:
-                            return result, True
-                if self.is_bottom() and self.get_parent_table().is_use_style_of_last_row():
-                    if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
-                        result = self.__get_property_of_table_area_style(property_name,
-                                                                         k_const.TabBottomLeftCellStyle_type)
-                        if result is not None or is_return_first_none:
-                            return result, True
-                    if self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
-                        result = self.__get_property_of_table_area_style(property_name,
-                                                                         k_const.TabBottomRightCellStyle_type)
-                        if result is not None or is_return_first_none:
-                            return result, True
-                if self.is_top() and self.get_parent_table().is_use_style_of_first_row():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabFirsRowStyle_type)
-                    if result is not None or is_return_first_none:
-                        return result, True
-                if self.is_bottom() and self.get_parent_table().is_use_style_of_last_row():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabLastRowStyle_type)
-                    if result is not None or is_return_first_none:
-                        return result, True
-                if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
-                    result = self.__get_property_of_table_area_style(property_name,
-                                                                        k_const.TabFirstColumnStyle_type)
-                    if result is not None or is_return_first_none:
-                        return result, True
-                if self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabLastColumnStyle_type)
-                    if result is not None or is_return_first_none:
-                        return result, True
-                if self.is_odd() and self.get_parent_table().is_use_style_of_vertical_banding():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabOddColumnStyle_type)
-                    if result is not None or is_return_first_none:
-                        return result, True
-                if self.is_even() and self.get_parent_table().is_use_style_of_vertical_banding():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenColumnStyle_type)
-                    if result is not None or is_return_first_none:
-                        return result, True
-                if self.get_parent_row().is_odd() and self.get_parent_table().is_use_style_of_horizontal_banding():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabOddRowStyle_type)
-                    if result is not None or is_return_first_none:
-                        return result, True
-                if self.get_parent_row().is_even() and self.get_parent_table().is_use_style_of_horizontal_banding():
-                    result = self.__get_property_of_table_area_style(property_name, k_const.TabEvenRowStyle_type)
-                    if result is not None or is_return_first_none:
+                methods: List[Callable] = [
+                    self.__get_property_of_top_left_cell_area_style,
+                    self.__get_property_of_top_right_cell_area_style,
+                    self.__get_property_of_bottom_left_cell_area_style,
+                    self.__get_property_of_bottom_right_cell_area_style,
+                    self.__get_property_of_first_row_area_style,
+                    self.__get_property_of_last_row_area_style,
+                    self.__get_property_of_first_column_area_style,
+                    self.__get_property_of_last_column_area_style,
+                    self.__get_property_of_odd_column_area_style,
+                    self.__get_property_of_even_column_area_style,
+                    self.__get_property_of_odd_row_area_style,
+                    self.__get_property_of_even_row_area_style,
+                ]
+                for method in methods:
+                    result, is_met_contition = method(property_name)
+                    if result is not None or is_met_contition and is_return_first_none:
                         return result, True
                 return None, False
 
