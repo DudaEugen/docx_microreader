@@ -102,6 +102,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 
     def __init__(self, element: ET.Element, parent):
         self.rows: List[Table.Row] = []
+        self.header_row_number: int = 0
         super(Table, self).__init__(element, parent)
 
     def __str__(self):
@@ -127,13 +128,16 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             self.rows[index].index_in_table = index
 
     def __define_first_and_last_head_rows(self):
+        self.header_row_number = 0
         if self.rows:
             if self.rows[0].is_header():
+                self.header_row_number = 1
                 self.rows[0].is_first_row_in_header = True
                 self.rows[0].is_last_row_in_header = True
                 previous_row: Table.Row = self.rows[0]
                 for row in self.rows:
                     if row != previous_row and row.is_header():
+                        self.header_row_number += 1
                         previous_row.is_last_row_in_header = False
                         row.is_last_row_in_header = True
                     previous_row = row
@@ -252,10 +256,13 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             return self.index_in_table == (len(self.get_parent_table().rows) - 1)
 
         def is_odd(self) -> bool:
-            return self.index_in_table % 2 == 1
+            offset: int = 1 - self.get_parent_table().header_row_number
+            if self.get_parent_table().is_use_style_of_first_row() and offset == 1:
+                offset = 0
+            return (self.index_in_table + offset) % 2 == 1
 
         def is_even(self) -> bool:
-            return self.index_in_table % 2 == 0
+            return not self.is_odd()
 
         class Cell(XMLcontainer, CellPropertiesGetSetMixin):
             tag: str = k_const.Cell_tag
@@ -486,10 +493,11 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 return self.index_in_row + col_span >= len(self.get_parent_row().cells)
 
             def is_odd(self) -> bool:
-                return self.index_in_row % 2 == 1
+                offset: int = 0 if self.get_parent_table().is_use_style_of_first_column() else 1
+                return (self.index_in_row + offset) % 2 == 1
 
             def is_even(self) -> bool:
-                return self.index_in_row % 2 == 0
+                return not self.is_odd()
 
 
 class Document(DocumentParser):
