@@ -256,12 +256,16 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             return self.index_in_table == (len(self.get_parent_table().rows) - 1)
 
         def is_odd(self) -> bool:
+            if self.is_header():
+                return False
             offset: int = 1 - self.get_parent_table().header_row_number
             if self.get_parent_table().is_use_style_of_first_row() and offset == 1:
                 offset = 0
             return (self.index_in_table + offset) % 2 == 1
 
         def is_even(self) -> bool:
+            if self.is_header():
+                return False
             return not self.is_odd()
 
         class Cell(XMLcontainer, CellPropertiesGetSetMixin):
@@ -421,6 +425,19 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     if result is not None or is_met_contition:
                         return result
 
+            def __define_table_area_style_and_get_property_for_inside_borders_of_header(self, property_name: str) -> \
+                    Union[str, None, bool]:
+                methods: List[Callable] = [
+                    self.__get_property_of_first_column_area_style,
+                    self.__get_property_of_last_column_area_style,
+                    self.__get_property_of_odd_column_area_style,
+                    self.__get_property_of_even_column_area_style,
+                ]
+                for method in methods:
+                    result, is_met_contition = method(property_name)
+                    if result is not None or is_met_contition:
+                        return result
+
             def get_property(self, property_name: str) -> Union[str, None, bool]:
                 result = self._properties.get(property_name)
                 if result is not None and result.value is not None:
@@ -444,6 +461,12 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                             not (self.is_top() and direction == 'top') and \
                             not (self.is_bottom() and direction == 'bottom'):
                         d: str = 'horizontal' if (direction == 'top' or direction == 'bottom') else 'vertical'
+                        if direction == 'bottom' and self.get_parent_table().is_use_style_of_first_row() and \
+                                self.get_parent_table().header_row_number > 1 and \
+                                self.get_parent_row().is_header() and not self.get_parent_row().is_last_row_in_header:
+                            return self.__define_table_area_style_and_get_property_for_inside_borders_of_header(
+                                        k_const.get_key('borders_inside', d, property_name)
+                                    )
                         result = self.get_parent_table().get_inside_border(d, property_name)
                         if result is None:
                             result = self.__define_table_area_style_and_get_property(
