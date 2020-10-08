@@ -115,25 +115,28 @@ class DocumentParser(Parser):
 
     def __init__(self, path: str):
         self._path = path
-        super(DocumentParser, self).__init__(self.get_xml_file('document'))
+        super(DocumentParser, self).__init__(self.get_xml_file('document.xml'))
         self._styles: dict = {}
-        self._parse_styles(self.get_xml_file('styles'))
+        self._parse_styles()
+        self._images: Dict[str, str] = self._parse_images_relationships()
 
-    def get_xml_file(self, file_name: str) -> ET.Element:
+    def get_xml_file(self, file_name: str, is_return_element_tree: bool = True) -> Union[ET.Element, str, None]:
         """
         :param file_name: name of xml file in document in directory word
-        :return: ElementTree of xml file
+        :param is_return_element_tree: method return ElementTree if True else return str
+        :return: ElementTree of xml file or str
         """
         import xml.dom.minidom
         import zipfile
 
         raw_xml: Union[str, None] = xml.dom.minidom.parseString(
-            zipfile.ZipFile(self._path).read(rf'word/{file_name}.xml')
+            zipfile.ZipFile(self._path).read(rf'word/{file_name}')
         ).toprettyxml()
-        return ET.fromstring(raw_xml)
+        if is_return_element_tree:
+            return ET.fromstring(raw_xml)
+        return raw_xml
 
-    @staticmethod
-    def __parse_style(element: ET.Element, parent):
+    def __parse_style(self, element: ET.Element):
         from styles import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
 
         types: Dict[str, Callable] = {
@@ -153,16 +156,24 @@ class DocumentParser(Parser):
                 p_consts.Style_parameters[p_consts.StyleParam_is_custom])
             ) is None else True,
         )
-        return types[parameters[0]](element, parent, parameters[1],
+        return types[parameters[0]](element, self, parameters[1],
                                     parameters[2], parameters[3]) if parameters[0] in types else None
 
-    def _parse_styles(self, styles_file: ET.Element):
+    def _parse_styles(self):
         from styles import Style
 
-        for el in styles_file.findall('./' + Style.tag, namespaces):
-            elem = DocumentParser.__parse_style(el, self)
+        for el in self.get_xml_file('styles.xml').findall('./' + Style.tag, namespaces):
+            elem = self.__parse_style(el)
             if elem is not None:
                 self._styles[elem.id] = elem
+
+    def _parse_images_relationships(self) -> Dict[str, str]:
+        result: Dict[str, str] = {}
+        for rel_id, rel_type, rel_target in re.findall('<Relationship Id="(\w+)" Type="([\w/:.]+)" Target="([\w./]+)"',
+                                                       self.get_xml_file('_rels/document.xml.rels', False)):
+            if rel_type[-5:] == 'image':
+                result[rel_id] = rel_target
+        return result
 
     def get_style(self, style_id: str):
         return self._styles[style_id]
