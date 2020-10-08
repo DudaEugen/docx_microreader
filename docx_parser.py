@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from namespaces import namespaces
+from constants.namespaces import namespaces
 from typing import Union, List, Callable, Dict, Tuple
 import re
 from properties import Property, PropertyDescription
