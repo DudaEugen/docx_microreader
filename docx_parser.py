@@ -113,12 +113,15 @@ class Parser:
 
 class DocumentParser(Parser):
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, path_for_images: Union[None, str] = None):
         self._path = path
         super(DocumentParser, self).__init__(self.get_xml_file('document.xml'))
         self._styles: dict = {}
         self._parse_styles()
+        self._images_dir: Union[None, str] = f'{path_for_images}/' if path_for_images is not None and \
+                                                                      path_for_images[-1] != '/' else path_for_images
         self._images: Dict[str, str] = self._parse_images_relationships()
+        self.__images_extraction()
 
     def get_xml_file(self, file_name: str, is_return_element_tree: bool = True) -> Union[ET.Element, str, None]:
         """
@@ -174,6 +177,33 @@ class DocumentParser(Parser):
             if rel_type[-5:] == 'image':
                 result[rel_id] = rel_target
         return result
+
+    def _get_images_directory(self):
+        if self._images_dir is None:
+            result: str = ''
+            path_split: List[str] = self._path.split('/')
+            for i in range(len(path_split) - 1):
+                result += f'{path_split[i]}/'
+            return result
+        return self._images_dir
+
+    def __images_extraction(self):
+        import zipfile
+        from PIL import Image
+
+        docx_media_dir: str = 'word/media/'
+        directory: str = self._get_images_directory()
+        with zipfile.ZipFile(self._path) as archive:
+            for entry in archive.infolist():
+                if entry.filename[:len(docx_media_dir)] == docx_media_dir:
+                    image_key: Union[None, str] = None
+                    for key in self._images:
+                        if self._images[key] == entry.filename[5:]:
+                            image_key = key
+                    if image_key is not None:
+                        with archive.open(entry) as file:
+                            img = Image.open(file)
+                            img.save(f'{directory}{self._images[image_key][5:]}')
 
     def get_style(self, style_id: str):
         return self._styles[style_id]

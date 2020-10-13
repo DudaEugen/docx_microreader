@@ -532,9 +532,9 @@ class Document(DocumentParser):
         def __str__(self):
             return self.get_inner_text()
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, path_for_images: Union[None, str] = None):
         self.body: Document.Body
-        super(Document, self).__init__(path)
+        super(Document, self).__init__(path, path_for_images)
         self.body: Document.Body = self._get_elements(Document.Body)
         self._remove_raw_xml()
 
