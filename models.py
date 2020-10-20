@@ -52,7 +52,8 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
             super(Paragraph.Run, self).__init__(element, parent)
 
         def _init(self):
-            self.text = self._get_elements(Paragraph.Run.Text)
+            text: Union[str, None] = self._get_elements(Paragraph.Run.Text)
+            self.text = text if text is not None else ''
 
         def _get_style_id(self) -> Union[str, None]:
             return self._properties[k_const.CharStyle].value
