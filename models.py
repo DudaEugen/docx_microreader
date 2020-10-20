@@ -1,8 +1,17 @@
-from docx_parser import XMLcontainer, DocumentParser
-from typing import List, Callable
-from styles import *
+from docx_parser import XMLcontainer, DocumentParser, XMLement
+import xml.etree.ElementTree as ET
+from typing import List, Callable, Dict
 from mixins.getters_setters import *
 from constants import keys_consts as k_const
+
+
+class Image(XMLement):
+    tag: str = k_const.Img_tag
+    _is_unique = True
+
+    def __init__(self, element: ET.Element, parent):
+        self.path: str
+        super(Image, self).__init__(element, parent)
 
 
 class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
@@ -49,11 +58,13 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
 
         def __init__(self, element: ET.Element, parent):
             self.text: Paragraph.Run.Text
+            self.image: Union[Image, None] = None
             super(Paragraph.Run, self).__init__(element, parent)
 
         def _init(self):
             text: Union[str, None] = self._get_elements(Paragraph.Run.Text)
             self.text = text if text is not None else ''
+            self.image = self._get_elements(Image)
 
         def _get_style_id(self) -> Union[str, None]:
             return self._properties[k_const.CharStyle].value

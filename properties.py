@@ -3,7 +3,7 @@ from typing import Union, List
 
 class PropertyDescription:
 
-    def __init__(self, tag_wrap: Union[List[str], str, None], tag: Union[List[str], str],
+    def __init__(self, tag_wrap: Union[List[str], str, None], tag: Union[List[str], str, None],
                  tag_property: Union[List[str], str, None]):
         self.tag_wrap: Union[List[str], str, None] = tag_wrap
         self.tag: Union[List[str], str] = tag

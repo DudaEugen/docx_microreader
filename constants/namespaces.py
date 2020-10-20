@@ -1,4 +1,6 @@
-namespaces = {
+from typing import Dict
+
+namespaces: Dict[str, str] = {
     'wpc': 'http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas',
     'cx': 'http://schemas.microsoft.com/office/drawing/2014/chartex',
     'cx1': 'http://schemas.microsoft.com/office/drawing/2015/9/8/chartex',
@@ -28,4 +30,6 @@ namespaces = {
     'wpi': 'http://schemas.microsoft.com/office/word/2010/wordprocessingInk',
     'wne': 'http://schemas.microsoft.com/office/word/2006/wordml',
     'wps': 'http://schemas.microsoft.com/office/word/2010/wordprocessingShape',
+    'a': 'http://schemas.openxmlformats.org/drawingml/2006/main',
+    'pic': 'http://schemas.openxmlformats.org/drawingml/2006/picture',
 }

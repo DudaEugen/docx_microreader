@@ -160,7 +160,11 @@ cell_property_descriptions: Dict[str, PropertyDescription] = {
     Cell_margin_left: PropertyDescription('w:tcPr/w:tcMar', ['w:left', 'w:start'], 'w:w'),
     Cell_margin_left_type: PropertyDescription('w:tcPr/w:tcMar', ['w:left', 'w:start'], 'w:type'),
     Cell_margin_right: PropertyDescription('w:tcPr/w:tcMar', ['w:right', 'w:end'], 'w:w'),
-    Cell_margin_right_type: PropertyDescription('w:tcPr/w:tcMar', ['w:right', 'w:end'], 'w:type')
+    Cell_margin_right_type: PropertyDescription('w:tcPr/w:tcMar', ['w:right', 'w:end'], 'w:type'),
+}
+
+image_property_descriptions: Dict[str, PropertyDescription] = {
+    'id': PropertyDescription(None, None, 'r:embed'),
 }
 
 
@@ -174,8 +178,8 @@ def merge_dicts(*args) -> dict:
 
 
 def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
-    from models import Paragraph, Table, Document
-    from models import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
+    from models import Paragraph, Table, Document, Image
+    from styles import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
 
     if isinstance(ob, Paragraph):
         return merge_dicts(paragraph_property_description, paragraph_style_property_description)
@@ -204,5 +208,7 @@ def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
         return merge_dicts(run_style_property_descriptions, style_properties)
     elif isinstance(ob, ParagraphStyle):
         return merge_dicts(paragraph_style_property_description, style_properties, run_style_property_descriptions)
+    elif isinstance(ob, Image):
+        return image_property_descriptions
 
     raise ValueError('argument in create properties dict function is mistake')

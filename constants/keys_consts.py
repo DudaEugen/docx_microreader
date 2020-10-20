@@ -1,6 +1,7 @@
 from typing import Dict
 
 # tags of classes constants
+Img_tag: str = 'w:drawing/wp:inline/a:graphic/a:graphicData/pic:pic/pic:blipFill/a:blip'
 Par_tag: str = 'w:p'
 Run_tag: str = 'w:r'
 Text_tag: str = 'w:t'

@@ -57,7 +57,7 @@ class Parser:
                 return Property(True)
 
     def _parse_element(self, element: ET.Element):
-        from models import Document, Table, Paragraph
+        from models import Document, Table, Paragraph, Image
 
         tags: Dict[str, Callable] = {
             Parser._check_namespace(Document.Body.tag): Document.Body,
@@ -67,6 +67,7 @@ class Parser:
             Parser._check_namespace(Paragraph.tag): Paragraph,
             Parser._check_namespace(Paragraph.Run.tag): Paragraph.Run,
             Parser._check_namespace(Paragraph.Run.Text.tag): Paragraph.Run.Text,
+            Parser._check_namespace(Image.tag): Image,
         }
 
         return tags[element.tag](element, self) if element.tag in tags else None
@@ -93,13 +94,15 @@ class Parser:
 
     def _parse_properties(self) -> Dict[str, Property]:
         result: Dict[str, Property] = {}
-        for key in self._all_properties:
-            pr: PropertyDescription = self._all_properties[key]
-            property_element: Union[ET.Element, None] = self.__find_property_element(pr)
-            if property_element is not None:
-                result[key] = self.__find_property(property_element, pr, self._all_properties[key].tag_property)
+        for key, pr in self._all_properties.items():
+            if pr.tag is not None:
+                property_element: Union[ET.Element, None] = self.__find_property_element(pr)
+                if property_element is not None:
+                    result[key] = self.__find_property(property_element, pr, self._all_properties[key].tag_property)
+                else:
+                    result[key] = Property(None)
             else:
-                result[key] = Property(None)
+                result[key] = self._element.get(self._check_namespace(pr.tag_property))
         return result
 
     @staticmethod
@@ -207,6 +210,9 @@ class DocumentParser(Parser):
 
     def get_style(self, style_id: str):
         return self._styles[style_id]
+
+    def get_image(self, image_id: str):
+        return f'{self._get_images_directory()}{self._images[image_id]}'
 
 
 class XMLement(Parser):
