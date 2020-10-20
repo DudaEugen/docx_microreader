@@ -83,6 +83,7 @@ def get_key(quantity: str, direction: str = '', property_name: str = '') -> str:
     return rf'{Const_quantities[quantity]}{dir}{p_name}'
 
 
+Img_id: str = 'id'
 Par_align: str = 'paragraph_align'
 Par_indent_left: str = 'indent_left'
 Par_indent_right: str = 'indent_right'

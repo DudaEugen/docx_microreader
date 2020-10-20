@@ -164,7 +164,7 @@ cell_property_descriptions: Dict[str, PropertyDescription] = {
 }
 
 image_property_descriptions: Dict[str, PropertyDescription] = {
-    'id': PropertyDescription(None, None, 'r:embed'),
+    Img_id: PropertyDescription(None, None, 'r:embed'),
 }
 
 

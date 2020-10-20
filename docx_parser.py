@@ -102,7 +102,7 @@ class Parser:
                 else:
                     result[key] = Property(None)
             else:
-                result[key] = self._element.get(self._check_namespace(pr.tag_property))
+                result[key] = Property(self._element.get(self._check_namespace(pr.tag_property)))
         return result
 
     @staticmethod
@@ -212,7 +212,7 @@ class DocumentParser(Parser):
         return self._styles[style_id]
 
     def get_image(self, image_id: str):
-        return f'{self._get_images_directory()}{self._images[image_id]}'
+        return f'{self._get_images_directory()}{self._images[image_id][6:]}'
 
 
 class XMLement(Parser):

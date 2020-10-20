@@ -10,8 +10,8 @@ class Image(XMLement):
     _is_unique = True
 
     def __init__(self, element: ET.Element, parent):
-        self.path: str
         super(Image, self).__init__(element, parent)
+        self.path: str = self._get_document().get_image(self._properties[k_const.Img_id].value)
 
 
 class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
