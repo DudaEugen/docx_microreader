@@ -11,7 +11,9 @@ class Image(XMLement):
 
     def __init__(self, element: ET.Element, parent):
         super(Image, self).__init__(element, parent)
-        self.path: str = self._get_document().get_image(self._properties[k_const.Img_id].value)
+
+    def get_path(self):
+        return self._get_document().get_image(self._properties[k_const.Img_id].value)
 
 
 class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
