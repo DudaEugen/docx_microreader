@@ -73,12 +73,18 @@ class TranslatorToHTML:
         inner_text_styles: str = self._get_inner_html_wrapper_styles()
         if inner_text_styles != '':
             inner_text: str = rf'<div{inner_text_styles}>{inner_text}</div>'
-        return rf'{open_ext_tags}<{tag}{attrs}{styles}>{inner_text}</{tag}>{close_ext_tags}' \
-            if tag != '' else \
-               rf'{open_ext_tags}{inner_text}{close_ext_tags}'
+        if tag == '':
+            return rf'{open_ext_tags}{inner_text}{close_ext_tags}'
+        if not self._is_single_tag():
+            return rf'{open_ext_tags}<{tag}{attrs}{styles}>{inner_text}</{tag}>{close_ext_tags}'
+        return rf'{open_ext_tags}<{tag}{attrs}{styles}>{close_ext_tags}'
 
     def _get_html_tag(self) -> str:
         pass
+
+    @staticmethod
+    def _is_single_tag() -> bool:
+        return False
 
     def _get_styles(self) -> str:
         result: str = ''
@@ -192,6 +198,25 @@ class TranslatorToHTML:
 
     def _to_css_border_right_size(self, element):
         self._add_to_many_properties_style(TranslatorToHTML._to_css_border_size(element, 'right'))
+
+
+class ImageTranslatorToHTML(TranslatorToHTML):
+
+    def __init__(self):
+        super(ImageTranslatorToHTML, self).__init__()
+        self.methods: Dict[str, Callable] = {
+            'src': self.__to_attribute_src,
+        }
+
+    def _get_html_tag(self) -> str:
+        return 'img'
+
+    @staticmethod
+    def _is_single_tag() -> bool:
+        return True
+
+    def __to_attribute_src(self, image):
+        self.attributes['src'] = image.get_path()
 
 
 class ParagraphTranslatorToHTML(TranslatorToHTML):

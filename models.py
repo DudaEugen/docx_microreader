@@ -8,6 +8,10 @@ from constants import keys_consts as k_const
 class Image(XMLement):
     tag: str = k_const.Img_tag
     _is_unique = True
+    from translators.html_translators import ImageTranslatorToHTML
+    translators = {
+        'html': ImageTranslatorToHTML(),
+    }
 
     def __init__(self, element: ET.Element, parent):
         super(Image, self).__init__(element, parent)
@@ -72,7 +76,9 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
             return self._properties[k_const.CharStyle].value
 
         def get_inner_text(self) -> Union[str, None]:
-            return str(self.text)
+            if self.image is None:
+                return str(self.text)
+            return str(self.image)
 
         def get_property(self, property_name: str) -> Union[str, None, bool]:
             result: Union[str, None, bool] = super(Paragraph.Run, self).get_property(property_name)

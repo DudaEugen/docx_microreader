@@ -117,12 +117,14 @@ class Parser:
 class DocumentParser(Parser):
 
     def __init__(self, path: str, path_for_images: Union[None, str] = None):
-        self._path = path
+        from os.path import abspath
+
+        self._path: str = abspath(path).replace('\\', '/')
         super(DocumentParser, self).__init__(self.get_xml_file('document.xml'))
         self._styles: dict = {}
         self._parse_styles()
-        self._images_dir: Union[None, str] = f'{path_for_images}/' if path_for_images is not None and \
-                                                                      path_for_images[-1] != '/' else path_for_images
+        self._images_dir: str = abspath(path_for_images).replace('\\', '/') + '/' if path_for_images is not None else \
+            self._get_images_directory(False)
         self._images: Dict[str, str] = self._parse_images_relationships()
         self.__images_extraction()
 
@@ -181,8 +183,8 @@ class DocumentParser(Parser):
                 result[rel_id] = rel_target
         return result
 
-    def _get_images_directory(self):
-        if self._images_dir is None:
+    def _get_images_directory(self, is_defined_directory: bool = True) -> str:
+        if not is_defined_directory:
             result: str = ''
             path_split: List[str] = self._path.split('/')
             for i in range(len(path_split) - 1):
