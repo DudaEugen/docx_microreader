@@ -225,9 +225,9 @@ class ImageTranslatorToHTML(TranslatorToHTML):
     def __init__(self):
         super(ImageTranslatorToHTML, self).__init__()
         self.methods: Dict[str, Callable] = {
-            'src': self.__to_attribute_src,
-            'wight': self.__to_attribute_wight,
-            'height': self.__to_attribute_height,
+            'src': self._to_attribute_src,
+            'wight': self._to_attribute_wight,
+            'height': self._to_attribute_height,
         }
 
     def _get_html_tag(self) -> str:
@@ -237,18 +237,18 @@ class ImageTranslatorToHTML(TranslatorToHTML):
     def _is_single_tag() -> bool:
         return True
 
-    def __to_attribute_src(self, image):
+    def _to_attribute_src(self, image):
         self.attributes['src'] = image.get_path()
 
     @staticmethod
-    def __emu_to_px(value: int) -> int:
+    def _emu_to_px(value: int) -> int:
         return value // 12700
 
-    def __to_attribute_wight(self, image):
-        self.attributes['wight'] = str(ImageTranslatorToHTML.__emu_to_px(image.get_size('horizontal')))
+    def _to_attribute_wight(self, image):
+        self.attributes['wight'] = str(ImageTranslatorToHTML._emu_to_px(image.get_size('horizontal')))
 
-    def __to_attribute_height(self, image):
-        self.attributes['height'] = str(ImageTranslatorToHTML.__emu_to_px(image.get_size('vertical')))
+    def _to_attribute_height(self, image):
+        self.attributes['height'] = str(ImageTranslatorToHTML._emu_to_px(image.get_size('vertical')))
 
 
 class ParagraphTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
@@ -262,10 +262,10 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTM
     def __init__(self):
         super(ParagraphTranslatorToHTML, self).__init__()
         self.methods: Dict[str, Callable] = {
-            'w:pPr/w:jc/w:val': self.__to_attribute_align,
-            'w:pPr/w:ind/w:left': self.__to_css_margin_left,
-            'w:pPr/w:ind/w:right': self.__to_css_margin_right,
-            'w:pPr/w:ind/w:hanging': self.__to_css_text_indent,
+            'w:pPr/w:jc/w:val': self._to_attribute_align,
+            'w:pPr/w:ind/w:left': self._to_css_margin_left,
+            'w:pPr/w:ind/w:right': self._to_css_margin_right,
+            'w:pPr/w:ind/w:hanging': self._to_css_text_indent,
             'w:tcPr/w:pBdr/w:top/w:val': self._to_css_border_top,
             'w:tcPr/w:pBdr/w:bottom/w:val': self._to_css_border_bottom,
             'w:tcPr/w:pBdr/w:left/w:val': self._to_css_border_left,
@@ -283,23 +283,23 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTM
     def _get_html_tag(self) -> str:
         return 'p'
 
-    def __to_attribute_align(self, paragraph):
+    def _to_attribute_align(self, paragraph):
         align = paragraph.get_align()
         if align is not None:
             if align in self.aligns and align != 'left':    # left is default in browsers
                 self.attributes['align'] = self.aligns[align]
 
-    def __to_css_margin_left(self, paragraph):
+    def _to_css_margin_left(self, paragraph):
         margin_left = paragraph.get_indent_left()
         if margin_left is not None:
             self.styles['margin-left'] = str(int(margin_left) // 20) + 'px'
 
-    def __to_css_margin_right(self, paragraph):
+    def _to_css_margin_right(self, paragraph):
         margin_right = paragraph.get_indent_right()
         if margin_right is not None:
             self.styles['margin-left'] = str(int(margin_right) // 20) + 'px'
 
-    def __to_css_text_indent(self, paragraph):
+    def _to_css_text_indent(self, paragraph):
         hanging = paragraph.get_hanging()
         first_line = paragraph.get_first_line()
         if hanging is not None:
@@ -325,15 +325,15 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
     def __init__(self):
         super(RunTranslatorToHTML, self).__init__()
         self.methods: Dict[str, Callable] = {
-            'w:rPr/w:sz/w:val': self.__to_css_size,
-            'w:rPr/w:b': self.__to_ext_tag_bold,
-            'w:rPr/w:i': self.__to_ext_tag_italic,
-            'w:rPr/w:vertAlign/w:val': self.__to_ext_tags_vertical_align,
-            'w:rPr/w:highlight/w:val': self.__to_css_background_color,
-            'w:rPr/w:color/w:val': self.__to_css_color,
-            'w:rPr/w:strike': self.__to_css_line_throught,
-            'w:rPr/w:u/w:val': self.__to_css_underline,
-            'w:rPr/w:u/w:color': self.__to_css_underline_color,     # must called after self.__to_css_underline
+            'w:rPr/w:sz/w:val': self._to_css_size,
+            'w:rPr/w:b': self._to_ext_tag_bold,
+            'w:rPr/w:i': self._to_ext_tag_italic,
+            'w:rPr/w:vertAlign/w:val': self._to_ext_tags_vertical_align,
+            'w:rPr/w:highlight/w:val': self._to_css_background_color,
+            'w:rPr/w:color/w:val': self._to_css_color,
+            'w:rPr/w:strike': self._to_css_line_throught,
+            'w:rPr/w:u/w:val': self._to_css_underline,
+            'w:rPr/w:u/w:color': self._to_css_underline_color,     # must called after self._to_css_underline
             'w:rPr/w:bdr/w:val': self._to_css_border_all,
             'w:rPr/w:bdr/w:color': self._to_css_border_all_color,
             'w:rPr/w:bdr/w:sz': self._to_css_border_all_size,
@@ -344,20 +344,20 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
             return 'span'
         return ''
 
-    def __to_css_size(self, run):
+    def _to_css_size(self, run):
         size = run.get_size()
         if size is not None:
             self.styles['font-size'] = size
 
-    def __to_ext_tag_bold(self, run):
+    def _to_ext_tag_bold(self, run):
         if run.is_bold():
             self._add_to_ext_tags(self.external_tags['bold'])
 
-    def __to_ext_tag_italic(self, run):
+    def _to_ext_tag_italic(self, run):
         if run.is_italic():
             self._add_to_ext_tags(self.external_tags['italic'])
 
-    def __to_ext_tags_vertical_align(self, run):
+    def _to_ext_tags_vertical_align(self, run):
         vert_align = run.get_vertical_align()
         if vert_align is not None:
             if vert_align == 'subscript':
@@ -365,7 +365,7 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
             elif vert_align == 'superscript':
                 self._add_to_ext_tags('sup')
 
-    def __to_css_background_color(self, run):
+    def _to_css_background_color(self, run):
         background_color = run.get_background_color()
         background_fill = run.get_background_fill()
         if background_color is not None:
@@ -374,23 +374,23 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         elif background_fill is not None:
             self.styles['background-color'] = TranslatorToHTML._translate_color(background_fill)
 
-    def __to_css_color(self, run):
+    def _to_css_color(self, run):
         color = run.get_color()
         if color is not None:
             self.styles['color'] = TranslatorToHTML._translate_color(color)
 
-    def __to_css_line_throught(self, run):
+    def _to_css_line_throught(self, run):
         if run.is_strike():
             self._add_to_many_properties_style(('text-decoration', 'line-through'))
 
-    def __to_css_underline(self, run):
+    def _to_css_underline(self, run):
         underline = run.get_underline()
         if underline is not None:
             self._add_to_many_properties_style(('text-decoration', 'underline'))
             if underline in self.underlines:
                 self.styles['text-decoration-style'] = self.underlines[underline]
 
-    def __to_css_underline_color(self, run):
+    def _to_css_underline_color(self, run):
         """
         must called after self.__to_css_underline
         """
@@ -615,8 +615,8 @@ class TableTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
     def __init__(self):
         super(TableTranslatorToHTML, self).__init__()
         self.methods: Dict[str, Callable] = {
-            'w:tblPr/w:tblW/w:w': self.__to_attribute_width,
-            'w:tblPr/w:jc/w:val': self.__to_attribute_align,
+            'w:tblPr/w:tblW/w:w': self._to_attribute_width,
+            'w:tblPr/w:jc/w:val': self._to_attribute_align,
             'w:tblPr/w:tblBorders/w:top/w:val': self._to_css_border_top,
             'w:tblPr/w:tblBorders/w:bottom/w:val': self._to_css_border_bottom,
             'w:tblPr/w:tblBorders/w:left/w:val': self._to_css_border_left,
@@ -629,20 +629,20 @@ class TableTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
             'w:tblPr/w:tblBorders/w:bottom/w:sz': self._to_css_border_bottom_size,
             'w:tblPr/w:tblBorders/w:left/w:sz': self._to_css_border_left_size,
             'w:tblPr/w:tblBorders/w:right/w:sz': self._to_css_border_right_size,
-            'w:tblPr/w:tblInd/w:w': self.__to_css_margin,
+            'w:tblPr/w:tblInd/w:w': self._to_css_margin,
         }
 
     def _do_methods(self, table):
-        self.__to_css_border_collapse()
+        self._to_css_border_collapse()
         super(TableTranslatorToHTML, self)._do_methods(table)
 
     def _get_html_tag(self) -> str:
         return 'table'
 
-    def __to_css_border_collapse(self):
+    def _to_css_border_collapse(self):
         self.styles['border-collapse'] = 'collapse'
 
-    def __to_attribute_width(self, table):
+    def _to_attribute_width(self, table):
         width, width_type, layout = table.get_width()
         if width is not None and width_type is not None:
             if (layout is not None and layout != 'autofit') or layout is None:
@@ -655,12 +655,12 @@ class TableTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
                 elif width_type == 'auto':
                     return
 
-    def __to_attribute_align(self, table):
+    def _to_attribute_align(self, table):
         align = table.get_align()
         if align is not None:
             self.attributes['align'] = align
 
-    def __to_css_margin(self, table):
+    def _to_css_margin(self, table):
         align = table.get_align()
         if align is None or align != 'center' and align != 'right':
             margin, indentation_type = table.get_indentation()
@@ -680,20 +680,20 @@ class RowTranslatorToHTML(TranslatorToHTML):
     def __init__(self):
         super(RowTranslatorToHTML, self).__init__()
         self.methods: Dict[str, Callable] = {
-            'w:trPr/w:trHeight/w:val': self.__to_attribute_or_css_height,
+            'w:trPr/w:trHeight/w:val': self._to_attribute_or_css_height,
         }
 
     def _convert_fields(self, row):
-        self.__to_ext_tag_head(row)
+        self._to_ext_tag_head(row)
 
     def _get_html_tag(self) -> str:
         return 'tr'
 
-    def __to_ext_tag_head(self, row):
+    def _to_ext_tag_head(self, row):
         if row.is_header():
             self._add_to_ext_tags('thead', row.is_first_row_in_header, row.is_last_row_in_header)
 
-    def __to_attribute_or_css_height(self, row):
+    def _to_attribute_or_css_height(self, row):
         height, height_type = row.get_height()
         if height is not None:
             if height_type is None:
@@ -715,7 +715,7 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
     def __init__(self):
         super(CellTranslatorToHTML, self).__init__()
         self.methods: Dict[str, Callable] = {
-            'w:tcPr/w:shd/w:fill': self.__to_css_fill_color,
+            'w:tcPr/w:shd/w:fill': self._to_css_fill_color,
             'w:tcPr/w:shd/w:themeFill': self._pass,
             'w:tcPr/w:vMerge/w:val': self._pass,
             'w:tcPr/w:vMerge': self._pass,
@@ -731,60 +731,60 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
             'w:tcPr/w:tcBorders/w:bottom/w:sz': self._to_css_border_bottom_size,
             'w:tcPr/w:tcBorders/w:left/w:sz': self._to_css_border_left_size,
             'w:tcPr/w:tcBorders/w:right/w:sz': self._to_css_border_right_size,
-            'w:tcPr/w:tcW/w:w': self.__to_attribute_width,
-            'w:tcPr/w:gridSpan/w:val': self.__to_attribute_col_span,
-            'w:tcPr/w:textDirection/w:val': self.__to_css_text_direction,
-            'w:tcPr/w:vAlign/w:val': self.__to_attribute_vertical_align,
-            'w:tcPr/w:tcMar/w:top/w:w': self.__to_css_padding_top,
-            'w:tcPr/w:tcMar/w:bottom/w:w': self.__to_css_padding_bottom,
-            'w:tcPr/w:tcMar/w:left/w:w': self.__to_css_padding_left,
-            'w:tcPr/w:tcMar/w:right/w:w': self.__to_css_padding_right,
-            # self.__to_css_padding_..._type must called after self.__to_css_padding_...
-            'w:tcPr/w:tcMar/w:top/w:type': self.__to_css_padding_top_type,
-            'w:tcPr/w:tcMar/w:bottom/w:type': self.__to_css_padding_bottom_type,
-            'w:tcPr/w:tcMar/w:left/w:type': self.__to_css_padding_left_type,
-            'w:tcPr/w:tcMar/w:right/w:type': self.__to_css_padding_right_type,
+            'w:tcPr/w:tcW/w:w': self._to_attribute_width,
+            'w:tcPr/w:gridSpan/w:val': self._to_attribute_col_span,
+            'w:tcPr/w:textDirection/w:val': self._to_css_text_direction,
+            'w:tcPr/w:vAlign/w:val': self._to_attribute_vertical_align,
+            'w:tcPr/w:tcMar/w:top/w:w': self._to_css_padding_top,
+            'w:tcPr/w:tcMar/w:bottom/w:w': self._to_css_padding_bottom,
+            'w:tcPr/w:tcMar/w:left/w:w': self._to_css_padding_left,
+            'w:tcPr/w:tcMar/w:right/w:w': self._to_css_padding_right,
+            # self._to_css_padding_..._type must called after self._to_css_padding_...
+            'w:tcPr/w:tcMar/w:top/w:type': self._to_css_padding_top_type,
+            'w:tcPr/w:tcMar/w:bottom/w:type': self._to_css_padding_bottom_type,
+            'w:tcPr/w:tcMar/w:left/w:type': self._to_css_padding_left_type,
+            'w:tcPr/w:tcMar/w:right/w:type': self._to_css_padding_right_type,
         }
-        self.__is_header: bool = False
-        self.__tag_for_header = 'td'
+        self._is_header: bool = False
+        self._tag_for_header = 'td'
 
     def _convert_fields(self, element):
-        self.__to_attribute_row_span(element)
-        self.__is_header = element.is_header
+        self._to_attribute_row_span(element)
+        self._is_header = element.is_header
 
     def _get_html_tag(self) -> str:
-        return 'td' if not self.__is_header else self.__tag_for_header
+        return 'td' if not self._is_header else self._tag_for_header
 
     def is_th_for_header(self, value: bool = True):
-        self.__tag_for_header = 'th' if value is True else 'td'
+        self._tag_for_header = 'th' if value is True else 'td'
 
-    def __to_css_fill_color(self, cell):
+    def _to_css_fill_color(self, cell):
         color = cell.get_fill_color()
         if color is not None:
             if color != 'auto':
                 self.styles['background-color'] = TranslatorToHTML._translate_color(color)
 
-    def __to_css_padding_top(self, cell):
+    def _to_css_padding_top(self, cell):
         padding = cell.get_margin('top')[0]
         if padding is not None:
             self.styles['padding-top'] = padding
 
-    def __to_css_padding_bottom(self, cell):
+    def _to_css_padding_bottom(self, cell):
         padding = cell.get_margin('bottom')[0]
         if padding is not None:
             self.styles['padding-bottom'] = padding
 
-    def __to_css_padding_left(self, cell):
+    def _to_css_padding_left(self, cell):
         padding = cell.get_margin('left')[0]
         if padding is not None:
             self.styles['padding-left'] = padding
 
-    def __to_css_padding_right(self, cell):
+    def _to_css_padding_right(self, cell):
         padding = cell.get_margin('right')[0]
         if padding is not None:
             self.styles['padding-right'] = padding
 
-    def __to_css_padding_type(self, cell, direction: str):
+    def _to_css_padding_type(self, cell, direction: str):
         """
         self.__to_css_padding_... need run before this method
         """
@@ -802,19 +802,19 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
             if rf'padding-{direction}' in self.attributes:
                 self.styles.pop(rf'padding-{direction}')
 
-    def __to_css_padding_top_type(self, cell):
-        self.__to_css_padding_type(cell, 'top')
+    def _to_css_padding_top_type(self, cell):
+        self._to_css_padding_type(cell, 'top')
 
-    def __to_css_padding_bottom_type(self, cell):
-        self.__to_css_padding_type(cell, 'bottom')
+    def _to_css_padding_bottom_type(self, cell):
+        self._to_css_padding_type(cell, 'bottom')
 
-    def __to_css_padding_left_type(self, cell):
-        self.__to_css_padding_type(cell, 'left')
+    def _to_css_padding_left_type(self, cell):
+        self._to_css_padding_type(cell, 'left')
 
-    def __to_css_padding_right_type(self, cell):
-        self.__to_css_padding_type(cell, 'right')
+    def _to_css_padding_right_type(self, cell):
+        self._to_css_padding_type(cell, 'right')
 
-    def __to_attribute_width(self, cell):
+    def _to_attribute_width(self, cell):
         width, width_type = cell.get_width()
         if width is not None and width_type is not None:
             if width_type == 'dxa':
@@ -826,23 +826,23 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
             elif width_type == 'auto':
                 return
 
-    def __to_attribute_col_span(self, cell):
+    def _to_attribute_col_span(self, cell):
         col_span = cell.get_col_span()
         if col_span is not None:
             if int(col_span) > 1:
                 self.attributes['colspan'] = col_span
 
-    def __to_attribute_row_span(self, cell):
+    def _to_attribute_row_span(self, cell):
         if cell.row_span > 1:
             self.attributes['rowspan'] = str(cell.row_span)
 
-    def __to_css_text_direction(self, cell):
+    def _to_css_text_direction(self, cell):
         text_direction = cell.get_text_direction()
         if text_direction is not None:
             if text_direction in self.text_directions:
                 self.inner_html_wrapper_styles['writing-mode'] = self.text_directions[text_direction]
 
-    def __to_attribute_vertical_align(self, cell):
+    def _to_attribute_vertical_align(self, cell):
         vertical_align = cell.get_vertical_align()
         if vertical_align is not None:
             self.attributes['valign'] = vertical_align
