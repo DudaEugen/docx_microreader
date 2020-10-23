@@ -218,6 +218,8 @@ class ImageTranslatorToHTML(TranslatorToHTML):
         super(ImageTranslatorToHTML, self).__init__()
         self.methods: Dict[str, Callable] = {
             'src': self.__to_attribute_src,
+            'wight': self.__to_attribute_wight,
+            'height': self.__to_attribute_height,
         }
 
     def _get_html_tag(self) -> str:
@@ -229,6 +231,16 @@ class ImageTranslatorToHTML(TranslatorToHTML):
 
     def __to_attribute_src(self, image):
         self.attributes['src'] = image.get_path()
+
+    @staticmethod
+    def __emu_to_px(value: int) -> int:
+        return value // 12700
+
+    def __to_attribute_wight(self, image):
+        self.attributes['wight'] = str(ImageTranslatorToHTML.__emu_to_px(image.get_size('horizontal')))
+
+    def __to_attribute_height(self, image):
+        self.attributes['height'] = str(ImageTranslatorToHTML.__emu_to_px(image.get_size('vertical')))
 
 
 class ParagraphTranslatorToHTML(TranslatorToHTML):

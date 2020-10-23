@@ -25,8 +25,8 @@ class Drawing(XMLement):
             return str(self.image)
         return ''
 
-    def get_size(self, direction: str):
-        return self._properties[k_const.get_key('drawing', direction, 'size')].value
+    def get_size(self, direction: str) -> int:
+        return int(self._properties[k_const.get_key('drawing', direction, 'size')].value)
 
     class Image(XMLement):
         tag: str = k_const.Img_tag
@@ -41,6 +41,9 @@ class Drawing(XMLement):
 
         def get_path(self):
             return self._get_document().get_image(self._properties[k_const.Img_id].value)
+
+        def get_size(self, direction: str) -> int:
+            return self.get_parent().get_size(direction)
 
 
 class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
