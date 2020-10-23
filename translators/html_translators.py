@@ -1,37 +1,8 @@
 from typing import Dict, Callable, List, Tuple, Union
+from abc import ABC
 
 
 class TranslatorToHTML:
-    border_types_corresponding: Dict[str, str] = {
-        'nil': 'none',
-        'none': 'none',
-        'thick': 'solid',
-        'single': 'solid',
-        'dotted': 'dotted',
-        'dashed': 'dashed',
-        'dashSmallGap': 'dashed',
-        'dotDash': 'dashed',
-        'dotDotDash': 'dashed',
-        'double': 'double',
-        'wave': 'dashed',
-        'doubleWave': 'double',
-        'triple': 'dashed',
-        'thinThickSmallGap': 'double',
-        'thickThinSmallGap': 'double',
-        'thinThickThinSmallGap': 'double',
-        'thinThickMediumGap': 'double',
-        'thickThinMediumGap': 'double',
-        'thinThickThinLargeGap': 'double',
-        'dashDotStroked': 'dotted',
-        'threeDEmboss': 'double',
-        'threeDEngrave': 'double',
-        'inset': 'inset',
-        'outset': 'outset',
-        'thickThinLargeGap': 'double',
-        'thinThickLargeGap': 'double',
-        'thinThickThinMediumGap': 'double',
-    }
-
     def __init__(self):
         self.methods: Dict[str, Callable] = {}
         self.styles: Dict[str, str] = {}
@@ -141,6 +112,55 @@ class TranslatorToHTML:
             else:
                 self.styles[t[0]] += rf' {t[1]}'
 
+
+class ContainerTranslatorToHTML(TranslatorToHTML):
+    """
+    displayed only containing elements
+    """
+    def _get_html_tag(self) -> str:
+        return ''
+
+    @staticmethod
+    def _is_single_tag() -> bool:
+        return True
+
+
+class TranslatorBorderedElementToHTML(ABC):
+    border_types_corresponding: Dict[str, str] = {
+        'nil': 'none',
+        'none': 'none',
+        'thick': 'solid',
+        'single': 'solid',
+        'dotted': 'dotted',
+        'dashed': 'dashed',
+        'dashSmallGap': 'dashed',
+        'dotDash': 'dashed',
+        'dotDotDash': 'dashed',
+        'double': 'double',
+        'wave': 'dashed',
+        'doubleWave': 'double',
+        'triple': 'dashed',
+        'thinThickSmallGap': 'double',
+        'thickThinSmallGap': 'double',
+        'thinThickThinSmallGap': 'double',
+        'thinThickMediumGap': 'double',
+        'thickThinMediumGap': 'double',
+        'thinThickThinLargeGap': 'double',
+        'dashDotStroked': 'dotted',
+        'threeDEmboss': 'double',
+        'threeDEngrave': 'double',
+        'inset': 'inset',
+        'outset': 'outset',
+        'thickThinLargeGap': 'double',
+        'thinThickLargeGap': 'double',
+        'thinThickThinMediumGap': 'double',
+    }
+
+    def _add_to_many_properties_style(self, t: Union[Tuple[str, str], None]):
+        raise NotImplementedError('method _add_to_many_properties_style is not implemented. Your TranslatorToHTML class'
+                                  'must implement this method or TranslatorBorderedElementToHTML must be inherited'
+                                  'after the class that implements this method')
+
     def _to_css_border(self, element, direction: str) -> Union[Tuple[str, str], None]:
         border = element.get_border(direction, 'type')
         if border is not None:
@@ -165,20 +185,20 @@ class TranslatorToHTML:
         if border_color is not None:
             if border_color == 'auto':
                 return rf'border-{direction}', 'black'
-            return rf'border-{direction}', CellTranslatorToHTML._translate_color(border_color)
+            return rf'border-{direction}', TranslatorToHTML._translate_color(border_color)
         return None
 
     def _to_css_border_top_color(self, element):
-        self._add_to_many_properties_style(TranslatorToHTML._to_css_border_color(element, 'top'))
+        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_color(element, 'top'))
 
     def _to_css_border_bottom_color(self, element):
-        self._add_to_many_properties_style(TranslatorToHTML._to_css_border_color(element, 'bottom'))
+        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_color(element, 'bottom'))
 
     def _to_css_border_left_color(self, element):
-        self._add_to_many_properties_style(TranslatorToHTML._to_css_border_color(element, 'left'))
+        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_color(element, 'left'))
 
     def _to_css_border_right_color(self, element):
-        self._add_to_many_properties_style(TranslatorToHTML._to_css_border_color(element, 'right'))
+        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_color(element, 'right'))
 
     @staticmethod
     def _to_css_border_size(cell, direction: str) -> Union[Tuple[str, str], None]:
@@ -188,28 +208,16 @@ class TranslatorToHTML:
         return None
 
     def _to_css_border_top_size(self, element):
-        self._add_to_many_properties_style(TranslatorToHTML._to_css_border_size(element, 'top'))
+        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_size(element, 'top'))
 
     def _to_css_border_bottom_size(self, element):
-        self._add_to_many_properties_style(TranslatorToHTML._to_css_border_size(element, 'bottom'))
+        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_size(element, 'bottom'))
 
     def _to_css_border_left_size(self, element):
-        self._add_to_many_properties_style(TranslatorToHTML._to_css_border_size(element, 'left'))
+        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_size(element, 'left'))
 
     def _to_css_border_right_size(self, element):
-        self._add_to_many_properties_style(TranslatorToHTML._to_css_border_size(element, 'right'))
-
-
-class ContainerTranslatorToHTML(TranslatorToHTML):
-    """
-    displayed only containing elements
-    """
-    def _get_html_tag(self) -> str:
-        return ''
-
-    @staticmethod
-    def _is_single_tag() -> bool:
-        return True
+        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_size(element, 'right'))
 
 
 class ImageTranslatorToHTML(TranslatorToHTML):
@@ -243,7 +251,7 @@ class ImageTranslatorToHTML(TranslatorToHTML):
         self.attributes['height'] = str(ImageTranslatorToHTML.__emu_to_px(image.get_size('vertical')))
 
 
-class ParagraphTranslatorToHTML(TranslatorToHTML):
+class ParagraphTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
     aligns: Dict[str, str] = {
         'both': 'justify',
         'right': 'right',
@@ -300,7 +308,7 @@ class ParagraphTranslatorToHTML(TranslatorToHTML):
             self.styles['text-indent'] = str(int(first_line) // 20) + 'px'
 
 
-class RunTranslatorToHTML(TranslatorToHTML):
+class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
     external_tags: Dict[str, str] = {
         'bold': 'b',
         'italic': 'i',
@@ -602,7 +610,7 @@ class TextTranslatorToHTML:
         return text
 
 
-class TableTranslatorToHTML(TranslatorToHTML):
+class TableTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
 
     def __init__(self):
         super(TableTranslatorToHTML, self).__init__()
@@ -698,7 +706,7 @@ class RowTranslatorToHTML(TranslatorToHTML):
                 return
 
 
-class CellTranslatorToHTML(TranslatorToHTML):
+class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
     text_directions: Dict[str, str] = {
         'btLr': 'vertical-rl',
         'tbRl': 'vertical-rl',
