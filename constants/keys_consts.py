@@ -79,9 +79,9 @@ def get_key(quantity: str, direction: str = '', property_name: str = '') -> str:
     :param direction: key of Const_directions dict
     :param property_name: key of Const_property_names dict
     """
-    dir: str = Const_directions[direction] if direction in Const_directions else ''
+    d: str = Const_directions[direction] if direction in Const_directions else ''
     p_name: str = Const_property_names[property_name] if property_name in Const_property_names else ''
-    return rf'{Const_quantities[quantity]}{dir}{p_name}'
+    return rf'{Const_quantities[quantity]}{d}{p_name}'
 
 
 Img_id: str = 'id'
