@@ -333,7 +333,6 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
             'w:rPr/w:color/w:val': self._to_css_color,
             'w:rPr/w:strike': self._to_css_line_throught,
             'w:rPr/w:u/w:val': self._to_css_underline,
-            'w:rPr/w:u/w:color': self._to_css_underline_color,     # must called after self._to_css_underline
             'w:rPr/w:bdr/w:val': self._to_css_border_all,
             'w:rPr/w:bdr/w:color': self._to_css_border_all_color,
             'w:rPr/w:bdr/w:sz': self._to_css_border_all_size,
@@ -389,6 +388,7 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
             self._add_to_many_properties_style(('text-decoration', 'underline'))
             if underline in self.underlines:
                 self.styles['text-decoration-style'] = self.underlines[underline]
+            self._to_css_underline_color(run)
 
     def _to_css_underline_color(self, run):
         """
@@ -739,11 +739,6 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
             'w:tcPr/w:tcMar/w:bottom/w:w': self._to_css_padding_bottom,
             'w:tcPr/w:tcMar/w:left/w:w': self._to_css_padding_left,
             'w:tcPr/w:tcMar/w:right/w:w': self._to_css_padding_right,
-            # self._to_css_padding_..._type must called after self._to_css_padding_...
-            'w:tcPr/w:tcMar/w:top/w:type': self._to_css_padding_top_type,
-            'w:tcPr/w:tcMar/w:bottom/w:type': self._to_css_padding_bottom_type,
-            'w:tcPr/w:tcMar/w:left/w:type': self._to_css_padding_left_type,
-            'w:tcPr/w:tcMar/w:right/w:type': self._to_css_padding_right_type,
         }
         self._is_header: bool = False
         self._tag_for_header = 'td'
@@ -768,21 +763,25 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         padding = cell.get_margin('top')[0]
         if padding is not None:
             self.styles['padding-top'] = padding
+            self._to_css_padding_type(cell, 'top')
 
     def _to_css_padding_bottom(self, cell):
         padding = cell.get_margin('bottom')[0]
         if padding is not None:
             self.styles['padding-bottom'] = padding
+            self._to_css_padding_type(cell, 'bottom')
 
     def _to_css_padding_left(self, cell):
         padding = cell.get_margin('left')[0]
         if padding is not None:
             self.styles['padding-left'] = padding
+            self._to_css_padding_type(cell, 'left')
 
     def _to_css_padding_right(self, cell):
         padding = cell.get_margin('right')[0]
         if padding is not None:
             self.styles['padding-right'] = padding
+            self._to_css_padding_type(cell, 'right')
 
     def _to_css_padding_type(self, cell, direction: str):
         """
@@ -801,18 +800,6 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         else:
             if rf'padding-{direction}' in self.attributes:
                 self.styles.pop(rf'padding-{direction}')
-
-    def _to_css_padding_top_type(self, cell):
-        self._to_css_padding_type(cell, 'top')
-
-    def _to_css_padding_bottom_type(self, cell):
-        self._to_css_padding_type(cell, 'bottom')
-
-    def _to_css_padding_left_type(self, cell):
-        self._to_css_padding_type(cell, 'left')
-
-    def _to_css_padding_right_type(self, cell):
-        self._to_css_padding_type(cell, 'right')
 
     def _to_attribute_width(self, cell):
         width, width_type = cell.get_width()
