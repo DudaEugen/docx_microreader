@@ -221,8 +221,9 @@ class DocumentParser(Parser):
 class XMLement(Parser):
     tag: str
     type: str = ''
-    translators = {}
-    str_format: str = 'html'
+    from constants.translate_formats import TranslateFormat
+    translators = {}        # {TranslateFormat: translator}
+    translate_format: TranslateFormat = TranslateFormat.HTML
     _is_unique: bool = False   # True if parent can containing only one this element
     # all_style_properties: Dict[str, Tuple[str, Union[str, None], bool]] = {}
 
@@ -248,7 +249,7 @@ class XMLement(Parser):
         self._remove_raw_xml()
 
     def __str__(self):
-        return self.translators[self.str_format].translate(self)
+        return self.translators[self.translate_format].translate(self)
 
     def _get_document(self):
         return self.parent._get_document()

@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from typing import List, Callable, Dict
 from mixins.getters_setters import *
 from constants import keys_consts as k_const
+from constants.translate_formats import TranslateFormat
 
 
 class Drawing(XMLement):
@@ -10,7 +11,7 @@ class Drawing(XMLement):
     _is_unique = True
     from translators.html_translators import ContainerTranslatorToHTML
     translators = {
-        'html': ContainerTranslatorToHTML(),
+        TranslateFormat.HTML: ContainerTranslatorToHTML(),
     }
 
     def __init__(self, element: ET.Element, parent):
@@ -33,7 +34,7 @@ class Drawing(XMLement):
         _is_unique = True
         from translators.html_translators import ImageTranslatorToHTML
         translators = {
-            'html': ImageTranslatorToHTML(),
+            TranslateFormat.HTML: ImageTranslatorToHTML(),
         }
 
         def __init__(self, element: ET.Element, parent):
@@ -57,7 +58,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
     }
     from translators.html_translators import ParagraphTranslatorToHTML
     translators = {
-        'html': ParagraphTranslatorToHTML(),
+        TranslateFormat.HTML: ParagraphTranslatorToHTML(),
     }
 
     def __init__(self, element: ET.Element, parent):
@@ -85,7 +86,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
 
         from translators.html_translators import RunTranslatorToHTML
         translators = {
-            'html': RunTranslatorToHTML(),
+            TranslateFormat.HTML: RunTranslatorToHTML(),
         }
 
         def __init__(self, element: ET.Element, parent):
@@ -115,7 +116,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
             _is_unique = True
             from translators.html_translators import TextTranslatorToHTML
             translators = {
-                'html': TextTranslatorToHTML(),
+                TranslateFormat.HTML: TextTranslatorToHTML(),
             }
 
             def __init__(self, element: ET.Element, parent):
@@ -126,7 +127,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
                 self.content = self._element.text
 
             def __str__(self):
-                if self.str_format in self.translators:
+                if self.translate_format in self.translators:
                     return super(Paragraph.Run.Text, self).__str__()
                 return self.content
 
@@ -143,7 +144,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
     }
     from translators.html_translators import TableTranslatorToHTML
     translators = {
-        'html': TableTranslatorToHTML(),
+        TranslateFormat.HTML: TableTranslatorToHTML(),
     }
 
     def __init__(self, element: ET.Element, parent):
@@ -258,7 +259,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         tag: str = k_const.Row_tag
         from translators.html_translators import RowTranslatorToHTML
         translators = {
-            'html': RowTranslatorToHTML(),
+            TranslateFormat.HTML: RowTranslatorToHTML(),
         }
 
         def __init__(self, element: ET.Element, parent):
@@ -318,7 +319,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             tag: str = k_const.Cell_tag
             from translators.html_translators import CellTranslatorToHTML
             translators = {
-                'html': CellTranslatorToHTML(),
+                TranslateFormat.HTML: CellTranslatorToHTML(),
             }
 
             def __init__(self, element: ET.Element, parent):
