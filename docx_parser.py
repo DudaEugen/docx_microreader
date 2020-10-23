@@ -21,7 +21,7 @@ class Parser:
         if ':' in tag:
             key = re.split(':', tag)[0]
             return tag.replace(key + ':', '{' + namespaces[key] + '}')
-        raise ValueError(rf"tag '{tag}' don't have namespace")
+        return tag
 
     def __find_property_element(self, description: PropertyDescription) -> Union[ET.Element, None]:
         """
