@@ -25,6 +25,9 @@ class Drawing(XMLement):
             return str(self.image)
         return ''
 
+    def get_size(self, direction: str):
+        return self._properties[k_const.get_key('drawing', direction, 'size')].value
+
     class Image(XMLement):
         tag: str = k_const.Img_tag
         _is_unique = True

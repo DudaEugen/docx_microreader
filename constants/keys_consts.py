@@ -70,6 +70,7 @@ Const_quantities: Dict[str, str] = {
     'border': 'border',
     'paragraph_border': 'paragraph_border',
     'cell_border': 'cell_border',
+    'drawing': 'drawing'
 }
 
 
@@ -84,6 +85,8 @@ def get_key(quantity: str, direction: str = '', property_name: str = '') -> str:
     return rf'{Const_quantities[quantity]}{d}{p_name}'
 
 
+Draw_size_horizontal: str = get_key('drawing', 'horizontal', 'size')
+Draw_size_vertical: str = get_key('drawing', 'vertical', 'size')
 Img_id: str = 'id'
 Par_align: str = 'paragraph_align'
 Par_indent_left: str = 'indent_left'

@@ -163,6 +163,11 @@ cell_property_descriptions: Dict[str, PropertyDescription] = {
     Cell_margin_right_type: PropertyDescription('w:tcPr/w:tcMar', ['w:right', 'w:end'], 'w:type'),
 }
 
+drawing_property_descriptions: Dict[str, PropertyDescription] = {
+    Draw_size_horizontal: PropertyDescription('wp:inline', 'wp:extent', 'cx'),
+    Draw_size_vertical: PropertyDescription('wp:inline', 'wp:extent', 'cy'),
+}
+
 image_property_descriptions: Dict[str, PropertyDescription] = {
     Img_id: PropertyDescription(None, None, 'r:embed'),
 }
@@ -209,7 +214,7 @@ def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
     elif isinstance(ob, ParagraphStyle):
         return merge_dicts(paragraph_style_property_description, style_properties, run_style_property_descriptions)
     elif isinstance(ob, Drawing):
-        return {}
+        return drawing_property_descriptions
     elif isinstance(ob, Drawing.Image):
         return image_property_descriptions
 
