@@ -5,19 +5,39 @@ from mixins.getters_setters import *
 from constants import keys_consts as k_const
 
 
-class Image(XMLement):
-    tag: str = k_const.Img_tag
+class Drawing(XMLement):
+    tag: str = k_const.Draw_tag
     _is_unique = True
-    from translators.html_translators import ImageTranslatorToHTML
+    from translators.html_translators import ContainerTranslatorToHTML
     translators = {
-        'html': ImageTranslatorToHTML(),
+        'html': ContainerTranslatorToHTML(),
     }
 
     def __init__(self, element: ET.Element, parent):
-        super(Image, self).__init__(element, parent)
+        self.image: Union[Drawing.Image, None] = None
+        super(Drawing, self).__init__(element, parent)
 
-    def get_path(self):
-        return self._get_document().get_image(self._properties[k_const.Img_id].value)
+    def _init(self):
+        self.image = self._get_elements(Drawing.Image)
+
+    def get_inner_text(self) -> Union[str, None]:
+        if self.image is not None:
+            return str(self.image)
+        return ''
+
+    class Image(XMLement):
+        tag: str = k_const.Img_tag
+        _is_unique = True
+        from translators.html_translators import ImageTranslatorToHTML
+        translators = {
+            'html': ImageTranslatorToHTML(),
+        }
+
+        def __init__(self, element: ET.Element, parent):
+            super(Drawing.Image, self).__init__(element, parent)
+
+        def get_path(self):
+            return self._get_document().get_image(self._properties[k_const.Img_id].value)
 
 
 class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
@@ -64,13 +84,13 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
 
         def __init__(self, element: ET.Element, parent):
             self.text: Paragraph.Run.Text
-            self.image: Union[Image, None] = None
+            self.image: Union[Drawing, None] = None
             super(Paragraph.Run, self).__init__(element, parent)
 
         def _init(self):
             text: Union[str, None] = self._get_elements(Paragraph.Run.Text)
             self.text = text if text is not None else ''
-            self.image = self._get_elements(Image)
+            self.image = self._get_elements(Drawing)
 
         def _get_style_id(self) -> Union[str, None]:
             return self._properties[k_const.CharStyle].value

@@ -200,6 +200,18 @@ class TranslatorToHTML:
         self._add_to_many_properties_style(TranslatorToHTML._to_css_border_size(element, 'right'))
 
 
+class ContainerTranslatorToHTML(TranslatorToHTML):
+    """
+    displayed only containing elements
+    """
+    def _get_html_tag(self) -> str:
+        return ''
+
+    @staticmethod
+    def _is_single_tag() -> bool:
+        return True
+
+
 class ImageTranslatorToHTML(TranslatorToHTML):
 
     def __init__(self):

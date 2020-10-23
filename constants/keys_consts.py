@@ -1,7 +1,6 @@
 from typing import Dict
 
 # tags of classes constants
-Img_tag: str = 'w:drawing/wp:inline/a:graphic/a:graphicData/pic:pic/pic:blipFill/a:blip'
 Par_tag: str = 'w:p'
 Run_tag: str = 'w:r'
 Text_tag: str = 'w:t'
@@ -9,6 +8,8 @@ Tab_tag: str = 'w:tbl'
 Row_tag: str = 'w:tr'
 Cell_tag: str = 'w:tc'
 Body_tag: str = 'w:body'
+Draw_tag: str = 'w:drawing'
+Img_tag: str = 'wp:inline/a:graphic/a:graphicData/pic:pic/pic:blipFill/a:blip'
 Style_tag: str = 'w:style'
 StyleTableArea_tag: str = 'w:tblStylePr'
 

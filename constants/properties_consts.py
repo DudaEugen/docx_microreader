@@ -178,7 +178,7 @@ def merge_dicts(*args) -> dict:
 
 
 def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
-    from models import Paragraph, Table, Document, Image
+    from models import Paragraph, Table, Document, Drawing
     from styles import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
 
     if isinstance(ob, Paragraph):
@@ -208,7 +208,9 @@ def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
         return merge_dicts(run_style_property_descriptions, style_properties)
     elif isinstance(ob, ParagraphStyle):
         return merge_dicts(paragraph_style_property_description, style_properties, run_style_property_descriptions)
-    elif isinstance(ob, Image):
+    elif isinstance(ob, Drawing):
+        return {}
+    elif isinstance(ob, Drawing.Image):
         return image_property_descriptions
 
     raise ValueError('argument in create properties dict function is mistake')
