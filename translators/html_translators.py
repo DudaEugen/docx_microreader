@@ -4,7 +4,6 @@ from abc import ABC
 
 class TranslatorToHTML:
     def __init__(self):
-        self.methods: Dict[str, Callable] = {}
         self.styles: Dict[str, str] = {}
         self.inner_html_wrapper_styles: Dict[str, str] = {}
         self.attributes: Dict[str, str] = {}
@@ -32,8 +31,7 @@ class TranslatorToHTML:
         pass
 
     def _do_methods(self, element):
-        for k in self.methods:
-            self.methods[k](element)
+        pass
 
     def _get_html(self, inner_text: str) -> str:
         open_ext_tags, close_ext_tags = self._get_ext_tags()
@@ -102,9 +100,6 @@ class TranslatorToHTML:
                 return '#' + color
         return color
 
-    def _pass(self, pr):
-        pass
-
     def _add_to_many_properties_style(self, t: Union[Tuple[str, str], None]):
         if t is not None:
             if t[0] not in self.styles:
@@ -167,68 +162,54 @@ class TranslatorBorderedElementToHTML(ABC):
             return rf'border-{direction}', self.border_types_corresponding.get(border, 'solid')
         return None
 
-    def _to_css_border_top(self, element):
-        self._add_to_many_properties_style(self._to_css_border(element, 'top'))
-
-    def _to_css_border_bottom(self, element):
-        self._add_to_many_properties_style(self._to_css_border(element, 'bottom'))
-
-    def _to_css_border_left(self, element):
-        self._add_to_many_properties_style(self._to_css_border(element, 'left'))
-
-    def _to_css_border_right(self, element):
-        self._add_to_many_properties_style(self._to_css_border(element, 'right'))
-
-    @staticmethod
-    def _to_css_border_color(element, direction: str) -> Union[Tuple[str, str], None]:
+    def _to_css_border_color(self, element, direction: str) -> Union[Tuple[str, str], None]:
         border_color = element.get_border(direction, 'color')
         if border_color is not None:
             if border_color == 'auto':
                 return rf'border-{direction}', 'black'
-            return rf'border-{direction}', TranslatorToHTML._translate_color(border_color)
+            elif border_color is not None:
+                return rf'border-{direction}', TranslatorToHTML._translate_color(border_color)
         return None
 
-    def _to_css_border_top_color(self, element):
-        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_color(element, 'top'))
-
-    def _to_css_border_bottom_color(self, element):
-        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_color(element, 'bottom'))
-
-    def _to_css_border_left_color(self, element):
-        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_color(element, 'left'))
-
-    def _to_css_border_right_color(self, element):
-        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_color(element, 'right'))
-
-    @staticmethod
-    def _to_css_border_size(cell, direction: str) -> Union[Tuple[str, str], None]:
-        border_size = cell.get_border(direction, 'size')
+    def _to_css_border_size(self, element, direction: str) -> Union[Tuple[str, str], None]:
+        border_size = element.get_border(direction, 'size')
         if border_size is not None:
             return rf'border-{direction}', str(int(border_size) / 8) + 'pt'
         return None
 
-    def _to_css_border_top_size(self, element):
-        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_size(element, 'top'))
+    def _to_css_border_top(self, element):
+        self._add_to_many_properties_style(self._to_css_border(element, 'top'))
+        self._add_to_many_properties_style(self._to_css_border_color(element, 'top'))
+        self._add_to_many_properties_style(self._to_css_border_size(element, 'top'))
 
-    def _to_css_border_bottom_size(self, element):
-        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_size(element, 'bottom'))
+    def _to_css_border_bottom(self, element):
+        self._add_to_many_properties_style(self._to_css_border(element, 'bottom'))
+        self._add_to_many_properties_style(self._to_css_border_color(element, 'bottom'))
+        self._add_to_many_properties_style(self._to_css_border_size(element, 'bottom'))
 
-    def _to_css_border_left_size(self, element):
-        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_size(element, 'left'))
+    def _to_css_border_left(self, element):
+        self._add_to_many_properties_style(self._to_css_border(element, 'left'))
+        self._add_to_many_properties_style(self._to_css_border_color(element, 'left'))
+        self._add_to_many_properties_style(self._to_css_border_size(element, 'left'))
 
-    def _to_css_border_right_size(self, element):
-        self._add_to_many_properties_style(TranslatorBorderedElementToHTML._to_css_border_size(element, 'right'))
+    def _to_css_border_right(self, element):
+        self._add_to_many_properties_style(self._to_css_border(element, 'right'))
+        self._add_to_many_properties_style(self._to_css_border_color(element, 'right'))
+        self._add_to_many_properties_style(self._to_css_border_size(element, 'right'))
+
+    def _to_css_all_borders(self, element):
+        self._to_css_border_top(element)
+        self._to_css_border_bottom(element)
+        self._to_css_border_left(element)
+        self._to_css_border_right(element)
 
 
 class ImageTranslatorToHTML(TranslatorToHTML):
 
-    def __init__(self):
-        super(ImageTranslatorToHTML, self).__init__()
-        self.methods: Dict[str, Callable] = {
-            'src': self._to_attribute_src,
-            'wight': self._to_attribute_wight,
-            'height': self._to_attribute_height,
-        }
+    def _do_methods(self, image):
+        self._to_attribute_src(image)
+        self._to_attribute_wight(image)
+        self._to_attribute_height(image)
 
     def _get_html_tag(self) -> str:
         return 'img'
@@ -259,26 +240,12 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTM
         'left': 'left',
     }
 
-    def __init__(self):
-        super(ParagraphTranslatorToHTML, self).__init__()
-        self.methods: Dict[str, Callable] = {
-            'w:pPr/w:jc/w:val': self._to_attribute_align,
-            'w:pPr/w:ind/w:left': self._to_css_margin_left,
-            'w:pPr/w:ind/w:right': self._to_css_margin_right,
-            'w:pPr/w:ind/w:hanging': self._to_css_text_indent,
-            'w:tcPr/w:pBdr/w:top/w:val': self._to_css_border_top,
-            'w:tcPr/w:pBdr/w:bottom/w:val': self._to_css_border_bottom,
-            'w:tcPr/w:pBdr/w:left/w:val': self._to_css_border_left,
-            'w:tcPr/w:pBdr/w:right/w:val': self._to_css_border_right,
-            'w:tcPr/w:pBdr/w:top/w:color': self._to_css_border_top_color,
-            'w:tcPr/w:pBdr/w:bottom/w:color': self._to_css_border_bottom_color,
-            'w:tcPr/w:pBdr/w:left/w:color': self._to_css_border_left_color,
-            'w:tcPr/w:pBdr/w:right/w:color': self._to_css_border_right_color,
-            'w:tcPr/w:pBdr/w:top/w:sz': self._to_css_border_top_size,
-            'w:tcPr/w:pBdr/w:bottom/w:sz': self._to_css_border_bottom_size,
-            'w:tcPr/w:pBdr/w:left/w:sz': self._to_css_border_left_size,
-            'w:tcPr/w:pBdr/w:right/w:sz': self._to_css_border_right_size,
-        }
+    def _do_methods(self, paragraph):
+        self._to_attribute_align(paragraph)
+        self._to_css_margin_left(paragraph)
+        self._to_css_margin_right(paragraph)
+        self._to_css_text_indent(paragraph)
+        self._to_css_all_borders(paragraph)
 
     def _get_html_tag(self) -> str:
         return 'p'
@@ -324,19 +291,36 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
 
     def __init__(self):
         super(RunTranslatorToHTML, self).__init__()
-        self.methods: Dict[str, Callable] = {
-            'w:rPr/w:sz/w:val': self._to_css_size,
-            'w:rPr/w:b': self._to_ext_tag_bold,
-            'w:rPr/w:i': self._to_ext_tag_italic,
-            'w:rPr/w:vertAlign/w:val': self._to_ext_tags_vertical_align,
-            'w:rPr/w:highlight/w:val': self._to_css_background_color,
-            'w:rPr/w:color/w:val': self._to_css_color,
-            'w:rPr/w:strike': self._to_css_line_throught,
-            'w:rPr/w:u/w:val': self._to_css_underline,
-            'w:rPr/w:bdr/w:val': self._to_css_border_all,
-            'w:rPr/w:bdr/w:color': self._to_css_border_all_color,
-            'w:rPr/w:bdr/w:sz': self._to_css_border_all_size,
+        self.border: Dict[str, Union[None, str]]
+        self.defining_of_border: Dict[str, bool]
+        self._set_default_for_border_dicts()
+
+    def _reset_value(self):
+        super(RunTranslatorToHTML, self)._reset_value()
+        self._set_default_for_border_dicts()
+
+    def _set_default_for_border_dicts(self):
+        self.border: Dict[str, Union[None, str]] = {
+            'type': None,
+            'size': None,
+            'color': None,
         }
+        self.defining_of_border: Dict[str, bool] = {
+            'type': False,
+            'size': False,
+            'color': False,
+        }
+
+    def _do_methods(self, run):
+        self._to_css_size(run)
+        self._to_ext_tag_bold(run)
+        self._to_ext_tag_italic(run)
+        self._to_ext_tags_vertical_align(run)
+        self._to_css_background_color(run)
+        self._to_css_color(run)
+        self._to_css_line_throught(run)
+        self._to_css_underline(run)
+        self._to_css_all_borders(run)
 
     def _get_html_tag(self) -> str:
         if self.attributes or self.styles:
@@ -398,46 +382,32 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         if underline_color is not None:
             self.styles['text-decoration-color'] = TranslatorToHTML._translate_color(underline_color)
 
-    def _to_css_border(self, run, direction: str) -> Union[Tuple[str, str], None]:
-        border = run.get_border('type')
-        if border is not None:
-            return rf'border-{direction}', self.border_types_corresponding.get(border, 'solid')
-        return None
+    def _get_border_property_of_run(self, run, pr: str) -> Union[str, None]:
+        if not self.defining_of_border[pr]:
+            self.border[pr] = run.get_border(pr)
+            self.defining_of_border[pr] = True
+        return self.border[pr]
 
-    def _to_css_border_all(self, run):
-        self._add_to_many_properties_style(self._to_css_border(run, 'top'))
-        self._add_to_many_properties_style(self._to_css_border(run, 'bottom'))
-        self._add_to_many_properties_style(self._to_css_border(run, 'left'))
-        self._add_to_many_properties_style(self._to_css_border(run, 'right'))
-
-    @staticmethod
-    def _to_css_border_color(run, direction: str) -> Union[Tuple[str, str], None]:
-        border_color = run.get_border('color')
+    def _to_css_border_color(self, run, direction: str) -> Union[Tuple[str, str], None]:
+        border_color = self._get_border_property_of_run(run, 'color')
         if border_color is not None:
             if border_color == 'auto':
                 return rf'border-{direction}', 'black'
             elif border_color is not None:
-                return rf'border-{direction}', CellTranslatorToHTML._translate_color(border_color)
+                return rf'border-{direction}', TranslatorToHTML._translate_color(border_color)
         return None
 
-    def _to_css_border_all_color(self, element):
-        self._add_to_many_properties_style(RunTranslatorToHTML._to_css_border_color(element, 'top'))
-        self._add_to_many_properties_style(RunTranslatorToHTML._to_css_border_color(element, 'bottom'))
-        self._add_to_many_properties_style(RunTranslatorToHTML._to_css_border_color(element, 'left'))
-        self._add_to_many_properties_style(RunTranslatorToHTML._to_css_border_color(element, 'right'))
-
-    @staticmethod
-    def _to_css_border_size(run, direction: str) -> Union[Tuple[str, str], None]:
-        border_size = run.get_border('size')
+    def _to_css_border_size(self, run, direction: str) -> Union[Tuple[str, str], None]:
+        border_size = self._get_border_property_of_run(run, 'size')
         if border_size is not None:
             return rf'border-{direction}', str(int(border_size) / 8) + 'pt'
         return None
 
-    def _to_css_border_all_size(self, element):
-        self._add_to_many_properties_style(RunTranslatorToHTML._to_css_border_size(element, 'top'))
-        self._add_to_many_properties_style(RunTranslatorToHTML._to_css_border_size(element, 'bottom'))
-        self._add_to_many_properties_style(RunTranslatorToHTML._to_css_border_size(element, 'left'))
-        self._add_to_many_properties_style(RunTranslatorToHTML._to_css_border_size(element, 'right'))
+    def _to_css_border(self, run, direction: str) -> Union[Tuple[str, str], None]:
+        border = self._get_border_property_of_run(run, 'type')
+        if border is not None:
+            return rf'border-{direction}', self.border_types_corresponding.get(border, 'solid')
+        return None
 
 
 class TextTranslatorToHTML:
@@ -612,29 +582,12 @@ class TextTranslatorToHTML:
 
 class TableTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
 
-    def __init__(self):
-        super(TableTranslatorToHTML, self).__init__()
-        self.methods: Dict[str, Callable] = {
-            'w:tblPr/w:tblW/w:w': self._to_attribute_width,
-            'w:tblPr/w:jc/w:val': self._to_attribute_align,
-            'w:tblPr/w:tblBorders/w:top/w:val': self._to_css_border_top,
-            'w:tblPr/w:tblBorders/w:bottom/w:val': self._to_css_border_bottom,
-            'w:tblPr/w:tblBorders/w:left/w:val': self._to_css_border_left,
-            'w:tblPr/w:tblBorders/w:right/w:val': self._to_css_border_right,
-            'w:tblPr/w:tblBorders/w:top/w:color': self._to_css_border_top_color,
-            'w:tblPr/w:tblBorders/w:bottom/w:color': self._to_css_border_bottom_color,
-            'w:tblPr/w:tblBorders/w:left/w:color': self._to_css_border_left_color,
-            'w:tblPr/w:tblBorders/w:right/w:color': self._to_css_border_right_color,
-            'w:tblPr/w:tblBorders/w:top/w:sz': self._to_css_border_top_size,
-            'w:tblPr/w:tblBorders/w:bottom/w:sz': self._to_css_border_bottom_size,
-            'w:tblPr/w:tblBorders/w:left/w:sz': self._to_css_border_left_size,
-            'w:tblPr/w:tblBorders/w:right/w:sz': self._to_css_border_right_size,
-            'w:tblPr/w:tblInd/w:w': self._to_css_margin,
-        }
-
     def _do_methods(self, table):
         self._to_css_border_collapse()
-        super(TableTranslatorToHTML, self)._do_methods(table)
+        self._to_attribute_width(table)
+        self._to_attribute_align(table)
+        self._to_css_all_borders(table)
+        self._to_css_margin(table)
 
     def _get_html_tag(self) -> str:
         return 'table'
@@ -677,11 +630,8 @@ class TableTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
 
 class RowTranslatorToHTML(TranslatorToHTML):
 
-    def __init__(self):
-        super(RowTranslatorToHTML, self).__init__()
-        self.methods: Dict[str, Callable] = {
-            'w:trPr/w:trHeight/w:val': self._to_attribute_or_css_height,
-        }
+    def _do_methods(self, row):
+        self._to_attribute_or_css_height(row)
 
     def _convert_fields(self, row):
         self._to_ext_tag_head(row)
@@ -714,38 +664,21 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
 
     def __init__(self):
         super(CellTranslatorToHTML, self).__init__()
-        self.methods: Dict[str, Callable] = {
-            'w:tcPr/w:shd/w:fill': self._to_css_fill_color,
-            'w:tcPr/w:shd/w:themeFill': self._pass,
-            'w:tcPr/w:vMerge/w:val': self._pass,
-            'w:tcPr/w:vMerge': self._pass,
-            'w:tcPr/w:tcBorders/w:top/w:val': self._to_css_border_top,
-            'w:tcPr/w:tcBorders/w:bottom/w:val': self._to_css_border_bottom,
-            'w:tcPr/w:tcBorders/w:left/w:val': self._to_css_border_left,
-            'w:tcPr/w:tcBorders/w:right/w:val': self._to_css_border_right,
-            'w:tcPr/w:tcBorders/w:top/w:color': self._to_css_border_top_color,
-            'w:tcPr/w:tcBorders/w:bottom/w:color': self._to_css_border_bottom_color,
-            'w:tcPr/w:tcBorders/w:left/w:color': self._to_css_border_left_color,
-            'w:tcPr/w:tcBorders/w:right/w:color': self._to_css_border_right_color,
-            'w:tcPr/w:tcBorders/w:top/w:sz': self._to_css_border_top_size,
-            'w:tcPr/w:tcBorders/w:bottom/w:sz': self._to_css_border_bottom_size,
-            'w:tcPr/w:tcBorders/w:left/w:sz': self._to_css_border_left_size,
-            'w:tcPr/w:tcBorders/w:right/w:sz': self._to_css_border_right_size,
-            'w:tcPr/w:tcW/w:w': self._to_attribute_width,
-            'w:tcPr/w:gridSpan/w:val': self._to_attribute_col_span,
-            'w:tcPr/w:textDirection/w:val': self._to_css_text_direction,
-            'w:tcPr/w:vAlign/w:val': self._to_attribute_vertical_align,
-            'w:tcPr/w:tcMar/w:top/w:w': self._to_css_padding_top,
-            'w:tcPr/w:tcMar/w:bottom/w:w': self._to_css_padding_bottom,
-            'w:tcPr/w:tcMar/w:left/w:w': self._to_css_padding_left,
-            'w:tcPr/w:tcMar/w:right/w:w': self._to_css_padding_right,
-        }
         self._is_header: bool = False
         self._tag_for_header = 'td'
 
-    def _convert_fields(self, element):
-        self._to_attribute_row_span(element)
-        self._is_header = element.is_header
+    def _do_methods(self, cell):
+        self._to_css_fill_color(cell)
+        self._to_css_all_borders(cell)
+        self._to_attribute_width(cell)
+        self._to_attribute_col_span(cell)
+        self._to_css_text_direction(cell)
+        self._to_attribute_vertical_align(cell)
+        self._to_css_all_padding(cell)
+
+    def _convert_fields(self, cell):
+        self._to_attribute_row_span(cell)
+        self._is_header = cell.is_header
 
     def _get_html_tag(self) -> str:
         return 'td' if not self._is_header else self._tag_for_header
@@ -758,6 +691,12 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         if color is not None:
             if color != 'auto':
                 self.styles['background-color'] = TranslatorToHTML._translate_color(color)
+
+    def _to_css_all_padding(self, cell):
+        self._to_css_padding_top(cell)
+        self._to_css_padding_bottom(cell)
+        self._to_css_padding_left(cell)
+        self._to_css_padding_right(cell)
 
     def _to_css_padding_top(self, cell):
         padding = cell.get_margin('top')[0]
