@@ -178,9 +178,11 @@ class DocumentParser(Parser):
 
     def _parse_images_relationships(self) -> Dict[str, str]:
         result: Dict[str, str] = {}
-        for rel_id, rel_type, rel_target in re.findall('<Relationship Id="(\w+)" Type="([\w/:.]+)" Target="([\w./]+)"',
-                                                       self.get_xml_file('_rels/document.xml.rels', False)):
+        for relationship in re.findall(r'<Relationship ([^>]+)>', self.get_xml_file('_rels/document.xml.rels', False)):
+            rel_type: str = re.search(r'Type="([\w/:.]+)"', relationship).group(1)
             if rel_type[-5:] == 'image':
+                rel_id: str = re.search(r'Id="(\w+)"', relationship).group(1)
+                rel_target: str = re.search(r'Target="([\w./]+)"', relationship).group(1)
                 result[rel_id] = rel_target
         return result
 
