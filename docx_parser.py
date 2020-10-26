@@ -80,7 +80,7 @@ class Parser:
         else:
             result: list = []
             for el in self._element.findall('./' + class_of_element.tag, namespaces):
-                elem = self._parse_element(el)
+                elem = class_of_element(el, self)
                 if elem is not None:
                     result.append(elem)
             return result
