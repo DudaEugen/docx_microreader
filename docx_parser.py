@@ -18,6 +18,12 @@ class Parser:
 
     @staticmethod
     def _check_namespace(tag: str) -> str:
+        """
+        :param tag: string or element of constants.keys_consts.ElementTag enum
+        :return: tag with replaced namespace
+        """
+        if isinstance(tag, k_consts.ElementTag):
+            tag = tag.value
         if ':' in tag:
             key = re.split(':', tag)[0]
             return tag.replace(key + ':', '{' + namespaces[key] + '}')
@@ -74,12 +80,13 @@ class Parser:
         return tags[element.tag](element, self) if element.tag in tags else None
 
     def _get_elements(self, class_of_element):
+        element_tag: str = class_of_element.tag.value
         if class_of_element._is_unique:
-            element: Union[ET.Element, None] = self._element.find(class_of_element.tag, namespaces)
+            element: Union[ET.Element, None] = self._element.find(element_tag, namespaces)
             return class_of_element(element, self) if element is not None else None
         else:
             result: list = []
-            for el in self._element.findall('./' + class_of_element.tag, namespaces):
+            for el in self._element.findall('./' + element_tag, namespaces):
                 elem = class_of_element(el, self)
                 if elem is not None:
                     result.append(elem)
@@ -171,7 +178,7 @@ class DocumentParser(Parser):
     def _parse_styles(self):
         from styles import Style
 
-        for el in self.get_xml_file('styles.xml').findall('./' + Style.tag, namespaces):
+        for el in self.get_xml_file('styles.xml').findall('./' + Style.tag.value, namespaces):
             elem = self.__parse_style(el)
             if elem is not None:
                 self._styles[elem.id] = elem
@@ -221,8 +228,7 @@ class DocumentParser(Parser):
 
 
 class XMLement(Parser):
-    tag: str
-    type: str = ''
+    tag: str    # element of constants.keys_consts.ElementTag enum
     from constants.translate_formats import TranslateFormat
     translators = {}        # {TranslateFormat: translator}
     translate_format: TranslateFormat = TranslateFormat.HTML

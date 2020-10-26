@@ -7,7 +7,7 @@ from constants.translate_formats import TranslateFormat
 
 
 class Drawing(XMLement):
-    tag: str = k_const.Draw_tag
+    tag = k_const.ElementTag.DRAWING
     _is_unique = True
     from translators.html_translators import ContainerTranslatorToHTML
     translators = {
@@ -30,7 +30,7 @@ class Drawing(XMLement):
         return int(self._properties[k_const.get_key('drawing', direction, 'size')].value)
 
     class Image(XMLement):
-        tag: str = k_const.Img_tag
+        tag = k_const.ElementTag.IMAGE
         _is_unique = True
         from translators.html_translators import ImageTranslatorToHTML
         translators = {
@@ -48,7 +48,7 @@ class Drawing(XMLement):
 
 
 class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
-    tag: str = k_const.Par_tag
+    tag = k_const.ElementTag.PARAGRAPH
     _properties_unificators = {
         k_const.Par_align: [('left', ['start']),
                             ('right', ['end']),
@@ -82,7 +82,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
         return result if result is not None else self.parent.get_property(property_name)
 
     class Run(XMLement, RunPropertiesGetSetMixin):
-        tag: str = k_const.Run_tag
+        tag = k_const.ElementTag.RUN
 
         from translators.html_translators import RunTranslatorToHTML
         translators = {
@@ -112,7 +112,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
             return result if result is not None else self.parent.get_property(property_name)
 
         class Text(XMLement):
-            tag: str = k_const.Text_tag
+            tag = k_const.ElementTag.TEXT
             _is_unique = True
             from translators.html_translators import TextTranslatorToHTML
             translators = {
@@ -136,7 +136,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
 
 
 class Table(XMLement, TablePropertiesGetSetMixin):
-    tag: str = k_const.Tab_tag
+    tag = k_const.ElementTag.TABLE
     _properties_unificators = {
         k_const.Tab_align: [('left', ['start']),
                             ('right', ['end']),
@@ -256,7 +256,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         self._properties[k_const.Tab_no_vertical_banding].value = None if is_use else '0'
 
     class Row(XMLement, RowPropertiesGetSetMixin):
-        tag: str = k_const.Row_tag
+        tag = k_const.ElementTag.ROW
         from translators.html_translators import RowTranslatorToHTML
         translators = {
             TranslateFormat.HTML: RowTranslatorToHTML(),
@@ -316,7 +316,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             return not self.is_odd()
 
         class Cell(XMLcontainer, CellPropertiesGetSetMixin):
-            tag: str = k_const.Cell_tag
+            tag = k_const.ElementTag.CELL
             from translators.html_translators import CellTranslatorToHTML
             translators = {
                 TranslateFormat.HTML: CellTranslatorToHTML(),
@@ -573,7 +573,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 class Document(DocumentParser):
 
     class Body(XMLcontainer):
-        tag: str = k_const.Body_tag
+        tag = k_const.ElementTag.BODY
         _is_unique = True
 
         def __str__(self):

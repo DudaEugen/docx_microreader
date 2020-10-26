@@ -6,7 +6,7 @@ from typing import Union, Dict
 
 
 class Style(XMLement):
-    tag = k_const.Style_tag
+    tag = k_const.ElementTag.STYLE
 
     def __init__(self, element: ET.Element, parent,
                  style_id: str, is_default: bool = False, is_custom_style: bool = False):
@@ -55,7 +55,7 @@ class TableStyle(Style, TablePropertiesGetSetMixin):
         return None
 
     class TableAreaStyle(XMLement, TablePropertiesGetSetMixin):
-        tag = k_const.StyleTableArea_tag
+        tag = k_const.ElementTag.STYLE_TABLE_AREA
 
         def __init__(self, element: ET.Element, parent):
             self.type: str = ''
