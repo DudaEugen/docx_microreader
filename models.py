@@ -27,7 +27,7 @@ class Drawing(XMLement):
         return ''
 
     def get_size(self, direction: str) -> int:
-        return int(self._properties[k_const.get_key('drawing', direction, 'size')].value)
+        return int(self._properties[k_const.get_property_key(k_const.Element.DRAWING, 'drawing', direction, 'size')].value)
 
     class Image(XMLement):
         tag = k_const.ElementTag.IMAGE
@@ -499,7 +499,9 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 :param direction: top, bottom, right, left  (keys of XMLementPropertyDescriptions.Const_directions dict)
                 :param property_name: color, size, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
                 """
-                result = self._properties.get(k_const.get_key('cell_border', direction, property_name))
+                result = self._properties.get(k_const.get_property_key(
+                    k_const.Element.CELL, 'cell_border', direction, property_name
+                ))
                 if result is not None:
                     result = result.value
                 if result is None or (result == 'auto' and property_name == 'color'):
@@ -512,21 +514,24 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                                 self.get_parent_table().header_row_number > 1 and \
                                 self.get_parent_row().is_header() and not self.get_parent_row().is_last_row_in_header:
                             return self.__define_table_area_style_and_get_property_for_inside_borders_of_header(
-                                        k_const.get_key('borders_inside', d, property_name)
+                                        k_const.get_property_key(k_const.Element.TABLE, 'borders_inside', d,
+                                                                 property_name)
                                     )
                         result = self.get_parent_table().get_inside_border(d, property_name)
                         if result is None:
                             result = self.__define_table_area_style_and_get_property(
-                                k_const.get_key('cell_border', direction, property_name)
+                                k_const.get_property_key(k_const.Element.CELL, 'cell_border', direction, property_name)
                             )
                             if result is None:
                                 if d == 'horizontal':
                                     result = self.__define_table_area_style_and_get_property_for_horizontal_inside_borders(
-                                        k_const.get_key('borders_inside', d, property_name)
+                                        k_const.get_property_key(k_const.Element.TABLE, 'borders_inside', d,
+                                                                 property_name)
                                     )
                                 else:
                                     result = self.__define_table_area_style_and_get_property_for_vertical_inside_borders(
-                                        k_const.get_key('borders_inside', d, property_name)
+                                        k_const.get_property_key(k_const.Element.TABLE, 'borders_inside', d,
+                                                                 property_name)
                                     )
                 return result
 
@@ -535,7 +540,9 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 :param direction: top, bottom, right, left  (keys of XMLementPropertyDescriptions.Const_directions dict)
                 :param property_name: color, size, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
                 """
-                self.set_property_value(k_const.get_key('cell_border', direction, property_name), value)
+                self.set_property_value(k_const.get_property_key(
+                    k_const.Element.CELL, 'cell_border', direction, property_name), value
+                )
 
             def get_col_span(self) -> Union[str, None]:
                 return self._properties[k_const.Cell_col_span].value

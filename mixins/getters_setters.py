@@ -76,14 +76,16 @@ class ParagraphPropertiesGetSetMixin(GetSetMixin, ABC):
         :param direction: top, bottom, right, left     (keys of XMLementPropertyDescriptions.Const_directions dict)
         :param property_name: color, size, space, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        return self.get_property(k_const.get_key('paragraph_border', direction, property_name))
+        return self.get_property(k_const.get_property_key(k_const.Element.PARAGRAPH, 'paragraph_border', direction, property_name))
 
     def set_border_value(self, direction: str, property_name: str, value: Union[str, None]):
         """
         :param direction: top, bottom, right, left     (keys of XMLementPropertyDescriptions.Const_directions dict)
         :param property_name: color, size, space, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        self.set_property_value(k_const.get_key('paragraph_border', direction, property_name), value)
+        self.set_property_value(k_const.get_property_key(
+            k_const.Element.PARAGRAPH, 'paragraph_border', direction, property_name), value
+        )
 
 
 class RunPropertiesGetSetMixin(GetSetMixin, ABC):
@@ -183,14 +185,15 @@ class RunPropertiesGetSetMixin(GetSetMixin, ABC):
         :param property_name: color, size, space, type
         (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        return self.get_property(k_const.get_key('border', property_name=property_name))
+        return self.get_property(k_const.get_property_key(k_const.Element.RUN, 'border', property_name=property_name))
 
     def set_border_value(self, property_name: str, value: Union[str, None]):
         """
         :param property_name: color, size, space or type
         (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        self.set_property_value(k_const.get_key('border', property_name=property_name), value)
+        self.set_property_value(k_const.get_property_key(k_const.Element.RUN, 'border', property_name=property_name),
+                                value)
 
 
 class TablePropertiesGetSetMixin(GetSetMixin, ABC):
@@ -220,14 +223,15 @@ class TablePropertiesGetSetMixin(GetSetMixin, ABC):
         :param direction: top, bottom, right, left      (keys of XMLementPropertyDescriptions.Const_property_names dict)
         :param property_name: color, size, type         (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        return self.get_property(k_const.get_key('border', direction, property_name))
+        return self.get_property(k_const.get_property_key(k_const.Element.TABLE, 'border', direction, property_name))
 
     def set_border_value(self, direction: str, property_name: str, value: Union[str, None]):
         """
         :param direction: top, bottom, right, left      (keys of XMLementPropertyDescriptions.Const_property_names dict)
         :param property_name: color, size, type         (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        self.set_property_value(k_const.get_key('border', direction, property_name), value)
+        self.set_property_value(k_const.get_property_key(k_const.Element.TABLE, 'border', direction, property_name),
+                                value)
 
     def get_indentation(self) -> Tuple[Union[str, None], Union[str, None]]:
         """
@@ -244,14 +248,17 @@ class TablePropertiesGetSetMixin(GetSetMixin, ABC):
         :param direction: 'horizontal' or 'vertical'
         :param property_name: 'color', 'size', 'type'  (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        return self.get_property(k_const.get_key('borders_inside', direction, property_name))
+        return self.get_property(k_const.get_property_key(k_const.Element.TABLE, 'borders_inside', direction,
+                                                          property_name))
 
     def set_inside_border_value(self, direction: str, property_name: str, value: Union[str, None]):
         """
         :param direction: 'horizontal' or 'vertical'
         :param property_name: 'color', 'size', 'type'  (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        self.set_property_value(k_const.get_key('borders_inside', direction, property_name), value)
+        self.set_property_value(k_const.get_property_key(k_const.Element.TABLE, 'borders_inside', direction,
+                                                         property_name),
+                                value)
 
     def get_cells_margin(self, direction: str) -> Tuple[Union[str, None], Union[str, None]]:
         """
@@ -259,8 +266,8 @@ class TablePropertiesGetSetMixin(GetSetMixin, ABC):
         :result: value, value_type
         """
         return (
-            self.get_property(k_const.get_key('cell_margin', direction, "size")),
-            self.get_property(k_const.get_key('cell_margin', direction, "type"))
+            self.get_property(k_const.get_property_key(k_const.Element.TABLE, 'cell_margin', direction, "size")),
+            self.get_property(k_const.get_property_key(k_const.Element.TABLE, 'cell_margin', direction, "type"))
         )
 
     def set_cells_margin_value(self, direction: str, value: Union[str, None], value_type: Union[str, None] = 'dxa'):
@@ -268,8 +275,10 @@ class TablePropertiesGetSetMixin(GetSetMixin, ABC):
         :param direction: 'top', 'bottom', 'right', 'left'  (keys of XMLementPropertyDescriptions.Const_directions dict)
         :param value_type: 'dxa' or 'nil'
         """
-        self.set_property_value(k_const.get_key('cell_margin', direction, "size"), value)
-        self.set_property_value(k_const.get_key('cell_margin', direction, "type"), value_type)
+        self.set_property_value(k_const.get_property_key(k_const.Element.TABLE, 'cell_margin', direction, "size"),
+                                value)
+        self.set_property_value(k_const.get_property_key(k_const.Element.TABLE, 'cell_margin', direction, "type"),
+                                value_type)
 
 
 class RowPropertiesGetSetMixin(GetSetMixin, ABC):
@@ -334,7 +343,9 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
         :param direction: top, bottom, right, left  (keys of XMLementPropertyDescriptions.Const_directions dict)
         :param property_name: color, size, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
         """
-        result = self.get_property(k_const.get_key('cell_border', direction, property_name))
+        result = self.get_property(k_const.get_property_key(k_const.Element.CELL, 'cell_border', direction,
+                                                            property_name)
+                                   )
         if result is None or (property_name == 'color' and result == 'auto'):
             if not (self.is_first_in_row() and direction == 'left') and \
                not (self.is_last_in_row() and direction == 'right') and \
@@ -372,14 +383,18 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
         (keys of XMLementPropertyDescriptions.Const_directions dict)
         :return: (margin, type)
         """
-        if self.get_property(k_const.get_key('margin', direction, "size")) is None:
+        if self.get_property(k_const.get_property_key(k_const.Element.CELL, 'margin', direction, "size")) is None:
             return (
-                self.get_parent_table().get_property(k_const.get_key('cell_margin', direction, "size")),
-                self.get_parent_table().get_property(k_const.get_key('cell_margin', direction, "type"))
+                self.get_parent_table().get_property(
+                    k_const.get_property_key(k_const.Element.TABLE, 'cell_margin', direction, "size")
+                ),
+                self.get_parent_table().get_property(
+                    k_const.get_property_key(k_const.Element.TABLE, 'cell_margin', direction, "type")
+                )
             )
         return (
-            self.get_property(k_const.get_key('margin', direction, "size")),
-            self.get_property(k_const.get_key('margin', direction, "type"))
+            self.get_property(k_const.get_property_key(k_const.Element.CELL, 'margin', direction, "size")),
+            self.get_property(k_const.get_property_key(k_const.Element.CELL, 'margin', direction, "type"))
         )
 
     def set_margin_value(self, direction: str, value: Union[str, None], value_type: Union[str, None] = 'dxa'):
@@ -388,5 +403,5 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
         (keys of XMLementPropertyDescriptions.Const_directions dict)
         :param value_type: 'dxa' or 'nil'
         """
-        self.set_property_value(k_const.get_key('margin', direction, "size"), value)
-        self.set_property_value(k_const.get_key('margin', direction, "type"), value_type)
+        self.set_property_value(k_const.get_property_key(k_const.Element.CELL, 'margin', direction, "size"), value)
+        self.set_property_value(k_const.get_property_key(k_const.Element.CELL, 'margin', direction, "type"), value_type)
