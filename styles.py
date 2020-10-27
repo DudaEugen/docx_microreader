@@ -62,4 +62,5 @@ class TableStyle(Style, TablePropertiesGetSetMixin):
             super(TableStyle.TableAreaStyle, self).__init__(element, parent)
 
         def _init(self):
-            self.type = self._element.get(self._check_namespace('w:type'))
+            from constants.namespaces import check_namespace_of_tag
+            self.type = self._element.get(check_namespace_of_tag('w:type'))

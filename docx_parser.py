@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from constants.namespaces import namespaces
+from constants.namespaces import namespaces, check_namespace_of_tag
 from typing import Union, List, Callable, Dict, Tuple
 import re
 from properties import Property, PropertyDescription
@@ -15,19 +15,6 @@ class Parser:
 
     def _remove_raw_xml(self):
         del self._element
-
-    @staticmethod
-    def _check_namespace(tag: str) -> str:
-        """
-        :param tag: string or element of constants.keys_consts.ElementTag enum
-        :return: tag with replaced namespace
-        """
-        if isinstance(tag, k_consts.ElementTag):
-            tag = tag.value
-        if ':' in tag:
-            key = re.split(':', tag)[0]
-            return tag.replace(key + ':', '{' + namespaces[key] + '}')
-        return tag
 
     def __find_property_element(self, description: PropertyDescription) -> Union[ET.Element, None]:
         """
@@ -49,14 +36,14 @@ class Parser:
         if pr.value_type == 'str':
             if isinstance(tags, list):
                 for tag_prop in tags:
-                    prop: Union[None, str] = property_element.get(self._check_namespace(tag_prop))
+                    prop: Union[None, str] = property_element.get(check_namespace_of_tag(tag_prop))
                     if prop is not None:
                         return Property(prop)
                 return Property(None)
             else:
-                return Property(property_element.get(self._check_namespace(tags)))
+                return Property(property_element.get(check_namespace_of_tag(tags)))
         else:
-            value: Union[str, None] = property_element.get(self._check_namespace(k_consts.BoolPropertyValue))
+            value: Union[str, None] = property_element.get(check_namespace_of_tag(k_consts.BoolPropertyValue))
             if value is not None and value == '0':
                 return Property(False)
             else:
@@ -66,15 +53,15 @@ class Parser:
         from models import Document, Table, Paragraph, Drawing
 
         tags: Dict[str, Callable] = {
-            Parser._check_namespace(Document.Body.tag): Document.Body,
-            Parser._check_namespace(Table.tag): Table,
-            Parser._check_namespace(Table.Row.tag): Table.Row,
-            Parser._check_namespace(Table.Row.Cell.tag): Table.Row.Cell,
-            Parser._check_namespace(Paragraph.tag): Paragraph,
-            Parser._check_namespace(Paragraph.Run.tag): Paragraph.Run,
-            Parser._check_namespace(Paragraph.Run.Text.tag): Paragraph.Run.Text,
-            Parser._check_namespace(Drawing.tag): Drawing,
-            Parser._check_namespace(Drawing.Image.tag): Drawing.Image,
+            check_namespace_of_tag(Document.Body.tag): Document.Body,
+            check_namespace_of_tag(Table.tag): Table,
+            check_namespace_of_tag(Table.Row.tag): Table.Row,
+            check_namespace_of_tag(Table.Row.Cell.tag): Table.Row.Cell,
+            check_namespace_of_tag(Paragraph.tag): Paragraph,
+            check_namespace_of_tag(Paragraph.Run.tag): Paragraph.Run,
+            check_namespace_of_tag(Paragraph.Run.Text.tag): Paragraph.Run.Text,
+            check_namespace_of_tag(Drawing.tag): Drawing,
+            check_namespace_of_tag(Drawing.Image.tag): Drawing.Image,
         }
 
         return tags[element.tag](element, self) if element.tag in tags else None
@@ -110,7 +97,7 @@ class Parser:
                 else:
                     result[key] = Property(None)
             else:
-                result[key] = Property(self._element.get(self._check_namespace(pr.tag_property)))
+                result[key] = Property(self._element.get(check_namespace_of_tag(pr.tag_property)))
         return result
 
     @staticmethod
@@ -163,12 +150,12 @@ class DocumentParser(Parser):
         }
 
         parameters: Tuple[str, str, bool, bool] = (
-            element.get(Parser._check_namespace(p_consts.Style_parameters[p_consts.StyleParam_type])),
-            element.get(Parser._check_namespace(p_consts.Style_parameters[p_consts.StyleParam_id])),
-            False if element.get(Parser._check_namespace(
+            element.get(check_namespace_of_tag(p_consts.Style_parameters[p_consts.StyleParam_type])),
+            element.get(check_namespace_of_tag(p_consts.Style_parameters[p_consts.StyleParam_id])),
+            False if element.get(check_namespace_of_tag(
                 p_consts.Style_parameters[p_consts.StyleParam_is_default])
             ) is None else True,
-            False if element.get(Parser._check_namespace(
+            False if element.get(check_namespace_of_tag(
                 p_consts.Style_parameters[p_consts.StyleParam_is_custom])
             ) is None else True,
         )

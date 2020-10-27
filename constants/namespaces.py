@@ -33,3 +33,19 @@ namespaces: Dict[str, str] = {
     'a': 'http://schemas.openxmlformats.org/drawingml/2006/main',
     'pic': 'http://schemas.openxmlformats.org/drawingml/2006/picture',
 }
+
+
+def check_namespace_of_tag(tag: str) -> str:
+    """
+    :param tag: string or element of constants.keys_consts.ElementTag enum
+    :return: tag with replaced namespace
+    """
+    from constants.keys_consts import ElementTag
+    import re
+
+    if isinstance(tag, ElementTag):
+        tag = tag.value
+    if ':' in tag:
+        key = re.split(':', tag)[0]
+        return tag.replace(key + ':', '{' + namespaces[key] + '}')
+    return tag
