@@ -1,32 +1,55 @@
 from enum import Enum, unique
-from typing import Dict
+from typing import Union, List
+
+
+class StrEnum(str, Enum):
+    def is_equal(self, s: str) -> bool:
+        """
+        :param s: str or StrEnum
+        """
+        if isinstance(s, str):
+            if self.value == s:
+                return True
+            return False
+        return self == s
 
 
 @unique
-class ElementTag(Enum):
-    BODY: str = 'w:body'
-    PARAGRAPH: str = 'w:p'
-    RUN: str = 'w:r'
-    TEXT: str = 'w:t'
-    TABLE: str = 'w:tbl'
-    ROW: str = 'w:tr'
-    CELL: str = 'w:tc'
-    DRAWING: str = 'w:drawing'
-    IMAGE: str = 'wp:inline/a:graphic/a:graphicData/pic:pic/pic:blipFill/a:blip'
-    STYLE: str = 'w:style'
-    STYLE_TABLE_AREA: str = 'w:tblStylePr'
+class ElementTag(StrEnum):
+    BODY = 'w:body'
+    PARAGRAPH = 'w:p'
+    RUN = 'w:r'
+    TEXT = 'w:t'
+    TABLE = 'w:tbl'
+    ROW = 'w:tr'
+    CELL = 'w:tc'
+    DRAWING = 'w:drawing'
+    IMAGE = 'wp:inline/a:graphic/a:graphicData/pic:pic/pic:blipFill/a:blip'
+    STYLE = 'w:style'
+    STYLE_TABLE_AREA = 'w:tblStylePr'
 
 
-class Element(Enum):
-    BODY: str = 'body'
-    PARAGRAPH: str = 'paragraph'
-    RUN: str = 'run'
-    TEXT: str = 'text'
-    TABLE: str = 'table'
-    ROW: str = 'row'
-    CELL: str = 'cell'
-    DRAWING: str = 'drawing'
-    IMAGE: str = 'image'
+@unique
+class Element(StrEnum):
+    BODY = 'body'
+    PARAGRAPH = 'paragraph'
+    RUN = 'run'
+    TEXT = 'text'
+    TABLE = 'table'
+    ROW = 'row'
+    CELL = 'cell'
+    DRAWING = 'drawing'
+    IMAGE = 'image'
+
+
+# Elements for which there are no models
+@unique
+class SubElement(StrEnum):
+    BORDER = 'border'
+    MARGIN = 'margin'
+    BACKGROUND = 'background'
+    UNDERLINE = 'underline'
+    COLUMN = 'column'
 
 
 # style types constants
@@ -64,156 +87,256 @@ StyleBasedOn: str = 'based_on'
 # value of bool property
 BoolPropertyValue: str = 'w:val'
 
-# properties constants
-Const_directions: Dict[str, str] = {
-    'top': '_top',
-    'bottom': '_bottom',
-    'left': '_left',
-    'right': '_right',
-    'horizontal': '_horizontal',
-    'vertical': '_vertical',
-}
-Const_property_names: Dict[str, str] = {
-    'color': '_color',
-    'size': '_size',
-    'space': '_space',
-    'type': '_type',
-}
-Const_quantities: Dict[str, str] = {
-    'margin': 'margin',
-    'cell_margin': 'cell_margin',
-    'borders_inside': 'borders_inside',
-    'border': 'border',
-    'paragraph_border': 'paragraph_border',
-    'cell_border': 'cell_border',
-    'drawing': 'drawing'
-}
+
+@unique
+class Direction(StrEnum):
+    TOP = 'top'
+    BOTTOM = 'bottom'
+    LEFT = 'left'
+    RIGHT = 'right'
+    HORIZONTAL = 'horizontal'
+    VERTICAL = 'vertical'
+
+    @staticmethod
+    def horizontal_or_vertical_straight(value) -> Union[HORIZONTAL, VERTICAL]:
+        """
+        direction of straight. It is HORIZONTAL if place to TOP or BOTTOM and VERTICAL if place to RIGHT or LEFT
+        :param value: str or value of Direction enum
+        :return: Direction.HORIZONTAL (for horizontal, top, bottom) or Direction.VERTICAL (for vertical, right, left)
+        """
+        if Direction.TOP.is_equal(value) or Direction.BOTTOM.is_equal(value):
+            return Direction.HORIZONTAL
+        if Direction.RIGHT.is_equal(value) or Direction.LEFT.is_equal(value):
+            return Direction.VERTICAL
+        raise ValueError(f"Placement of straight can't be equal {value}")
 
 
-def get_property_key(element: str, quantity: str, direction: str = '', property_name: str = '') -> str:
+@unique
+class PropertyName(StrEnum):
+    COLOR = 'color'
+    SIZE = 'size'
+    TYPE = 'type'
+    SPACE = 'space'
+    WIDTH = 'width'
+    WIDTH_TYPE = 'width_type'
+    HEIGHT = 'height'
+    HEIGHT_RULE = 'height_rule'
+    ALIGN = 'align'
+    ID = 'id'
+    INDENT = 'indent'
+    HANGING = 'hanging'
+    FIRST_LINE = 'first_line'
+    KEEP_LINES = 'keep_lines'
+    KEEP_NEXT = 'keep_next'
+    OUTLINE_LEVEL = 'outline_level'
+    IS_BOLD = 'is_bold'
+    IS_ITALIC = 'is_italic'
+    IS_STRIKE = 'is_strike'
+    LANGUAGE = 'language'
+    THEME_COLOR = 'theme_color'
+    FILL = 'fill'
+    FILL_COLOR = 'fill_color'
+    FILL_THEME = 'fill_theme'
+    LAYOUT = 'layout'
+    INDENTATION = 'indentation'
+    INDENTATION_TYPE = 'indentation_type'
+    STYLE_LOOK_FIRST = 'style_look_first'
+    STYLE_LOOK_LAST = 'style_look_last'
+    NO_BANDING = 'no_banding'
+    IS_HEADER = 'is_header'
+    SPAN = 'span'
+    MERGE = 'merge'
+    IS_MERGE_CONTINUE = 'is_merge_continue'
+    DIRECTION = 'direction'
+
+
+def get_property_key(element: str, *args, subelements: Union[str, None, List[str]] = None,
+                     direction: Union[str, None] = None, property_name: Union[str, None] = None,
+                     separator: str = ' ') -> str:
     """
     :param element: value from Element Enum or string
-    :param quantity: key of Const_quantities dict
-    :param direction: key of Const_directions dict
-    :param property_name: key of Const_property_names dict
+    :param args: values from Element, SubElement, Direction or PropertyName Enums
+    :param separator: separator between elements in result key
+    :param subelements: value or list of value from Element Enum or SubElement Enum or string;
+                        (i+1)-th element of list is subelement for i-th element of list
+    :param direction: value from Direction Enum or string
+    :param property_name: value from PropertyName Enum or string
+    :result: key for dict of properties
     """
+    _direction: Union[str, None] = direction.value if isinstance(direction, Direction) else direction
+    _property_name: Union[str, None] = property_name.value if isinstance(property_name, PropertyName) else property_name
+    _subelements: Union[str, None]
+    if isinstance(subelements, list):
+        _subelements: Union[str, None] = ''
+        for i, el in enumerate(subelements):
+            if isinstance(el, SubElement) or isinstance(el, Element):
+                _subelements += (separator + el.value) if not i == 0 else el.value
+            else:
+                _subelements += separator + el
+    else:
+        _subelements = subelements
+
     if isinstance(element, Element):
         element = element.value
-    d: str = Const_directions[direction] if direction in Const_directions else ''
-    p_name: str = Const_property_names[property_name] if property_name in Const_property_names else ''
-    return f'{element} {Const_quantities[quantity]}{d}{p_name}'
+    for arg in args:
+        if isinstance(arg, Direction):
+            if _direction is None:
+                _direction = arg.value
+        elif isinstance(arg, Element) or isinstance(arg, SubElement):
+            if _subelements is None:
+                _subelements = arg.value
+        elif isinstance(arg, PropertyName):
+            if _property_name is None:
+                _property_name = arg.value
+
+    _subelements = (separator + _subelements) if _subelements is not None else ''
+    _direction = (separator + _direction) if _direction is not None else ''
+    _property_name = (separator + _property_name) if _property_name is not None else ''
+
+    return f'{element}{_subelements}{_direction}{_property_name}'
 
 
-Draw_size_horizontal: str = get_property_key(Element.DRAWING, 'drawing', 'horizontal', 'size')
-Draw_size_vertical: str = get_property_key(Element.DRAWING, 'drawing', 'vertical', 'size')
-Img_id: str = 'id'
-Par_align: str = 'paragraph_align'
-Par_indent_left: str = 'indent_left'
-Par_indent_right: str = 'indent_right'
-Par_hanging: str = 'hanging'
-Par_first_line: str = 'first_line'
-Par_keep_lines: str = 'keep_lines'
-Par_keep_next: str = 'keep_next'
-Par_outline_level: str = 'outline_level'
-Par_border_top: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'top', 'type')
-Par_border_top_color: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'top', 'color')
-Par_border_top_size: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'top', 'size')
-Par_border_top_space: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'top', 'space')
-Par_border_bottom: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'bottom', 'type')
-Par_border_bottom_color: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'bottom', 'color')
-Par_border_bottom_size: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'bottom', 'size')
-Par_border_bottom_space: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'bottom', 'space')
-Par_border_right: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'right', 'type')
-Par_border_right_color: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'right', 'color')
-Par_border_right_size: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'right', 'size')
-Par_border_right_space: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'right', 'space')
-Par_border_left: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'left', 'type')
-Par_border_left_color: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'left', 'color')
-Par_border_left_size: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'left', 'size')
-Par_border_left_space: str = get_property_key(Element.PARAGRAPH, 'paragraph_border', 'left', 'space')
-Run_size: str = 'size'
-Run_is_bold: str = 'is_bold'
-Run_is_italic: str = 'is_italic'
-Run_vertical_align: str = 'vertical_align'
-Run_language: str = 'language'
-Run_color: str = 'color'
-Run_theme_color: str = 'theme_color'
-Run_background_color: str = 'background_color'
-Run_background_fill: str = 'background_fill'
-Run_underline: str = 'underline'
-Run_underline_color: str = 'underline_color'
-Run_is_strike: str = 'is_strike'
-Run_border: str = get_property_key(Element.RUN, 'border', property_name='type')
-Run_border_color: str = get_property_key(Element.RUN, 'border', property_name='color')
-Run_border_size: str = get_property_key(Element.RUN, 'border', property_name='size')
-Run_border_space: str = get_property_key(Element.RUN, 'border', property_name='space')
-Tab_layout: str = 'layout'
-Tab_width: str = 'width'
-Tab_width_type: str = 'width_type'
-Tab_align: str = 'align'
-Tab_borders_inside_horizontal: str = get_property_key(Element.TABLE, 'borders_inside', 'horizontal', 'type')
-Tab_borders_inside_horizontal_color: str = get_property_key(Element.TABLE, 'borders_inside', 'horizontal', 'color')
-Tab_borders_inside_horizontal_size: str = get_property_key(Element.TABLE, 'borders_inside', 'horizontal', 'size')
-Tab_borders_inside_vertical: str = get_property_key(Element.TABLE, 'borders_inside', 'vertical', 'type')
-Tab_borders_inside_vertical_color: str = get_property_key(Element.TABLE, 'borders_inside', 'vertical', 'color')
-Tab_borders_inside_vertical_size: str = get_property_key(Element.TABLE, 'borders_inside', 'vertical', 'size')
-Tab_border_top: str = get_property_key(Element.TABLE, 'border', 'top', 'type')
-Tab_border_top_color: str = get_property_key(Element.TABLE, 'border', 'top', 'color')
-Tab_border_top_size: str = get_property_key(Element.TABLE, 'border', 'top', 'size')
-Tab_border_bottom: str = get_property_key(Element.TABLE, 'border', 'bottom', 'type')
-Tab_border_bottom_color: str = get_property_key(Element.TABLE, 'border', 'bottom', 'color')
-Tab_border_bottom_size: str = get_property_key(Element.TABLE, 'border', 'bottom', 'size')
-Tab_border_right: str = get_property_key(Element.TABLE, 'border', 'right', 'type')
-Tab_border_right_color: str = get_property_key(Element.TABLE, 'border', 'right', 'color')
-Tab_border_right_size: str = get_property_key(Element.TABLE, 'border', 'right', 'size')
-Tab_border_left: str = get_property_key(Element.TABLE, 'border', 'left', 'type')
-Tab_border_left_color: str = get_property_key(Element.TABLE, 'border', 'left', 'color')
-Tab_border_left_size: str = get_property_key(Element.TABLE, 'border', 'left', 'size')
-Tab_cell_margin_top: str = get_property_key(Element.TABLE, 'cell_margin', 'top', 'size')
-Tab_cell_margin_top_type: str = get_property_key(Element.TABLE, 'cell_margin', 'top', 'type')
-Tab_cell_margin_bottom: str = get_property_key(Element.TABLE, 'cell_margin', 'bottom', 'size')
-Tab_cell_margin_bottom_type: str = get_property_key(Element.TABLE, 'cell_margin', 'bottom', 'type')
-Tab_cell_margin_left: str = get_property_key(Element.TABLE, 'cell_margin', 'left', 'size')
-Tab_cell_margin_left_type: str = get_property_key(Element.TABLE, 'cell_margin', 'left', 'type')
-Tab_cell_margin_right: str = get_property_key(Element.TABLE, 'cell_margin', 'right', 'size')
-Tab_cell_margin_right_type: str = get_property_key(Element.TABLE, 'cell_margin', 'right', 'type')
-Tab_indentation: str = 'indentation'
-Tab_indentation_type: str = 'indentation_type'
-Tab_first_row_style_look: str = 'table_look_first_row'
-Tab_first_column_style_look: str = 'table_look_first_column'
-Tab_last_row_style_look: str = 'table_look_last_row'
-Tab_last_column_style_look: str = 'table_look_last_column'
-Tab_no_horizontal_banding: str = 'table_look_no_horizontal_banding'
-Tab_no_vertical_banding: str = 'table_look_no_vertical_banding'
-Row_is_header: str = 'is_header'
-Row_height: str = 'height'
-Row_height_rule: str = 'height_rule'
-Cell_fill_color: str = 'fill_color'
-Cell_fill_theme: str = 'fill_theme'
-Cell_border_top: str = get_property_key(Element.CELL, 'cell_border', 'top', 'type')
-Cell_border_top_color: str = get_property_key(Element.CELL, 'cell_border', 'top', 'color')
-Cell_border_top_size: str = get_property_key(Element.CELL, 'cell_border', 'top', 'size')
-Cell_border_bottom: str = get_property_key(Element.CELL, 'cell_border', 'bottom', 'type')
-Cell_border_bottom_color: str = get_property_key(Element.CELL, 'cell_border', 'bottom', 'color')
-Cell_border_bottom_size: str = get_property_key(Element.CELL, 'cell_border', 'bottom', 'size')
-Cell_border_right: str = get_property_key(Element.CELL, 'cell_border', 'right', 'type')
-Cell_border_right_color: str = get_property_key(Element.CELL, 'cell_border', 'right', 'color')
-Cell_border_right_size: str = get_property_key(Element.CELL, 'cell_border', 'right', 'size')
-Cell_border_left: str = get_property_key(Element.CELL, 'cell_border', 'left', 'type')
-Cell_border_left_color: str = get_property_key(Element.CELL, 'cell_border', 'left', 'color')
-Cell_border_left_size: str = get_property_key(Element.CELL, 'cell_border', 'left', 'size')
-Cell_width: str = 'cell_width'
-Cell_width_type: str = 'cell_width_type'
-Cell_col_span: str = 'col_span'
-Cell_vertical_merge: str = 'vertical_merge'
-Cell_is_vertical_merge_continue: str = 'is_vertical_merge_continue'
-Cell_vertical_align: str = 'cell_vertical_align'
-Cell_text_direction: str = 'text_direction'
-Cell_margin_top: str = get_property_key(Element.CELL, 'margin', 'top', 'size')
-Cell_margin_top_type: str = get_property_key(Element.CELL, 'margin', 'top', 'type')
-Cell_margin_bottom: str = get_property_key(Element.CELL, 'margin', 'bottom', 'size')
-Cell_margin_bottom_type: str = get_property_key(Element.CELL, 'margin', 'bottom', 'type')
-Cell_margin_left: str = get_property_key(Element.CELL, 'margin', 'left', 'size')
-Cell_margin_left_type: str = get_property_key(Element.CELL, 'margin', 'left', 'type')
-Cell_margin_right: str = get_property_key(Element.CELL, 'margin', 'right', 'size')
-Cell_margin_right_type: str = get_property_key(Element.CELL, 'margin', 'right', 'type')
+DRAWING_SIZE_HORIZONTAL: str = get_property_key(Element.DRAWING, Direction.HORIZONTAL, PropertyName.SIZE)
+DRAWING_SIZE_VERTICAL: str = get_property_key(Element.DRAWING, Direction.VERTICAL, PropertyName.SIZE)
+IMAGE_ID: str = get_property_key(Element.IMAGE, PropertyName.ID)
+PARAGRAPH_ALIGN: str = get_property_key(Element.PARAGRAPH, PropertyName.ALIGN)
+PARAGRAPH_INDENT_LEFT: str = get_property_key(Element.PARAGRAPH, Direction.LEFT, PropertyName.INDENT)
+PARAGRAPH_INDENT_RIGHT: str = get_property_key(Element.PARAGRAPH, Direction.RIGHT, PropertyName.INDENT)
+PARAGRAPH_HANGING: str = get_property_key(Element.PARAGRAPH, PropertyName.HANGING)
+PARAGRAPH_FIRST_LINE: str = get_property_key(Element.PARAGRAPH, PropertyName.FIRST_LINE)
+PARAGRAPH_KEEP_LINES: str = get_property_key(Element.PARAGRAPH, PropertyName.KEEP_LINES)
+PARAGRAPH_KEEP_NEXT: str = get_property_key(Element.PARAGRAPH, PropertyName.KEEP_NEXT)
+PARAGRAPH_OUTLINE_LEVEL: str = get_property_key(Element.PARAGRAPH, PropertyName.OUTLINE_LEVEL)
+PARAGRAPH_BORDER_TOP_TYPE: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.TOP,
+                                                  PropertyName.TYPE)
+PARAGRAPH_BORDER_TOP_COLOR: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.TOP,
+                                                   PropertyName.COLOR)
+PARAGRAPH_BORDER_TOP_SIZE: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.TOP,
+                                                  PropertyName.SIZE)
+PARAGRAPH_BORDER_TOP_SPACE: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.TOP,
+                                                   PropertyName.SPACE)
+PARAGRAPH_BORDER_BOTTOM_TYPE: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.BOTTOM,
+                                                     PropertyName.TYPE)
+PARAGRAPH_BORDER_BOTTOM_COLOR: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.BOTTOM,
+                                                      PropertyName.COLOR)
+PARAGRAPH_BORDER_BOTTOM_SIZE: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.BOTTOM,
+                                                     PropertyName.SIZE)
+PARAGRAPH_BORDER_BOTTOM_SPACE: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.BOTTOM,
+                                                      PropertyName.SPACE)
+PARAGRAPH_BORDER_RIGHT_TYPE: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.RIGHT,
+                                                    PropertyName.TYPE)
+PARAGRAPH_BORDER_RIGHT_COLOR: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.RIGHT,
+                                                     PropertyName.COLOR)
+PARAGRAPH_BORDER_RIGHT_SIZE: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.RIGHT,
+                                                    PropertyName.SIZE)
+PARAGRAPH_BORDER_RIGHT_SPACE: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.RIGHT,
+                                                    PropertyName.SPACE)
+PARAGRAPH_BORDER_LEFT_TYPE: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.LEFT,
+                                                   PropertyName.TYPE)
+PARAGRAPH_BORDER_LEFT_COLOR: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.LEFT,
+                                                    PropertyName.COLOR)
+PARAGRAPH_BORDER_LEFT_SIZE: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.LEFT,
+                                                   PropertyName.SIZE)
+PARAGRAPH_BORDER_LEFT_SPACE: str = get_property_key(Element.PARAGRAPH, SubElement.BORDER, Direction.LEFT,
+                                                    PropertyName.SPACE)
+RUN_SIZE: str = get_property_key(Element.RUN, PropertyName.SIZE)
+RUN_IS_BOLD: str = get_property_key(Element.RUN, Element.TEXT, PropertyName.IS_BOLD)
+RUN_IS_ITALIC: str = get_property_key(Element.RUN, Element.TEXT, PropertyName.IS_ITALIC)
+RUN_VERTICAL_ALIGN: str = get_property_key(Element.RUN, Direction.VERTICAL, PropertyName.ALIGN)
+RUN_LANGUAGE: str = get_property_key(Element.RUN, PropertyName.LANGUAGE)
+RUN_COLOR: str = get_property_key(Element.RUN, PropertyName.COLOR)
+RUN_THEME_COLOR: str = get_property_key(Element.RUN, PropertyName.THEME_COLOR)
+RUN_BACKGROUND_COLOR: str = get_property_key(Element.RUN, SubElement.BACKGROUND, PropertyName.COLOR)
+RUN_BACKGROUND_FILL: str = get_property_key(Element.RUN, SubElement.BACKGROUND, PropertyName.FILL)
+RUN_UNDERLINE_TYPE: str = get_property_key(Element.RUN, SubElement.UNDERLINE, PropertyName.TYPE)
+RUN_UNDERLINE_COLOR: str = get_property_key(Element.RUN, SubElement.UNDERLINE, PropertyName.COLOR)
+RUN_IS_STRIKE: str = get_property_key(Element.RUN, Element.TEXT, PropertyName.IS_STRIKE)
+RUN_BORDER_TYPE: str = get_property_key(Element.RUN, SubElement.BORDER, PropertyName.TYPE)
+RUN_BORDER_COLOR: str = get_property_key(Element.RUN, SubElement.BORDER, PropertyName.COLOR)
+RUN_BORDER_SIZE: str = get_property_key(Element.RUN, SubElement.BORDER, PropertyName.SIZE)
+RUN_BORDER_SPACE: str = get_property_key(Element.RUN, SubElement.BORDER, PropertyName.SPACE)
+TABLE_LAYOUT: str = get_property_key(Element.TABLE, PropertyName.LAYOUT)
+TABLE_WIDTH: str = get_property_key(Element.TEXT, PropertyName.WIDTH)
+TABLE_WIDTH_TYPE: str = get_property_key(Element.TEXT, PropertyName.WIDTH_TYPE)
+TABLE_ALIGN: str = get_property_key(Element.TABLE, PropertyName.ALIGN)
+TABLE_INSIDE_BORDER_HORIZONTAL_TYPE: str = get_property_key(Element.TABLE, Direction.HORIZONTAL, PropertyName.TYPE,
+                                                            subelements=[Element.CELL, SubElement.BORDER])
+TABLE_INSIDE_BORDER_HORIZONTAL_COLOR: str = get_property_key(Element.TABLE, Direction.HORIZONTAL, PropertyName.COLOR,
+                                                             subelements=[Element.CELL, SubElement.BORDER])
+TABLE_INSIDE_BORDER_HORIZONTAL_SIZE: str = get_property_key(Element.TABLE, Direction.HORIZONTAL, PropertyName.SIZE,
+                                                            subelements=[Element.CELL, SubElement.BORDER])
+TABLE_INSIDE_BORDER_VERTICAL_TYPE: str = get_property_key(Element.TABLE, Direction.VERTICAL, PropertyName.TYPE,
+                                                          subelements=[Element.CELL, SubElement.BORDER])
+TABLE_INSIDE_BORDER_VERTICAL_COLOR: str = get_property_key(Element.TABLE, Direction.VERTICAL, PropertyName.COLOR,
+                                                           subelements=[Element.CELL, SubElement.BORDER])
+TABLE_INSIDE_BORDER_VERTICAL_SIZE: str = get_property_key(Element.TABLE, Direction.VERTICAL, PropertyName.SIZE,
+                                                          subelements=[Element.CELL, SubElement.BORDER])
+TABLE_BORDER_TOP_TYPE: str = get_property_key(Element.TABLE, SubElement.BORDER, Direction.TOP, PropertyName.TYPE)
+TABLE_BORDER_TOP_COLOR: str = get_property_key(Element.TABLE, SubElement.BORDER, Direction.TOP, PropertyName.COLOR)
+TABLE_BORDER_TOP_SIZE: str = get_property_key(Element.TABLE, SubElement.BORDER, Direction.TOP, PropertyName.SIZE)
+TABLE_BORDER_BOTTOM_TYPE: str = get_property_key(Element.TABLE, SubElement.BORDER, Direction.BOTTOM, PropertyName.TYPE)
+TABLE_BORDER_BOTTOM_COLOR: str = get_property_key(Element.TABLE, SubElement.BORDER, Direction.BOTTOM, PropertyName.COLOR)
+TABLE_BORDER_BOTTOM_SIZE: str = get_property_key(Element.TABLE, SubElement.BORDER, Direction.BOTTOM, PropertyName.SIZE)
+TABLE_BORDER_RIGHT_TYPE: str = get_property_key(Element.TABLE, SubElement.BORDER, Direction.RIGHT, PropertyName.TYPE)
+TABLE_BORDER_RIGHT_COLOR: str = get_property_key(Element.TABLE, SubElement.BORDER, Direction.RIGHT, PropertyName.COLOR)
+TABLE_BORDER_RIGHT_SIZE: str = get_property_key(Element.TABLE, SubElement.BORDER, Direction.RIGHT, PropertyName.SIZE)
+TABLE_BORDER_LEFT_TYPE: str = get_property_key(Element.TABLE, SubElement.BORDER, Direction.LEFT, PropertyName.TYPE)
+TABLE_BORDER_LEFT_COLOR: str = get_property_key(Element.TABLE, SubElement.BORDER, Direction.LEFT, PropertyName.COLOR)
+TABLE_BORDER_LEFT_SIZE: str = get_property_key(Element.TABLE, SubElement.BORDER, Direction.LEFT, PropertyName.SIZE)
+TABLE_CELL_MARGIN_TOP_TYPE: str = get_property_key(Element.TABLE, Direction.TOP, PropertyName.TYPE,
+                                                   subelements=[Element.CELL, SubElement.MARGIN])
+TABLE_CELL_MARGIN_TOP_SIZE: str = get_property_key(Element.TABLE, Direction.TOP, PropertyName.SIZE,
+                                                   subelements=[Element.CELL, SubElement.MARGIN])
+TABLE_CELL_MARGIN_BOTTOM_TYPE: str = get_property_key(Element.TABLE, Direction.BOTTOM, PropertyName.TYPE,
+                                                      subelements=[Element.CELL, SubElement.MARGIN])
+TABLE_CELL_MARGIN_BOTTOM_SIZE: str = get_property_key(Element.TABLE, Direction.BOTTOM, PropertyName.SIZE,
+                                                      subelements=[Element.CELL, SubElement.MARGIN])
+TABLE_CELL_MARGIN_RIGHT_TYPE: str = get_property_key(Element.TABLE, Direction.RIGHT, PropertyName.TYPE,
+                                                     subelements=[Element.CELL, SubElement.MARGIN])
+TABLE_CELL_MARGIN_RIGHT_SIZE: str = get_property_key(Element.TABLE, Direction.RIGHT, PropertyName.SIZE,
+                                                     subelements=[Element.CELL, SubElement.MARGIN])
+TABLE_CELL_MARGIN_LEFT_TYPE: str = get_property_key(Element.TABLE, Direction.LEFT, PropertyName.TYPE,
+                                                    subelements=[Element.CELL, SubElement.MARGIN])
+TABLE_CELL_MARGIN_LEFT_SIZE: str = get_property_key(Element.TABLE, Direction.LEFT, PropertyName.SIZE,
+                                                    subelements=[Element.CELL, SubElement.MARGIN])
+TABLE_INDENTATION: str = get_property_key(Element.TABLE, PropertyName.INDENTATION)
+TABLE_INDENTATION_TYPE: str = get_property_key(Element.TABLE, PropertyName.INDENTATION_TYPE)
+TABLE_FIRST_ROW_STYLE_LOOK: str = get_property_key(Element.TABLE, Element.ROW, PropertyName.STYLE_LOOK_FIRST)
+TABLE_FIRST_COLUMN_STYLE_LOOK: str = get_property_key(Element.TABLE, SubElement.COLUMN, PropertyName.STYLE_LOOK_FIRST)
+TABLE_LAST_ROW_STYLE_LOOK: str = get_property_key(Element.TABLE, Element.ROW, PropertyName.STYLE_LOOK_LAST)
+TABLE_LAST_COLUMN_STYLE_LOOK: str = get_property_key(Element.TABLE, SubElement.COLUMN, PropertyName.STYLE_LOOK_LAST)
+TABLE_NO_HORIZONTAL_BANDING: str = get_property_key(Element.TABLE, Direction.HORIZONTAL, PropertyName.NO_BANDING)
+TABLE_NO_VERTICAL_BANDING: str = get_property_key(Element.TABLE, Direction.VERTICAL, PropertyName.NO_BANDING)
+ROW_IS_HEADER: str = get_property_key(Element.ROW, PropertyName.IS_HEADER)
+ROW_HEIGHT: str = get_property_key(Element.ROW, PropertyName.HEIGHT)
+ROW_HEIGHT_RULE: str = get_property_key(Element.ROW, PropertyName.HEIGHT_RULE)
+CELL_FILL_COLOR: str = get_property_key(Element.CELL, PropertyName.FILL_COLOR)
+CELL_FILL_THEME: str = get_property_key(Element.CELL, PropertyName.FILL_THEME)
+CELL_BORDER_TOP_TYPE: str = get_property_key(Element.CELL, SubElement.BORDER, Direction.TOP, PropertyName.TYPE)
+CELL_BORDER_TOP_COLOR: str = get_property_key(Element.CELL, SubElement.BORDER, Direction.TOP, PropertyName.COLOR)
+CELL_BORDER_TOP_SIZE: str = get_property_key(Element.CELL, SubElement.BORDER, Direction.TOP, PropertyName.SIZE)
+CELL_BORDER_BOTTOM_TYPE: str = get_property_key(Element.CELL, SubElement.BORDER, Direction.BOTTOM, PropertyName.TYPE)
+CELL_BORDER_BOTTOM_COLOR: str = get_property_key(Element.CELL, SubElement.BORDER, Direction.BOTTOM, PropertyName.COLOR)
+CELL_BORDER_BOTTOM_SIZE: str = get_property_key(Element.CELL, SubElement.BORDER, Direction.BOTTOM, PropertyName.SIZE)
+CELL_BORDER_RIGHT_TYPE: str = get_property_key(Element.CELL, SubElement.BORDER, Direction.RIGHT, PropertyName.TYPE)
+CELL_BORDER_RIGHT_COLOR: str = get_property_key(Element.CELL, SubElement.BORDER, Direction.RIGHT, PropertyName.COLOR)
+CELL_BORDER_RIGHT_SIZE: str = get_property_key(Element.CELL, SubElement.BORDER, Direction.RIGHT, PropertyName.SIZE)
+CELL_BORDER_LEFT_TYPE: str = get_property_key(Element.CELL, SubElement.BORDER, Direction.LEFT, PropertyName.TYPE)
+CELL_BORDER_LEFT_COLOR: str = get_property_key(Element.CELL, SubElement.BORDER, Direction.LEFT, PropertyName.COLOR)
+CELL_BORDER_LEFT_SIZE: str = get_property_key(Element.CELL, SubElement.BORDER, Direction.LEFT, PropertyName.SIZE)
+CELL_WIDTH: str = get_property_key(Element.CELL, PropertyName.WIDTH)
+CELL_WIDTH_TYPE: str = get_property_key(Element.CELL, PropertyName.WIDTH_TYPE)
+CELL_COLUMN_SPAN: str = get_property_key(Element.CELL, SubElement.COLUMN, PropertyName.SPAN)
+CELL_VERTICAL_MARGE: str = get_property_key(Element.CELL, Direction.VERTICAL, PropertyName.MERGE)
+CELL_IS_VERTICAL_MARGE_CONTINUE: str = get_property_key(Element.CELL, Direction.VERTICAL,
+                                                        PropertyName.IS_MERGE_CONTINUE)
+CELL_VERTICAL_ALIGN: str = get_property_key(Element.CELL, Direction.VERTICAL, PropertyName.ALIGN)
+CELL_TEXT_DIRECTION: str = get_property_key(Element.CELL, Element.TEXT, PropertyName.DIRECTION)
+CELL_MARGIN_TOP_SIZE: str = get_property_key(Element.CELL, SubElement.MARGIN, Direction.TOP, PropertyName.SIZE)
+CELL_MARGIN_TOP_TYPE: str = get_property_key(Element.CELL, SubElement.MARGIN, Direction.TOP, PropertyName.TYPE)
+CELL_MARGIN_BOTTOM_SIZE: str = get_property_key(Element.CELL, SubElement.MARGIN, Direction.BOTTOM, PropertyName.SIZE)
+CELL_MARGIN_BOTTOM_TYPE: str = get_property_key(Element.CELL, SubElement.MARGIN, Direction.BOTTOM, PropertyName.TYPE)
+CELL_MARGIN_RIGHT_SIZE: str = get_property_key(Element.CELL, SubElement.MARGIN, Direction.RIGHT, PropertyName.SIZE)
+CELL_MARGIN_RIGHT_TYPE: str = get_property_key(Element.CELL, SubElement.MARGIN, Direction.RIGHT, PropertyName.TYPE)
+CELL_MARGIN_LEFT_SIZE: str = get_property_key(Element.CELL, SubElement.MARGIN, Direction.LEFT, PropertyName.SIZE)
+CELL_MARGIN_LEFT_TYPE: str = get_property_key(Element.CELL, SubElement.MARGIN, Direction.LEFT, PropertyName.TYPE)

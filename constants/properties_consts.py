@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict
 from properties import PropertyDescription
 from constants.keys_consts import *
 
@@ -15,31 +15,31 @@ style_properties: Dict[str, PropertyDescription] = {
 }
 
 # description of properties Paragraph and ParagraphStyle
-paragraph_style_property_description: Dict[str, PropertyDescription] = {
-    Par_align: PropertyDescription('w:pPr', 'w:jc', 'w:val'),
-    Par_indent_left: PropertyDescription('w:pPr', 'w:ind', ['w:left', 'w:start']),
-    Par_indent_right: PropertyDescription('w:pPr', 'w:ind', ['w:right', 'w:end']),
-    Par_hanging: PropertyDescription('w:pPr', 'w:ind', 'w:hanging'),
-    Par_first_line: PropertyDescription('w:pPr', 'w:ind', 'w:firstLine'),
-    Par_keep_lines: PropertyDescription('w:pPr', 'w:keepLines', None),
-    Par_keep_next: PropertyDescription('w:pPr', 'w:keepNext', None),
-    Par_outline_level: PropertyDescription('w:pPr', 'w:outlineLvl', 'w:val'),
-    Par_border_top: PropertyDescription('w:pPr/w:pBdr', 'w:top', 'w:val'),
-    Par_border_top_color: PropertyDescription('w:pPr/w:pBdr', 'w:top', 'w:color'),
-    Par_border_top_size: PropertyDescription('w:pPr/w:pBdr', 'w:top', 'w:sz'),
-    Par_border_top_space: PropertyDescription('w:pPr/w:pBdr', 'w:top', 'w:space'),
-    Par_border_bottom: PropertyDescription('w:pPr/w:pBdr', 'w:bottom', 'w:val'),
-    Par_border_bottom_color: PropertyDescription('w:pPr/w:pBdr', 'w:bottom', 'w:color'),
-    Par_border_bottom_size: PropertyDescription('w:pPr/w:pBdr', 'w:bottom', 'w:sz'),
-    Par_border_bottom_space: PropertyDescription('w:pPr/w:pBdr', 'w:bottom', 'w:space'),
-    Par_border_right: PropertyDescription('w:pPr/w:pBdr', 'w:right', 'w:val'),
-    Par_border_right_color: PropertyDescription('w:pPr/w:pBdr', 'w:right', 'w:color'),
-    Par_border_right_size: PropertyDescription('w:pPr/w:pBdr', 'w:right', 'w:sz'),
-    Par_border_right_space: PropertyDescription('w:pPr/w:pBdr', 'w:right', 'w:space'),
-    Par_border_left: PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:val'),
-    Par_border_left_color: PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:color'),
-    Par_border_left_size: PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:sz'),
-    Par_border_left_space: PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:space'),
+PARAGRAPH_STYLE_PROPERTY_DESCRIPTIONS: Dict[str, PropertyDescription] = {
+    PARAGRAPH_ALIGN: PropertyDescription('w:pPr', 'w:jc', 'w:val'),
+    PARAGRAPH_INDENT_LEFT: PropertyDescription('w:pPr', 'w:ind', ['w:left', 'w:start']),
+    PARAGRAPH_INDENT_RIGHT: PropertyDescription('w:pPr', 'w:ind', ['w:right', 'w:end']),
+    PARAGRAPH_HANGING: PropertyDescription('w:pPr', 'w:ind', 'w:hanging'),
+    PARAGRAPH_FIRST_LINE: PropertyDescription('w:pPr', 'w:ind', 'w:firstLine'),
+    PARAGRAPH_KEEP_LINES: PropertyDescription('w:pPr', 'w:keepLines', None),
+    PARAGRAPH_KEEP_NEXT: PropertyDescription('w:pPr', 'w:keepNext', None),
+    PARAGRAPH_OUTLINE_LEVEL: PropertyDescription('w:pPr', 'w:outlineLvl', 'w:val'),
+    PARAGRAPH_BORDER_TOP_TYPE: PropertyDescription('w:pPr/w:pBdr', 'w:top', 'w:val'),
+    PARAGRAPH_BORDER_TOP_COLOR: PropertyDescription('w:pPr/w:pBdr', 'w:top', 'w:color'),
+    PARAGRAPH_BORDER_TOP_SIZE: PropertyDescription('w:pPr/w:pBdr', 'w:top', 'w:sz'),
+    PARAGRAPH_BORDER_TOP_SPACE: PropertyDescription('w:pPr/w:pBdr', 'w:top', 'w:space'),
+    PARAGRAPH_BORDER_BOTTOM_TYPE: PropertyDescription('w:pPr/w:pBdr', 'w:bottom', 'w:val'),
+    PARAGRAPH_BORDER_BOTTOM_COLOR: PropertyDescription('w:pPr/w:pBdr', 'w:bottom', 'w:color'),
+    PARAGRAPH_BORDER_BOTTOM_SIZE: PropertyDescription('w:pPr/w:pBdr', 'w:bottom', 'w:sz'),
+    PARAGRAPH_BORDER_BOTTOM_SPACE: PropertyDescription('w:pPr/w:pBdr', 'w:bottom', 'w:space'),
+    PARAGRAPH_BORDER_RIGHT_TYPE: PropertyDescription('w:pPr/w:pBdr', 'w:right', 'w:val'),
+    PARAGRAPH_BORDER_RIGHT_COLOR: PropertyDescription('w:pPr/w:pBdr', 'w:right', 'w:color'),
+    PARAGRAPH_BORDER_RIGHT_SIZE: PropertyDescription('w:pPr/w:pBdr', 'w:right', 'w:sz'),
+    PARAGRAPH_BORDER_RIGHT_SPACE: PropertyDescription('w:pPr/w:pBdr', 'w:right', 'w:space'),
+    PARAGRAPH_BORDER_LEFT_TYPE: PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:val'),
+    PARAGRAPH_BORDER_LEFT_COLOR: PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:color'),
+    PARAGRAPH_BORDER_LEFT_SIZE: PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:sz'),
+    PARAGRAPH_BORDER_LEFT_SPACE: PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:space'),
 }
 
 # description of properties Paragraph, but not ParagraphStyle
@@ -48,23 +48,23 @@ paragraph_property_description: Dict[str, PropertyDescription] = {
 }
 
 # description of properties Run and RunStyle
-run_style_property_descriptions: Dict[str, PropertyDescription] = {
-    Run_size: PropertyDescription('w:rPr', 'w:sz', 'w:val'),
-    Run_is_bold: PropertyDescription('w:rPr', 'w:b', None),
-    Run_is_italic: PropertyDescription('w:rPr', 'w:i', None),
-    Run_vertical_align: PropertyDescription('w:rPr', 'w:vertAlign', 'w:val'),
-    Run_language: PropertyDescription('w:rPr', 'w:lang', 'w:val'),
-    Run_color: PropertyDescription('w:rPr', 'w:color', 'w:val'),
-    Run_theme_color: PropertyDescription('w:rPr', 'w:color', 'w:themeColor'),
-    Run_background_color: PropertyDescription('w:rPr', 'w:highlight', 'w:val'),
-    Run_background_fill: PropertyDescription('w:rPr', 'w:shd', 'w:fill'),
-    Run_underline: PropertyDescription('w:rPr', 'w:u', 'w:val'),
-    Run_underline_color: PropertyDescription('w:rPr', 'w:u', 'w:color'),
-    Run_is_strike: PropertyDescription('w:rPr', 'w:strike', None),
-    Run_border: PropertyDescription('w:rPr', 'w:bdr', 'w:val'),
-    Run_border_color: PropertyDescription('w:rPr', 'w:bdr', 'w:color'),
-    Run_border_size: PropertyDescription('w:rPr', 'w:bdr', 'w:sz'),
-    Run_border_space: PropertyDescription('w:rPr', 'w:bdr', 'w:space'),
+RUN_STYLE_PROPERTY_DESCRIPTIONS: Dict[str, PropertyDescription] = {
+    RUN_SIZE: PropertyDescription('w:rPr', 'w:sz', 'w:val'),
+    RUN_IS_BOLD: PropertyDescription('w:rPr', 'w:b', None),
+    RUN_IS_ITALIC: PropertyDescription('w:rPr', 'w:i', None),
+    RUN_VERTICAL_ALIGN: PropertyDescription('w:rPr', 'w:vertAlign', 'w:val'),
+    RUN_LANGUAGE: PropertyDescription('w:rPr', 'w:lang', 'w:val'),
+    RUN_COLOR: PropertyDescription('w:rPr', 'w:color', 'w:val'),
+    RUN_THEME_COLOR: PropertyDescription('w:rPr', 'w:color', 'w:themeColor'),
+    RUN_BACKGROUND_COLOR: PropertyDescription('w:rPr', 'w:highlight', 'w:val'),
+    RUN_BACKGROUND_FILL: PropertyDescription('w:rPr', 'w:shd', 'w:fill'),
+    RUN_UNDERLINE_TYPE: PropertyDescription('w:rPr', 'w:u', 'w:val'),
+    RUN_UNDERLINE_COLOR: PropertyDescription('w:rPr', 'w:u', 'w:color'),
+    RUN_IS_STRIKE: PropertyDescription('w:rPr', 'w:strike', None),
+    RUN_BORDER_TYPE: PropertyDescription('w:rPr', 'w:bdr', 'w:val'),
+    RUN_BORDER_COLOR: PropertyDescription('w:rPr', 'w:bdr', 'w:color'),
+    RUN_BORDER_SIZE: PropertyDescription('w:rPr', 'w:bdr', 'w:sz'),
+    RUN_BORDER_SPACE: PropertyDescription('w:rPr', 'w:bdr', 'w:space'),
 }
 
 # description of properties Run, but not RunStyle
@@ -73,103 +73,103 @@ run_property_descriptions: Dict[str, PropertyDescription] = {
 }
 
 # description of properties Table and TableStyle
-table_style_property_descriptions: Dict[str, PropertyDescription] = {
-    Tab_layout: PropertyDescription('w:tblPr', 'w:tblLayout', 'w:type'),
-    Tab_width: PropertyDescription('w:tblPr', 'w:tblW', 'w:w'),
-    Tab_width_type: PropertyDescription('w:tblPr', 'w:tblW', 'w:type'),
-    Tab_align: PropertyDescription('w:tblPr', 'w:jc', 'w:val'),
-    Tab_borders_inside_horizontal: PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'],
-                                                       'w:insideH', 'w:val'),
-    Tab_borders_inside_horizontal_color: PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'],
-                                                             'w:insideH', 'w:color'),
-    Tab_borders_inside_horizontal_size: PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'],
-                                                            'w:insideH', 'w:sz'),
-    Tab_borders_inside_vertical: PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'],
-                                                     'w:insideV', 'w:val'),
-    Tab_borders_inside_vertical_color: PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'],
-                                                           'w:insideV', 'w:color'),
-    Tab_borders_inside_vertical_size: PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'],
-                                                          'w:insideV', 'w:sz'),
-    Tab_border_top: PropertyDescription('w:tblPr/w:tblBorders', 'w:top', 'w:val'),
-    Tab_border_top_color: PropertyDescription('w:tblPr/w:tblBorders', 'w:top', 'w:color'),
-    Tab_border_top_size: PropertyDescription('w:tblPr/w:tblBorders', 'w:top', 'w:sz'),
-    Tab_border_bottom: PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:val'),
-    Tab_border_bottom_color: PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:color'),
-    Tab_border_bottom_size: PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:sz'),
-    Tab_border_right: PropertyDescription('w:tblPr/w:tblBorders', ['w:right', 'w:end'], 'w:val'),
-    Tab_border_right_color: PropertyDescription('w:tblPr/w:tblBorders',  ['w:right', 'w:end'], 'w:color'),
-    Tab_border_right_size: PropertyDescription('w:tblPr/w:tblBorders',  ['w:right', 'w:end'], 'w:sz'),
-    Tab_border_left: PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:val'),
-    Tab_border_left_color: PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:color'),
-    Tab_border_left_size: PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:sz'),
-    Tab_cell_margin_top: PropertyDescription('w:tblPr/w:tblCellMar', 'w:top', 'w:w'),
-    Tab_cell_margin_top_type: PropertyDescription('w:tblPr/w:tblCellMar', 'w:top', 'w:type'),
-    Tab_cell_margin_left: PropertyDescription('w:tblPr/w:tblCellMar', ['w:left', 'w:start'], 'w:w'),
-    Tab_cell_margin_left_type: PropertyDescription('w:tblPr/w:tblCellMar', ['w:left', 'w:start'], 'w:type'),
-    Tab_cell_margin_bottom: PropertyDescription('w:tblPr/w:tblCellMar', 'w:bottom', 'w:w'),
-    Tab_cell_margin_bottom_type: PropertyDescription('w:tblPr/w:tblCellMar', 'w:bottom', 'w:type'),
-    Tab_cell_margin_right: PropertyDescription('w:tblPr/w:tblCellMar', ['w:right', 'w:end'], 'w:w'),
-    Tab_cell_margin_right_type: PropertyDescription('w:tblPr/w:tblCellMar', ['w:right', 'w:end'], 'w:type'),
-    Tab_indentation: PropertyDescription('w:tblPr', 'w:tblInd', ['w:w', 'w:val']),
-    Tab_indentation_type: PropertyDescription('w:tblPr', 'w:tblInd', 'w:type'),
+TABLE_STYLE_PROPERTY_DESCRIPTIONS: Dict[str, PropertyDescription] = {
+    TABLE_LAYOUT: PropertyDescription('w:tblPr', 'w:tblLayout', 'w:type'),
+    TABLE_WIDTH: PropertyDescription('w:tblPr', 'w:tblW', 'w:w'),
+    TABLE_WIDTH_TYPE: PropertyDescription('w:tblPr', 'w:tblW', 'w:type'),
+    TABLE_ALIGN: PropertyDescription('w:tblPr', 'w:jc', 'w:val'),
+    TABLE_INSIDE_BORDER_HORIZONTAL_TYPE: PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'],
+                                                            'w:insideH', 'w:val'),
+    TABLE_INSIDE_BORDER_HORIZONTAL_COLOR: PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'],
+                                                              'w:insideH', 'w:color'),
+    TABLE_INSIDE_BORDER_HORIZONTAL_SIZE: PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'],
+                                                             'w:insideH', 'w:sz'),
+    TABLE_INSIDE_BORDER_VERTICAL_TYPE: PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideV',
+                                                           'w:val'),
+    TABLE_INSIDE_BORDER_VERTICAL_COLOR: PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideV',
+                                                            'w:color'),
+    TABLE_INSIDE_BORDER_VERTICAL_SIZE: PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideV',
+                                                           'w:sz'),
+    TABLE_BORDER_TOP_TYPE: PropertyDescription('w:tblPr/w:tblBorders', 'w:top', 'w:val'),
+    TABLE_BORDER_TOP_COLOR: PropertyDescription('w:tblPr/w:tblBorders', 'w:top', 'w:color'),
+    TABLE_BORDER_TOP_SIZE: PropertyDescription('w:tblPr/w:tblBorders', 'w:top', 'w:sz'),
+    TABLE_BORDER_BOTTOM_TYPE: PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:val'),
+    TABLE_BORDER_BOTTOM_COLOR: PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:color'),
+    TABLE_BORDER_BOTTOM_SIZE: PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:sz'),
+    TABLE_BORDER_RIGHT_TYPE: PropertyDescription('w:tblPr/w:tblBorders', ['w:right', 'w:end'], 'w:val'),
+    TABLE_BORDER_RIGHT_COLOR: PropertyDescription('w:tblPr/w:tblBorders',  ['w:right', 'w:end'], 'w:color'),
+    TABLE_BORDER_RIGHT_SIZE: PropertyDescription('w:tblPr/w:tblBorders',  ['w:right', 'w:end'], 'w:sz'),
+    TABLE_BORDER_LEFT_TYPE: PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:val'),
+    TABLE_BORDER_LEFT_COLOR: PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:color'),
+    TABLE_BORDER_LEFT_SIZE: PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:sz'),
+    TABLE_CELL_MARGIN_TOP_SIZE: PropertyDescription('w:tblPr/w:tblCellMar', 'w:top', 'w:w'),
+    TABLE_CELL_MARGIN_TOP_TYPE: PropertyDescription('w:tblPr/w:tblCellMar', 'w:top', 'w:type'),
+    TABLE_CELL_MARGIN_LEFT_SIZE: PropertyDescription('w:tblPr/w:tblCellMar', ['w:left', 'w:start'], 'w:w'),
+    TABLE_CELL_MARGIN_LEFT_TYPE: PropertyDescription('w:tblPr/w:tblCellMar', ['w:left', 'w:start'], 'w:type'),
+    TABLE_CELL_MARGIN_BOTTOM_SIZE: PropertyDescription('w:tblPr/w:tblCellMar', 'w:bottom', 'w:w'),
+    TABLE_CELL_MARGIN_BOTTOM_TYPE: PropertyDescription('w:tblPr/w:tblCellMar', 'w:bottom', 'w:type'),
+    TABLE_CELL_MARGIN_RIGHT_SIZE: PropertyDescription('w:tblPr/w:tblCellMar', ['w:right', 'w:end'], 'w:w'),
+    TABLE_CELL_MARGIN_RIGHT_TYPE: PropertyDescription('w:tblPr/w:tblCellMar', ['w:right', 'w:end'], 'w:type'),
+    TABLE_INDENTATION: PropertyDescription('w:tblPr', 'w:tblInd', ['w:w', 'w:val']),
+    TABLE_INDENTATION_TYPE: PropertyDescription('w:tblPr', 'w:tblInd', 'w:type'),
 }
 
 # description of properties Table, but not TableStyle
-table_property_descriptions: Dict[str, PropertyDescription] = {
+TABLE_PROPERTY_DESCRIPTIONS: Dict[str, PropertyDescription] = {
     TabStyle: PropertyDescription('w:tblPr', 'w:tblStyle', 'w:val'),
-    Tab_first_row_style_look: PropertyDescription('w:tblPr', 'w:tblLook', 'w:firstRow'),
-    Tab_first_column_style_look: PropertyDescription('w:tblPr', 'w:tblLook', 'w:firstColumn'),
-    Tab_last_row_style_look: PropertyDescription('w:tblPr', 'w:tblLook', 'w:lastRow'),
-    Tab_last_column_style_look: PropertyDescription('w:tblPr', 'w:tblLook', 'w:lastColumn'),
-    Tab_no_horizontal_banding: PropertyDescription('w:tblPr', 'w:tblLook', 'w:noHBand'),
-    Tab_no_vertical_banding: PropertyDescription('w:tblPr', 'w:tblLook', 'w:noVBand'),
+    TABLE_FIRST_ROW_STYLE_LOOK: PropertyDescription('w:tblPr', 'w:tblLook', 'w:firstRow'),
+    TABLE_FIRST_COLUMN_STYLE_LOOK: PropertyDescription('w:tblPr', 'w:tblLook', 'w:firstColumn'),
+    TABLE_LAST_ROW_STYLE_LOOK: PropertyDescription('w:tblPr', 'w:tblLook', 'w:lastRow'),
+    TABLE_LAST_COLUMN_STYLE_LOOK: PropertyDescription('w:tblPr', 'w:tblLook', 'w:lastColumn'),
+    TABLE_NO_HORIZONTAL_BANDING: PropertyDescription('w:tblPr', 'w:tblLook', 'w:noHBand'),
+    TABLE_NO_VERTICAL_BANDING: PropertyDescription('w:tblPr', 'w:tblLook', 'w:noVBand'),
 }
 
-row_property_descriptions: Dict[str, PropertyDescription] = {
-    Row_is_header: PropertyDescription('w:trPr', 'w:tblHeader', None),
-    Row_height: PropertyDescription('w:trPr', 'w:trHeight', 'w:val'),
-    Row_height_rule: PropertyDescription('w:trPr', 'w:trHeight', 'w:hRule'),
+ROW_PROPERTY_DESCRIPTIONS: Dict[str, PropertyDescription] = {
+    ROW_IS_HEADER: PropertyDescription('w:trPr', 'w:tblHeader', None),
+    ROW_HEIGHT: PropertyDescription('w:trPr', 'w:trHeight', 'w:val'),
+    ROW_HEIGHT_RULE: PropertyDescription('w:trPr', 'w:trHeight', 'w:hRule'),
 }
 
-cell_property_descriptions: Dict[str, PropertyDescription] = {
-    Cell_fill_color: PropertyDescription('w:tcPr', 'w:shd', 'w:fill'),
-    Cell_fill_theme: PropertyDescription('w:tcPr', 'w:shd', 'w:themeFill'),
-    Cell_border_top: PropertyDescription('w:tcPr/w:tcBorders', 'w:top', 'w:val'),
-    Cell_border_top_color: PropertyDescription('w:tcPr/w:tcBorders', 'w:top', 'w:color'),
-    Cell_border_top_size: PropertyDescription('w:tcPr/w:tcBorders', 'w:top', 'w:sz'),
-    Cell_border_bottom: PropertyDescription('w:tcPr/w:tcBorders', 'w:bottom', 'w:val'),
-    Cell_border_bottom_color: PropertyDescription('w:tcPr/w:tcBorders', 'w:bottom', 'w:color'),
-    Cell_border_bottom_size: PropertyDescription('w:tcPr/w:tcBorders', 'w:bottom', 'w:sz'),
-    Cell_border_right: PropertyDescription('w:tcPr/w:tcBorders', ['w:right', 'w:end'], 'w:val'),
-    Cell_border_right_color: PropertyDescription('w:tcPr/w:tcBorders', ['w:right', 'w:end'], 'w:color'),
-    Cell_border_right_size: PropertyDescription('w:tcPr/w:tcBorders', ['w:right', 'w:end'], 'w:sz'),
-    Cell_border_left: PropertyDescription('w:tcPr/w:tcBorders', ['w:left', 'w:start'], 'w:val'),
-    Cell_border_left_color: PropertyDescription('w:tcPr/w:tcBorders', ['w:left', 'w:start'], 'w:color'),
-    Cell_border_left_size: PropertyDescription('w:tcPr/w:tcBorders', ['w:left', 'w:start'], 'w:sz'),
-    Cell_width: PropertyDescription('w:tcPr', 'w:tcW', 'w:w'),
-    Cell_width_type: PropertyDescription('w:tcPr', 'w:tcW', 'w:type'),
-    Cell_col_span: PropertyDescription('w:tcPr', 'w:gridSpan', 'w:val'),
-    Cell_vertical_merge: PropertyDescription('w:tcPr', 'w:vMerge', 'w:val'),
-    Cell_is_vertical_merge_continue: PropertyDescription('w:tcPr', 'w:vMerge', None),
-    Cell_vertical_align: PropertyDescription('w:tcPr', 'w:vAlign', 'w:val'),
-    Cell_text_direction: PropertyDescription('w:tcPr', 'w:textDirection', 'w:val'),
-    Cell_margin_top: PropertyDescription('w:tcPr/w:tcMar', 'w:top', 'w:w'),
-    Cell_margin_top_type: PropertyDescription('w:tcPr/w:tcMar', 'w:top', 'w:type'),
-    Cell_margin_bottom: PropertyDescription('w:tcPr/w:tcMar', 'w:bottom', 'w:w'),
-    Cell_margin_bottom_type: PropertyDescription('w:tcPr/w:tcMar', 'w:bottom', 'w:type'),
-    Cell_margin_left: PropertyDescription('w:tcPr/w:tcMar', ['w:left', 'w:start'], 'w:w'),
-    Cell_margin_left_type: PropertyDescription('w:tcPr/w:tcMar', ['w:left', 'w:start'], 'w:type'),
-    Cell_margin_right: PropertyDescription('w:tcPr/w:tcMar', ['w:right', 'w:end'], 'w:w'),
-    Cell_margin_right_type: PropertyDescription('w:tcPr/w:tcMar', ['w:right', 'w:end'], 'w:type'),
+CELL_PROPERTY_DESCRIPTIONS: Dict[str, PropertyDescription] = {
+    CELL_FILL_COLOR: PropertyDescription('w:tcPr', 'w:shd', 'w:fill'),
+    CELL_FILL_THEME: PropertyDescription('w:tcPr', 'w:shd', 'w:themeFill'),
+    CELL_BORDER_TOP_TYPE: PropertyDescription('w:tcPr/w:tcBorders', 'w:top', 'w:val'),
+    CELL_BORDER_TOP_COLOR: PropertyDescription('w:tcPr/w:tcBorders', 'w:top', 'w:color'),
+    CELL_BORDER_TOP_SIZE: PropertyDescription('w:tcPr/w:tcBorders', 'w:top', 'w:sz'),
+    CELL_BORDER_BOTTOM_TYPE: PropertyDescription('w:tcPr/w:tcBorders', 'w:bottom', 'w:val'),
+    CELL_BORDER_BOTTOM_COLOR: PropertyDescription('w:tcPr/w:tcBorders', 'w:bottom', 'w:color'),
+    CELL_BORDER_BOTTOM_SIZE: PropertyDescription('w:tcPr/w:tcBorders', 'w:bottom', 'w:sz'),
+    CELL_BORDER_RIGHT_TYPE: PropertyDescription('w:tcPr/w:tcBorders', ['w:right', 'w:end'], 'w:val'),
+    CELL_BORDER_RIGHT_COLOR: PropertyDescription('w:tcPr/w:tcBorders', ['w:right', 'w:end'], 'w:color'),
+    CELL_BORDER_RIGHT_SIZE: PropertyDescription('w:tcPr/w:tcBorders', ['w:right', 'w:end'], 'w:sz'),
+    CELL_BORDER_LEFT_TYPE: PropertyDescription('w:tcPr/w:tcBorders', ['w:left', 'w:start'], 'w:val'),
+    CELL_BORDER_LEFT_COLOR: PropertyDescription('w:tcPr/w:tcBorders', ['w:left', 'w:start'], 'w:color'),
+    CELL_BORDER_LEFT_SIZE: PropertyDescription('w:tcPr/w:tcBorders', ['w:left', 'w:start'], 'w:sz'),
+    CELL_WIDTH: PropertyDescription('w:tcPr', 'w:tcW', 'w:w'),
+    CELL_WIDTH_TYPE: PropertyDescription('w:tcPr', 'w:tcW', 'w:type'),
+    CELL_COLUMN_SPAN: PropertyDescription('w:tcPr', 'w:gridSpan', 'w:val'),
+    CELL_VERTICAL_MARGE: PropertyDescription('w:tcPr', 'w:vMerge', 'w:val'),
+    CELL_IS_VERTICAL_MARGE_CONTINUE: PropertyDescription('w:tcPr', 'w:vMerge', None),
+    CELL_VERTICAL_ALIGN: PropertyDescription('w:tcPr', 'w:vAlign', 'w:val'),
+    CELL_TEXT_DIRECTION: PropertyDescription('w:tcPr', 'w:textDirection', 'w:val'),
+    CELL_MARGIN_TOP_SIZE: PropertyDescription('w:tcPr/w:tcMar', 'w:top', 'w:w'),
+    CELL_MARGIN_TOP_TYPE: PropertyDescription('w:tcPr/w:tcMar', 'w:top', 'w:type'),
+    CELL_MARGIN_BOTTOM_SIZE: PropertyDescription('w:tcPr/w:tcMar', 'w:bottom', 'w:w'),
+    CELL_MARGIN_BOTTOM_TYPE: PropertyDescription('w:tcPr/w:tcMar', 'w:bottom', 'w:type'),
+    CELL_MARGIN_RIGHT_SIZE: PropertyDescription('w:tcPr/w:tcMar', ['w:left', 'w:start'], 'w:w'),
+    CELL_MARGIN_RIGHT_TYPE: PropertyDescription('w:tcPr/w:tcMar', ['w:left', 'w:start'], 'w:type'),
+    CELL_MARGIN_LEFT_SIZE: PropertyDescription('w:tcPr/w:tcMar', ['w:right', 'w:end'], 'w:w'),
+    CELL_MARGIN_LEFT_TYPE: PropertyDescription('w:tcPr/w:tcMar', ['w:right', 'w:end'], 'w:type'),
 }
 
-drawing_property_descriptions: Dict[str, PropertyDescription] = {
-    Draw_size_horizontal: PropertyDescription('wp:inline', 'wp:extent', 'cx'),
-    Draw_size_vertical: PropertyDescription('wp:inline', 'wp:extent', 'cy'),
+DRAWING_PROPERTY_DESCRIPTIONS: Dict[str, PropertyDescription] = {
+    DRAWING_SIZE_HORIZONTAL: PropertyDescription('wp:inline', 'wp:extent', 'cx'),
+    DRAWING_SIZE_VERTICAL: PropertyDescription('wp:inline', 'wp:extent', 'cy'),
 }
 
-image_property_descriptions: Dict[str, PropertyDescription] = {
-    Img_id: PropertyDescription(None, None, 'r:embed'),
+IMAGE_PROPERTY_DESCRIPTIONS: Dict[str, PropertyDescription] = {
+    IMAGE_ID: PropertyDescription(None, None, 'r:embed'),
 }
 
 
@@ -187,35 +187,35 @@ def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
     from styles import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
 
     if isinstance(ob, Paragraph):
-        return merge_dicts(paragraph_property_description, paragraph_style_property_description)
+        return merge_dicts(paragraph_property_description, PARAGRAPH_STYLE_PROPERTY_DESCRIPTIONS)
     elif isinstance(ob, Paragraph.Run):
-        return merge_dicts(run_property_descriptions, run_style_property_descriptions)
+        return merge_dicts(run_property_descriptions, RUN_STYLE_PROPERTY_DESCRIPTIONS)
     elif isinstance(ob, Paragraph.Run.Text):
         return {}
     elif isinstance(ob, Table):
-        return merge_dicts(table_property_descriptions, table_style_property_descriptions)
+        return merge_dicts(TABLE_PROPERTY_DESCRIPTIONS, TABLE_STYLE_PROPERTY_DESCRIPTIONS)
     elif isinstance(ob, Table.Row):
-        return row_property_descriptions
+        return ROW_PROPERTY_DESCRIPTIONS
     elif isinstance(ob, Table.Row.Cell):
-        return cell_property_descriptions
+        return CELL_PROPERTY_DESCRIPTIONS
     elif isinstance(ob, Document.Body):
         return {}
     elif isinstance(ob, NumberingStyle):
         return style_properties
     elif isinstance(ob, TableStyle):
-        return merge_dicts(table_style_property_descriptions, style_properties,
-                           row_property_descriptions, cell_property_descriptions,
-                           paragraph_style_property_description, run_style_property_descriptions)
+        return merge_dicts(TABLE_STYLE_PROPERTY_DESCRIPTIONS, style_properties,
+                           ROW_PROPERTY_DESCRIPTIONS, CELL_PROPERTY_DESCRIPTIONS,
+                           PARAGRAPH_STYLE_PROPERTY_DESCRIPTIONS, RUN_STYLE_PROPERTY_DESCRIPTIONS)
     elif isinstance(ob, TableStyle.TableAreaStyle):
-        return merge_dicts(table_style_property_descriptions, row_property_descriptions, cell_property_descriptions,
-                           paragraph_style_property_description, run_style_property_descriptions)
+        return merge_dicts(TABLE_STYLE_PROPERTY_DESCRIPTIONS, ROW_PROPERTY_DESCRIPTIONS, CELL_PROPERTY_DESCRIPTIONS,
+                           PARAGRAPH_STYLE_PROPERTY_DESCRIPTIONS, RUN_STYLE_PROPERTY_DESCRIPTIONS)
     elif isinstance(ob, CharacterStyle):
-        return merge_dicts(run_style_property_descriptions, style_properties)
+        return merge_dicts(RUN_STYLE_PROPERTY_DESCRIPTIONS, style_properties)
     elif isinstance(ob, ParagraphStyle):
-        return merge_dicts(paragraph_style_property_description, style_properties, run_style_property_descriptions)
+        return merge_dicts(PARAGRAPH_STYLE_PROPERTY_DESCRIPTIONS, style_properties, RUN_STYLE_PROPERTY_DESCRIPTIONS)
     elif isinstance(ob, Drawing):
-        return drawing_property_descriptions
+        return DRAWING_PROPERTY_DESCRIPTIONS
     elif isinstance(ob, Drawing.Image):
-        return image_property_descriptions
+        return IMAGE_PROPERTY_DESCRIPTIONS
 
     raise ValueError('argument in create properties dict function is mistake')

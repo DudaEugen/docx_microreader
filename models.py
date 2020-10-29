@@ -27,7 +27,9 @@ class Drawing(XMLement):
         return ''
 
     def get_size(self, direction: str) -> int:
-        return int(self._properties[k_const.get_property_key(k_const.Element.DRAWING, 'drawing', direction, 'size')].value)
+        return int(self._properties[k_const.get_property_key(
+            k_const.Element.DRAWING, direction=direction, property_name=k_const.PropertyName.SIZE
+        )].value)
 
     class Image(XMLement):
         tag = k_const.ElementTag.IMAGE
@@ -41,7 +43,7 @@ class Drawing(XMLement):
             super(Drawing.Image, self).__init__(element, parent)
 
         def get_path(self):
-            return self._get_document().get_image(self._properties[k_const.Img_id].value)
+            return self._get_document().get_image(self._properties[k_const.IMAGE_ID].value)
 
         def get_size(self, direction: str) -> int:
             return self.get_parent().get_size(direction)
@@ -50,11 +52,11 @@ class Drawing(XMLement):
 class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
     tag = k_const.ElementTag.PARAGRAPH
     _properties_unificators = {
-        k_const.Par_align: [('left', ['start']),
-                            ('right', ['end']),
-                            ('center', []),
-                            ('both', []),
-                            ('distribute', [])]
+        k_const.PARAGRAPH_ALIGN: [('left', ['start']),
+                                  ('right', ['end']),
+                                  ('center', []),
+                                  ('both', []),
+                                  ('distribute', [])]
     }
     from translators.html_translators import ParagraphTranslatorToHTML
     translators = {
@@ -138,7 +140,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
 class Table(XMLement, TablePropertiesGetSetMixin):
     tag = k_const.ElementTag.TABLE
     _properties_unificators = {
-        k_const.Tab_align: [('left', ['start']),
+        k_const.TABLE_ALIGN: [('left', ['start']),
                             ('right', ['end']),
                             ('center', [])]
     }
@@ -195,11 +197,11 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             cells_for_delete: List[Table.Row.Cell] = []
             col: int = 0
             for cell in row.cells:
-                if cell.get_property(k_const.Cell_vertical_merge) == 'restart':
+                if cell.get_property(k_const.CELL_VERTICAL_MARGE) == 'restart':
                     cell_for_row_span[col] = cell
                     cell_for_row_span[col].row_span = 1
-                elif cell.get_property(k_const.Cell_vertical_merge) == 'continue' or \
-                        cell.get_property(k_const.Cell_is_vertical_merge_continue):
+                elif cell.get_property(k_const.CELL_VERTICAL_MARGE) == 'continue' or \
+                        cell.get_property(k_const.CELL_IS_VERTICAL_MARGE_CONTINUE):
                     cell_for_row_span[col].row_span += 1
                     cells_for_delete.append(cell)
                 col_span = cell.get_col_span()
@@ -208,52 +210,52 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 row.cells.remove(cell)
 
     def is_use_style_of_first_row(self) -> bool:
-        if self._properties[k_const.Tab_first_row_style_look].value is None:
+        if self._properties[k_const.TABLE_FIRST_ROW_STYLE_LOOK].value is None:
             return False
-        return self._properties[k_const.Tab_first_row_style_look].value == '1'
+        return self._properties[k_const.TABLE_FIRST_ROW_STYLE_LOOK].value == '1'
 
     def set_as_use_style_of_first_row(self, is_use: bool):
-        self._properties[k_const.Tab_first_row_style_look].value = None if not is_use else '1'
+        self._properties[k_const.TABLE_FIRST_ROW_STYLE_LOOK].value = None if not is_use else '1'
 
     def is_use_style_of_first_column(self) -> bool:
-        if self._properties[k_const.Tab_first_column_style_look].value is None:
+        if self._properties[k_const.TABLE_FIRST_COLUMN_STYLE_LOOK].value is None:
             return False
-        return self._properties[k_const.Tab_first_column_style_look].value == '1'
+        return self._properties[k_const.TABLE_FIRST_COLUMN_STYLE_LOOK].value == '1'
 
     def set_as_use_style_of_first_column(self, is_use: bool):
-        self._properties[k_const.Tab_first_column_style_look].value = None if not is_use else '1'
+        self._properties[k_const.TABLE_FIRST_COLUMN_STYLE_LOOK].value = None if not is_use else '1'
 
     def is_use_style_of_last_row(self) -> bool:
-        if self._properties[k_const.Tab_last_row_style_look].value is None:
+        if self._properties[k_const.TABLE_LAST_ROW_STYLE_LOOK].value is None:
             return False
-        return self._properties[k_const.Tab_last_row_style_look].value == '1'
+        return self._properties[k_const.TABLE_LAST_ROW_STYLE_LOOK].value == '1'
 
     def set_as_use_style_of_last_row(self, is_use: bool):
-        self._properties[k_const.Tab_last_row_style_look].value = None if not is_use else '1'
+        self._properties[k_const.TABLE_LAST_ROW_STYLE_LOOK].value = None if not is_use else '1'
 
     def is_use_style_of_last_column(self) -> bool:
-        if self._properties[k_const.Tab_last_column_style_look].value is None:
+        if self._properties[k_const.TABLE_LAST_COLUMN_STYLE_LOOK].value is None:
             return False
-        return self._properties[k_const.Tab_last_column_style_look].value == '1'
+        return self._properties[k_const.TABLE_LAST_COLUMN_STYLE_LOOK].value == '1'
 
     def set_as_use_style_of_last_column(self, is_use: bool):
-        self._properties[k_const.Tab_last_column_style_look].value = None if not is_use else '1'
+        self._properties[k_const.TABLE_LAST_COLUMN_STYLE_LOOK].value = None if not is_use else '1'
 
     def is_use_style_of_horizontal_banding(self) -> bool:
-        if self._properties[k_const.Tab_no_horizontal_banding].value is None:
+        if self._properties[k_const.TABLE_NO_HORIZONTAL_BANDING].value is None:
             return True
-        return self._properties[k_const.Tab_no_horizontal_banding].value == '0'
+        return self._properties[k_const.TABLE_NO_HORIZONTAL_BANDING].value == '0'
 
     def set_as_use_style_of_horizontal_banding(self, is_use: bool):
-        self._properties[k_const.Tab_no_horizontal_banding].value = None if is_use else '0'
+        self._properties[k_const.TABLE_NO_HORIZONTAL_BANDING].value = None if is_use else '0'
 
     def is_use_style_of_vertical_banding(self) -> bool:
-        if self._properties[k_const.Tab_no_vertical_banding].value is None:
+        if self._properties[k_const.TABLE_NO_VERTICAL_BANDING].value is None:
             return True
-        return self._properties[k_const.Tab_no_vertical_banding].value == '0'
+        return self._properties[k_const.TABLE_NO_VERTICAL_BANDING].value == '0'
 
     def set_as_use_style_of_vertical_banding(self, is_use: bool):
-        self._properties[k_const.Tab_no_vertical_banding].value = None if is_use else '0'
+        self._properties[k_const.TABLE_NO_VERTICAL_BANDING].value = None if is_use else '0'
 
     class Row(XMLement, RowPropertiesGetSetMixin):
         tag = k_const.ElementTag.ROW
@@ -268,7 +270,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             self.is_last_row_in_header: bool = False
             self.index_in_table: int = -1
             super(Table.Row, self).__init__(element, parent)
-            if self._properties[k_const.Row_is_header].value:
+            if self._properties[k_const.ROW_IS_HEADER].value:
                 self.__set_cells_as_header()
 
         def _init(self):
@@ -500,38 +502,46 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 :param property_name: color, size, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
                 """
                 result = self._properties.get(k_const.get_property_key(
-                    k_const.Element.CELL, 'cell_border', direction, property_name
+                    k_const.Element.CELL, k_const.SubElement.BORDER, direction=direction, property_name=property_name
                 ))
                 if result is not None:
                     result = result.value
-                if result is None or (result == 'auto' and property_name == 'color'):
-                    if not (self.is_first_in_row() and direction == 'left') and \
-                            not (self.is_last_in_row() and direction == 'right') and \
-                            not (self.is_top() and direction == 'top') and \
-                            not (self.is_bottom() and direction == 'bottom'):
-                        d: str = 'horizontal' if (direction == 'top' or direction == 'bottom') else 'vertical'
-                        if direction == 'bottom' and self.get_parent_table().is_use_style_of_first_row() and \
+                if result is None or (result == 'auto' and k_const.PropertyName.COLOR.is_equal(property_name)):
+                    if not (self.is_first_in_row() and k_const.Direction.LEFT.is_equal(direction)) and \
+                            not (self.is_last_in_row() and k_const.Direction.RIGHT.is_equal(direction)) and \
+                            not (self.is_top() and k_const.Direction.TOP.is_equal(direction)) and \
+                            not (self.is_bottom() and k_const.Direction.BOTTOM.is_equal(direction)):
+                        d = k_const.Direction.horizontal_or_vertical_straight(direction)
+                        if k_const.Direction.BOTTOM.is_equal(direction) and \
+                                self.get_parent_table().is_use_style_of_first_row() and \
                                 self.get_parent_table().header_row_number > 1 and \
                                 self.get_parent_row().is_header() and not self.get_parent_row().is_last_row_in_header:
                             return self.__define_table_area_style_and_get_property_for_inside_borders_of_header(
-                                        k_const.get_property_key(k_const.Element.TABLE, 'borders_inside', d,
-                                                                 property_name)
+                                        k_const.get_property_key(k_const.Element.TABLE,
+                                                                 subelements=[k_const.Element.CELL,
+                                                                              k_const.SubElement.BORDER],
+                                                                 direction=d, property_name=property_name)
                                     )
                         result = self.get_parent_table().get_inside_border(d, property_name)
                         if result is None:
                             result = self.__define_table_area_style_and_get_property(
-                                k_const.get_property_key(k_const.Element.CELL, 'cell_border', direction, property_name)
+                                k_const.get_property_key(k_const.Element.CELL, k_const.SubElement.BORDER,
+                                                         direction=direction, property_name=property_name)
                             )
                             if result is None:
-                                if d == 'horizontal':
+                                if k_const.Direction.HORIZONTAL.is_equal(d):
                                     result = self.__define_table_area_style_and_get_property_for_horizontal_inside_borders(
-                                        k_const.get_property_key(k_const.Element.TABLE, 'borders_inside', d,
-                                                                 property_name)
+                                        k_const.get_property_key(k_const.Element.TABLE,
+                                                                 subelements=[k_const.Element.CELL,
+                                                                              k_const.SubElement.BORDER],
+                                                                 direction=d, property_name=property_name)
                                     )
                                 else:
                                     result = self.__define_table_area_style_and_get_property_for_vertical_inside_borders(
-                                        k_const.get_property_key(k_const.Element.TABLE, 'borders_inside', d,
-                                                                 property_name)
+                                        k_const.get_property_key(k_const.Element.TABLE,
+                                                                 subelements=[k_const.Element.CELL,
+                                                                              k_const.SubElement.BORDER],
+                                                                 direction=d, property_name=property_name)
                                     )
                 return result
 
@@ -541,14 +551,15 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 :param property_name: color, size, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
                 """
                 self.set_property_value(k_const.get_property_key(
-                    k_const.Element.CELL, 'cell_border', direction, property_name), value
+                    k_const.Element.CELL, k_const.SubElement.BORDER, direction=direction, property_name=property_name),
+                    value
                 )
 
             def get_col_span(self) -> Union[str, None]:
-                return self._properties[k_const.Cell_col_span].value
+                return self._properties[k_const.CELL_COLUMN_SPAN].value
 
             def set_col_span_value(self, value: Union[str, int]):
-                self._properties[k_const.Cell_col_span].value = str(value)
+                self._properties[k_const.CELL_COLUMN_SPAN].value = str(value)
 
             def get_parent_row(self):
                 return self.get_parent()
