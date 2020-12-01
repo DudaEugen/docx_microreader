@@ -1,10 +1,10 @@
 import xml.etree.ElementTree as ET
-from constants.namespaces import namespaces, check_namespace_of_tag
+from .constants.namespaces import namespaces, check_namespace_of_tag
 from typing import Union, List, Callable, Dict, Tuple
 import re
-from properties import Property, PropertyDescription
-from constants import properties_consts as p_consts
-from constants import keys_consts as k_consts
+from .properties import Property, PropertyDescription
+from .constants import properties_consts as p_consts
+from .constants import keys_consts as k_consts
 
 
 class Parser:
@@ -50,7 +50,7 @@ class Parser:
                 return Property(True)
 
     def _parse_element(self, element: ET.Element):
-        from models import Document, Table, Paragraph, Drawing
+        from .models import Document, Table, Paragraph, Drawing
 
         tags: Dict[str, Callable] = {
             check_namespace_of_tag(Document.Body.tag): Document.Body,
@@ -140,7 +140,7 @@ class DocumentParser(Parser):
         return raw_xml
 
     def __parse_style(self, element: ET.Element):
-        from styles import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
+        from .styles import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
 
         types: Dict[str, Callable] = {
             ParagraphStyle.type: ParagraphStyle,
@@ -163,7 +163,7 @@ class DocumentParser(Parser):
                                     parameters[2], parameters[3]) if parameters[0] in types else None
 
     def _parse_styles(self):
-        from styles import Style
+        from .styles import Style
 
         for el in self.get_xml_file('styles.xml').findall('./' + Style.tag.value, namespaces):
             elem = self.__parse_style(el)
@@ -216,7 +216,7 @@ class DocumentParser(Parser):
 
 class XMLement(Parser):
     tag: str    # element of constants.keys_consts.ElementTag enum
-    from constants.translate_formats import TranslateFormat
+    from .constants.translate_formats import TranslateFormat
     translators = {}        # {TranslateFormat: translator}
     translate_format: TranslateFormat = TranslateFormat.HTML
     _is_unique: bool = False   # True if parent can containing only one this element
@@ -313,7 +313,7 @@ class XMLcontainer(XMLement):
     """
 
     def _init(self):
-        from models import Paragraph, Table
+        from .models import Paragraph, Table
 
         elements: list = self._get_all_elements()
         for element in elements:
@@ -325,7 +325,7 @@ class XMLcontainer(XMLement):
                 self.elements.append(element)
 
     def __init__(self, element: ET.Element, parent):
-        from models import Paragraph, Table
+        from .models import Paragraph, Table
 
         self.tables: List[Table] = []
         self.paragraphs: List[Paragraph] = []

@@ -1,7 +1,7 @@
-from docx_parser import XMLement
+from .docx_parser import XMLement
 import xml.etree.ElementTree as ET
-from mixins.getters_setters import ParagraphPropertiesGetSetMixin, RunPropertiesGetSetMixin, TablePropertiesGetSetMixin
-from constants import keys_consts as k_const
+from .mixins.getters_setters import ParagraphPropertiesGetSetMixin, RunPropertiesGetSetMixin, TablePropertiesGetSetMixin
+from .constants import keys_consts as k_const
 from typing import Union, Dict
 
 
@@ -62,5 +62,5 @@ class TableStyle(Style, TablePropertiesGetSetMixin):
             super(TableStyle.TableAreaStyle, self).__init__(element, parent)
 
         def _init(self):
-            from constants.namespaces import check_namespace_of_tag
+            from .constants.namespaces import check_namespace_of_tag
             self.type = self._element.get(check_namespace_of_tag('w:type'))

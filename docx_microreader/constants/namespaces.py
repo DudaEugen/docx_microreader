@@ -40,7 +40,7 @@ def check_namespace_of_tag(tag: str) -> str:
     :param tag: string or element of constants.keys_consts.ElementTag enum
     :return: tag with replaced namespace
     """
-    from constants.keys_consts import ElementTag
+    from .keys_consts import ElementTag
     import re
 
     if isinstance(tag, ElementTag):

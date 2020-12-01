@@ -1,6 +1,6 @@
 from typing import Dict
-from properties import PropertyDescription
-from constants.keys_consts import *
+from ..properties import PropertyDescription
+from .keys_consts import *
 
 Style_parameters: Dict[str, str] = {
     StyleParam_type: 'w:type',
@@ -183,8 +183,8 @@ def merge_dicts(*args) -> dict:
 
 
 def get_properties_dict(ob) -> Dict[str, PropertyDescription]:
-    from models import Paragraph, Table, Document, Drawing
-    from styles import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
+    from ..models import Paragraph, Table, Document, Drawing
+    from ..styles import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
 
     if isinstance(ob, Paragraph):
         return merge_dicts(paragraph_property_description, PARAGRAPH_STYLE_PROPERTY_DESCRIPTIONS)

@@ -1,4 +1,4 @@
-from constants import keys_consts as k_const
+from ..constants import keys_consts as k_const
 from typing import Tuple, Union
 from abc import ABC
 

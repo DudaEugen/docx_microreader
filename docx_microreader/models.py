@@ -1,15 +1,15 @@
-from docx_parser import XMLcontainer, DocumentParser, XMLement
+from .docx_parser import XMLcontainer, DocumentParser, XMLement
 import xml.etree.ElementTree as ET
 from typing import List, Callable, Dict
-from mixins.getters_setters import *
-from constants import keys_consts as k_const
-from constants.translate_formats import TranslateFormat
+from .mixins.getters_setters import *
+from .constants import keys_consts as k_const
+from .constants.translate_formats import TranslateFormat
 
 
 class Drawing(XMLement):
     tag = k_const.ElementTag.DRAWING
     _is_unique = True
-    from translators.html_translators import ContainerTranslatorToHTML
+    from .translators.html_translators import ContainerTranslatorToHTML
     translators = {
         TranslateFormat.HTML: ContainerTranslatorToHTML(),
     }
@@ -34,7 +34,7 @@ class Drawing(XMLement):
     class Image(XMLement):
         tag = k_const.ElementTag.IMAGE
         _is_unique = True
-        from translators.html_translators import ImageTranslatorToHTML
+        from .translators.html_translators import ImageTranslatorToHTML
         translators = {
             TranslateFormat.HTML: ImageTranslatorToHTML(),
         }
@@ -58,7 +58,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
                                   ('both', []),
                                   ('distribute', [])]
     }
-    from translators.html_translators import ParagraphTranslatorToHTML
+    from .translators.html_translators import ParagraphTranslatorToHTML
     translators = {
         TranslateFormat.HTML: ParagraphTranslatorToHTML(),
     }
@@ -86,7 +86,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
     class Run(XMLement, RunPropertiesGetSetMixin):
         tag = k_const.ElementTag.RUN
 
-        from translators.html_translators import RunTranslatorToHTML
+        from .translators.html_translators import RunTranslatorToHTML
         translators = {
             TranslateFormat.HTML: RunTranslatorToHTML(),
         }
@@ -116,7 +116,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
         class Text(XMLement):
             tag = k_const.ElementTag.TEXT
             _is_unique = True
-            from translators.html_translators import TextTranslatorToHTML
+            from .translators.html_translators import TextTranslatorToHTML
             translators = {
                 TranslateFormat.HTML: TextTranslatorToHTML(),
             }
@@ -144,7 +144,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                             ('right', ['end']),
                             ('center', [])]
     }
-    from translators.html_translators import TableTranslatorToHTML
+    from .translators.html_translators import TableTranslatorToHTML
     translators = {
         TranslateFormat.HTML: TableTranslatorToHTML(),
     }
@@ -259,7 +259,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 
     class Row(XMLement, RowPropertiesGetSetMixin):
         tag = k_const.ElementTag.ROW
-        from translators.html_translators import RowTranslatorToHTML
+        from .translators.html_translators import RowTranslatorToHTML
         translators = {
             TranslateFormat.HTML: RowTranslatorToHTML(),
         }
@@ -319,7 +319,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 
         class Cell(XMLcontainer, CellPropertiesGetSetMixin):
             tag = k_const.ElementTag.CELL
-            from translators.html_translators import CellTranslatorToHTML
+            from .translators.html_translators import CellTranslatorToHTML
             translators = {
                 TranslateFormat.HTML: CellTranslatorToHTML(),
             }
