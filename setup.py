@@ -5,6 +5,7 @@ setup(
     packages=find_packages(include=['docx_microreader', 'docx_microreader.*']),
     version='0.1.0',
     description='Read *.docx files and translate those to another formats',
-    author='Duda E.V.',
-    install_requires=['pillow'],
+    author='Duda Eugen',
+    license='MIT',
+    install_requires=['pillow',],
 )
