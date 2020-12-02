@@ -506,13 +506,13 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 ))
                 if result is not None:
                     result = result.value
-                if result is None or (result == 'auto' and k_const.PropertyName.COLOR.is_equal(property_name)):
-                    if not (self.is_first_in_row() and k_const.Direction.LEFT.is_equal(direction)) and \
-                            not (self.is_last_in_row() and k_const.Direction.RIGHT.is_equal(direction)) and \
-                            not (self.is_top() and k_const.Direction.TOP.is_equal(direction)) and \
-                            not (self.is_bottom() and k_const.Direction.BOTTOM.is_equal(direction)):
+                if result is None or (result == 'auto' and k_const.PropertyName.COLOR == property_name):
+                    if not (self.is_first_in_row() and k_const.Direction.LEFT == direction) and \
+                            not (self.is_last_in_row() and k_const.Direction.RIGHT == direction) and \
+                            not (self.is_top() and k_const.Direction.TOP == direction) and \
+                            not (self.is_bottom() and k_const.Direction.BOTTOM == direction):
                         d = k_const.Direction.horizontal_or_vertical_straight(direction)
-                        if k_const.Direction.BOTTOM.is_equal(direction) and \
+                        if k_const.Direction.BOTTOM == direction and \
                                 self.get_parent_table().is_use_style_of_first_row() and \
                                 self.get_parent_table().header_row_number > 1 and \
                                 self.get_parent_row().is_header() and not self.get_parent_row().is_last_row_in_header:
@@ -529,7 +529,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                                                          direction=direction, property_name=property_name)
                             )
                             if result is None:
-                                if k_const.Direction.HORIZONTAL.is_equal(d):
+                                if k_const.Direction.HORIZONTAL == d:
                                     result = self.__define_table_area_style_and_get_property_for_horizontal_inside_borders(
                                         k_const.get_property_key(k_const.Element.TABLE,
                                                                  subelements=[k_const.Element.CELL,

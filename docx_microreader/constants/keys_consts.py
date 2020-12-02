@@ -3,15 +3,15 @@ from typing import Union, List
 
 
 class StrEnum(str, Enum):
-    def is_equal(self, s: str) -> bool:
+    def __eq__(self, other):
         """
-        :param s: str or StrEnum
+        :param other: str or StrEnum
         """
-        if isinstance(s, str):
-            if self.value == s:
+        if isinstance(other, str):
+            if self.value == other:
                 return True
             return False
-        return self == s
+        return self == other
 
 
 @unique
@@ -104,9 +104,9 @@ class Direction(StrEnum):
         :param value: str or value of Direction enum
         :return: Direction.HORIZONTAL (for horizontal, top, bottom) or Direction.VERTICAL (for vertical, right, left)
         """
-        if Direction.TOP.is_equal(value) or Direction.BOTTOM.is_equal(value):
+        if Direction.TOP == value or Direction.BOTTOM == value:
             return Direction.HORIZONTAL
-        if Direction.RIGHT.is_equal(value) or Direction.LEFT.is_equal(value):
+        if Direction.RIGHT == value or Direction.LEFT == value:
             return Direction.VERTICAL
         raise ValueError(f"Placement of straight can't be equal {value}")
 
