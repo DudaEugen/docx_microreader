@@ -148,6 +148,10 @@ class PropertyName(StrEnum):
     MERGE = 'merge'
     IS_MERGE_CONTINUE = 'is_merge_continue'
     DIRECTION = 'direction'
+    FONT_ASCII = 'font_ascii'
+    FONT_EAST_ASIA = 'font_eastAsia'
+    FONT_H_ANSI = 'font_hAnsi'
+    FONT_CS = 'font_cs'
 
 
 def get_property_key(element: str, *args, subelements: Union[str, None, List[str]] = None,
@@ -246,6 +250,10 @@ RUN_VERTICAL_ALIGN: str = get_property_key(Element.RUN, Direction.VERTICAL, Prop
 RUN_LANGUAGE: str = get_property_key(Element.RUN, PropertyName.LANGUAGE)
 RUN_COLOR: str = get_property_key(Element.RUN, PropertyName.COLOR)
 RUN_THEME_COLOR: str = get_property_key(Element.RUN, PropertyName.THEME_COLOR)
+RUN_FONT_ASCII: str = get_property_key(Element.RUN, PropertyName.FONT_ASCII)
+RUN_FONT_EAST_ASIA: str = get_property_key(Element.RUN, PropertyName.FONT_EAST_ASIA)
+RUN_FONT_H_ANSI: str = get_property_key(Element.RUN, PropertyName.FONT_H_ANSI)
+RUN_FONT_CS: str = get_property_key(Element.RUN, PropertyName.FONT_CS)
 RUN_BACKGROUND_COLOR: str = get_property_key(Element.RUN, SubElement.BACKGROUND, PropertyName.COLOR)
 RUN_BACKGROUND_FILL: str = get_property_key(Element.RUN, SubElement.BACKGROUND, PropertyName.FILL)
 RUN_UNDERLINE_TYPE: str = get_property_key(Element.RUN, SubElement.UNDERLINE, PropertyName.TYPE)

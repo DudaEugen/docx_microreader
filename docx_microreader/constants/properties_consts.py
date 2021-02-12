@@ -65,6 +65,10 @@ RUN_STYLE_PROPERTY_DESCRIPTIONS: Dict[str, PropertyDescription] = {
     RUN_BORDER_COLOR: PropertyDescription('w:rPr', 'w:bdr', 'w:color'),
     RUN_BORDER_SIZE: PropertyDescription('w:rPr', 'w:bdr', 'w:sz'),
     RUN_BORDER_SPACE: PropertyDescription('w:rPr', 'w:bdr', 'w:space'),
+    RUN_FONT_ASCII: PropertyDescription('w:rPr', 'w:rFonts', 'w:ascii'),
+    RUN_FONT_EAST_ASIA: PropertyDescription('w:rPr', 'w:rFonts', 'w:eastAsia'),
+    RUN_FONT_H_ANSI: PropertyDescription('w:rPr', 'w:rFonts', 'w:hAnsi'),
+    RUN_FONT_CS: PropertyDescription('w:rPr', 'w:rFonts', 'w:cs'),
 }
 
 # description of properties Run, but not RunStyle
