@@ -1,17 +1,16 @@
 from ..constants import keys_consts as k_const
 from typing import Tuple, Union
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class GetSetMixin(ABC):
+    @abstractmethod
     def get_property(self, property_name: str) -> Union[str, None, bool]:
-        raise NotImplementedError('method get_property is not implemented. Your class must implement this method or'
-                                  'GetSetMixin must be inherited after the class that implements this method')
+        pass
 
+    @abstractmethod
     def set_property_value(self, property_name: str, value: Union[str, bool, None]):
-        raise NotImplementedError('method set_property_value is not implemented. '
-                                  'Your class must implement this method or'
-                                  'GetSetMixin must be inherited after the class that implements this method')
+        pass
 
 
 class ParagraphPropertiesGetSetMixin(GetSetMixin, ABC):
@@ -326,30 +325,25 @@ class RowPropertiesGetSetMixin(GetSetMixin, ABC):
 
 
 class CellPropertiesGetSetMixin(GetSetMixin, ABC):
+    @abstractmethod
     def get_parent_table(self):
-        raise NotImplementedError('method get_parent_table is not implemented. Your class must implement this method or'
-                                  'CellPropertiesGetSetMixin must be inherited after the class that implements this '
-                                  'method')
+        pass
 
+    @abstractmethod
     def is_top(self) -> bool:
-        raise NotImplementedError('method is_top is not implemented. Your class must implement this method or'
-                                  'CellPropertiesGetSetMixin must be inherited after the class that implements this '
-                                  'method')
+        pass
 
+    @abstractmethod
     def is_bottom(self) -> bool:
-        raise NotImplementedError('method is_bottom is not implemented. Your class must implement this method or'
-                                  'CellPropertiesGetSetMixin must be inherited after the class that implements this '
-                                  'method')
+        pass
 
+    @abstractmethod
     def is_first_in_row(self) -> bool:
-        raise NotImplementedError('method is_first_in_row is not implemented. Your class must implement this method or'
-                                  'CellPropertiesGetSetMixin must be inherited after the class that implements this '
-                                  'method')
+        pass
 
+    @abstractmethod
     def is_last_in_row(self) -> bool:
-        raise NotImplementedError('method is_last_in_row is not implemented. Your class must implement this method or'
-                                  'CellPropertiesGetSetMixin must be inherited after the class that implements this '
-                                  'method')
+        pass
 
     def get_fill_color(self) -> Union[str, None]:
         return self.get_property(k_const.CELL_FILL_COLOR)
