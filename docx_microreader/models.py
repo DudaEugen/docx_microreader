@@ -10,8 +10,10 @@ class Drawing(XMLement):
     tag = k_const.ElementTag.DRAWING
     _is_unique = True
     from .translators.html_translators import ContainerTranslatorToHTML
+    from .translators.xml_translator.xml_translator import TranslatorToXML
     translators = {
         TranslateFormat.HTML: ContainerTranslatorToHTML(),
+        TranslateFormat.XML: TranslatorToXML(),
     }
 
     def __init__(self, element: ET.Element, parent):
@@ -59,8 +61,10 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
                                   ('distribute', [])]
     }
     from .translators.html_translators import ParagraphTranslatorToHTML
+    from .translators.xml_translator.xml_translator import ParagraphTranslatorToXML
     translators = {
         TranslateFormat.HTML: ParagraphTranslatorToHTML(),
+        TranslateFormat.XML: ParagraphTranslatorToXML(),
     }
 
     def __init__(self, element: ET.Element, parent):
@@ -87,8 +91,10 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
         tag = k_const.ElementTag.RUN
 
         from .translators.html_translators import RunTranslatorToHTML
+        from .translators.xml_translator.xml_translator import RunTranslatorToXML
         translators = {
             TranslateFormat.HTML: RunTranslatorToHTML(),
+            TranslateFormat.XML: RunTranslatorToXML(),
         }
 
         def __init__(self, element: ET.Element, parent):
@@ -117,8 +123,10 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
             tag = k_const.ElementTag.TEXT
             _is_unique = True
             from .translators.html_translators import TextTranslatorToHTML
+            from .translators.xml_translator.xml_translator import TextTranslatorToXML
             translators = {
                 TranslateFormat.HTML: TextTranslatorToHTML(),
+                TranslateFormat.XML: TextTranslatorToXML(),
             }
 
             def __init__(self, element: ET.Element, parent):
@@ -145,8 +153,10 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                             ('center', [])]
     }
     from .translators.html_translators import TableTranslatorToHTML
+    from .translators.xml_translator.xml_translator import TableTranslatorToXML
     translators = {
         TranslateFormat.HTML: TableTranslatorToHTML(),
+        TranslateFormat.XML: TableTranslatorToXML(),
     }
 
     def __init__(self, element: ET.Element, parent):
@@ -260,8 +270,10 @@ class Table(XMLement, TablePropertiesGetSetMixin):
     class Row(XMLement, RowPropertiesGetSetMixin):
         tag = k_const.ElementTag.ROW
         from .translators.html_translators import RowTranslatorToHTML
+        from .translators.xml_translator.xml_translator import RowTranslatorToXML
         translators = {
             TranslateFormat.HTML: RowTranslatorToHTML(),
+            TranslateFormat.XML: RowTranslatorToXML(),
         }
 
         def __init__(self, element: ET.Element, parent):
@@ -320,8 +332,10 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         class Cell(XMLcontainer, CellPropertiesGetSetMixin):
             tag = k_const.ElementTag.CELL
             from .translators.html_translators import CellTranslatorToHTML
+            from .translators.xml_translator.xml_translator import CellTranslatorToXML
             translators = {
                 TranslateFormat.HTML: CellTranslatorToHTML(),
+                TranslateFormat.XML: CellTranslatorToXML(),
             }
 
             def __init__(self, element: ET.Element, parent):
@@ -605,6 +619,35 @@ class Document(DocumentParser):
 
     def __str__(self):
         return str(self.body)
+
+    def save_as_docx(self, name: str):
+        from .translators.xml_translator.xml_translator import DocumentTranslatorToXML
+        import os
+        import zipfile
+
+        file = open(f'{DocumentTranslatorToXML.template_directory_path()}\\word\\document.xml', 'w', encoding='utf-8')
+        file.write(DocumentTranslatorToXML().translate(self))
+        file.close()
+
+        zipf = zipfile.ZipFile(f'{name}.zip', 'w', zipfile.ZIP_DEFLATED)
+        for root, dirs, files in os.walk(DocumentTranslatorToXML.template_directory_path()):
+            for file in files:
+                namef = ''
+                l = str(os.path.join(root, file)).split('\\')
+                is_begin: bool = False
+                for i in range(1, len(l)):
+                    if is_begin:
+                        if i + 1 == len(l):
+                            namef += l[i]
+                        else:
+                            namef += l[i] + '/'
+                    if not is_begin and l[i] == DocumentTranslatorToXML.template_directory_name():
+                        is_begin = True
+                zipf.write(os.path.join(root, file), namef)
+        zipf.close()
+        if os.path.exists(name):
+            os.remove(name)
+        os.rename(f'{name}.zip', name)
 
     def get_inner_text(self) -> Union[str, None]:
         return str(self.body)
