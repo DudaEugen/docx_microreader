@@ -1,4 +1,4 @@
-from ..constants import keys_consts as k_const
+from ..constants import property_enums as pr_const
 from typing import Tuple, Union
 from abc import ABC, abstractmethod
 
@@ -15,190 +15,185 @@ class GetSetMixin(ABC):
 
 class ParagraphPropertiesGetSetMixin(GetSetMixin, ABC):
     def get_align(self) -> Union[str, None]:
-        return self.get_property(k_const.PARAGRAPH_ALIGN)
+        return self.get_property(pr_const.ParagraphProperty.ALIGN.key)
 
     def set_align_value(self, align: Union[str, None]):
         """
         :param align: 'both' or 'right' or 'center' or 'left
         """
-        self.set_property_value(k_const.PARAGRAPH_ALIGN, align)
+        self.set_property_value(pr_const.ParagraphProperty.ALIGN.key, align)
 
     def get_indent_left(self) -> Union[str, None]:
-        return self.get_property(k_const.PARAGRAPH_INDENT_LEFT)
+        return self.get_property(pr_const.ParagraphProperty.INDENT_LEFT.key)
 
     def set_indent_left_value(self, indent_left: Union[str, None]):
-        self.set_property_value(k_const.PARAGRAPH_INDENT_LEFT, indent_left)
+        self.set_property_value(pr_const.ParagraphProperty.INDENT_LEFT.key, indent_left)
 
     def get_indent_right(self) -> Union[str, None]:
-        return self.get_property(k_const.PARAGRAPH_INDENT_RIGHT)
+        return self.get_property(pr_const.ParagraphProperty.INDENT_RIGHT.key)
 
     def set_indent_right_value(self, indent_right: Union[str, None]):
-        self.set_property_value(k_const.PARAGRAPH_INDENT_RIGHT, indent_right)
+        self.set_property_value(pr_const.ParagraphProperty.INDENT_RIGHT.key, indent_right)
 
     def get_hanging(self) -> Union[str, None]:
-        return self.get_property(k_const.PARAGRAPH_HANGING)
+        return self.get_property(pr_const.ParagraphProperty.HANGING.key)
 
     def set_hanging_value(self, hanging: Union[str, None]):
-        self.set_property_value(k_const.PARAGRAPH_HANGING, hanging)
+        self.set_property_value(pr_const.ParagraphProperty.HANGING.key, hanging)
 
     def get_first_line(self) -> Union[str, None]:
-        return self.get_property(k_const.PARAGRAPH_FIRST_LINE)
+        return self.get_property(pr_const.ParagraphProperty.FIRST_LINE.key)
 
     def set_first_line_value(self, first_line: Union[str, None]):
-        self.set_property_value(k_const.PARAGRAPH_FIRST_LINE, first_line)
+        self.set_property_value(pr_const.ParagraphProperty.FIRST_LINE.key, first_line)
 
     def is_keep_lines(self) -> bool:
-        result = self.get_property(k_const.PARAGRAPH_KEEP_LINES)
+        result = self.get_property(pr_const.ParagraphProperty.KEEP_LINES.key)
         return result if result is not None else False
 
     def set_as_keep_lines(self, is_keep_lines: Union[bool, None] = True):
-        self.set_property_value(k_const.PARAGRAPH_KEEP_LINES, is_keep_lines)
+        self.set_property_value(pr_const.ParagraphProperty.KEEP_LINES.key, is_keep_lines)
 
     def is_keep_next(self) -> bool:
-        result = self.get_property(k_const.PARAGRAPH_KEEP_NEXT)
+        result = self.get_property(pr_const.ParagraphProperty.KEEP_NEXT.key)
         return result if result is not None else False
 
     def set_as_keep_next(self, is_keep_next: Union[bool, None] = True):
-        self.set_property_value(k_const.PARAGRAPH_KEEP_NEXT, is_keep_next)
+        self.set_property_value(pr_const.ParagraphProperty.KEEP_NEXT.key, is_keep_next)
 
     def get_outline_level(self) -> Union[str, None]:
-        return self.get_property(k_const.PARAGRAPH_OUTLINE_LEVEL)
+        return self.get_property(pr_const.ParagraphProperty.OUTLINE_LEVEL.key)
 
     def set_outline_level_value(self, level: Union[str, int, None]):
         """
         :param level: 0-9
         """
-        self.set_property_value(k_const.PARAGRAPH_OUTLINE_LEVEL, level)
+        self.set_property_value(pr_const.ParagraphProperty.OUTLINE_LEVEL.key, level)
 
-    def get_border(self, direction: str, property_name: str) -> Union[str, None]:
+    def get_border(self, direction: Union[str, pr_const.Direction],
+                   property_name: [str, pr_const.BorderProperty]) -> Union[str, None]:
         """
-        :param direction: top, bottom, right, left     (keys of XMLementPropertyDescriptions.Const_directions dict)
-        :param property_name: color, size, space, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
+        :param direction: top, bottom, right, left     (or corresponding values of property_enums.Direction)
+        :param property_name: color, size, space, type (or corresponding values of property_enums.BorderProperty)
         """
-        return self.get_property(k_const.get_property_key(
-            k_const.Element.PARAGRAPH, k_const.SubElement.BORDER, direction=direction, property_name=property_name)
+        return self.get_property(
+            pr_const.ParagraphProperty.get_border_property_enum_value(direction, property_name).key
         )
 
-    def set_border_value(self, direction: str, property_name: str, value: Union[str, None]):
+    def set_border_value(self, direction: Union[str, pr_const.Direction],
+                         property_name: [str, pr_const.BorderProperty], value: Union[str, None]):
         """
-        :param direction: top, bottom, right, left     (keys of XMLementPropertyDescriptions.Const_directions dict)
-        :param property_name: color, size, space, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
+        :param direction: top, bottom, right, left     (or corresponding values of property_enums.Direction)
+        :param property_name: color, size, space, type (or corresponding values of property_enums.BorderProperty)
         """
-        self.set_property_value(k_const.get_property_key(
-            k_const.Element.PARAGRAPH, k_const.SubElement.BORDER, direction=direction, property_name=property_name),
-            value
+        self.set_property_value(
+            pr_const.ParagraphProperty.get_border_property_enum_value(direction, property_name).key, value
         )
 
 
 class RunPropertiesGetSetMixin(GetSetMixin, ABC):
     def get_size(self) -> Union[str, None]:
-        return self.get_property(k_const.RUN_SIZE)
+        return self.get_property(pr_const.RunProperty.SIZE.key)
 
     def set_size_value(self, value: Union[str, None]):
-        self.set_property_value(k_const.RUN_SIZE, value)
+        self.set_property_value(pr_const.RunProperty.SIZE.key, value)
 
     def is_bold(self) -> bool:
-        result = self.get_property(k_const.RUN_IS_BOLD)
+        result = self.get_property(pr_const.RunProperty.BOLD.key)
         return result if result is not None else False
 
     def set_as_bold(self, is_bold: Union[bool, None] = True):
-        self.set_property_value(k_const.RUN_IS_BOLD, is_bold)
+        self.set_property_value(pr_const.RunProperty.BOLD.key, is_bold)
 
     def is_italic(self) -> bool:
-        result = self.get_property(k_const.RUN_IS_ITALIC)
+        result = self.get_property(pr_const.RunProperty.ITALIC.key)
         return result if result is not None else False
 
     def set_as_italic(self, is_italic: Union[bool, None] = True):
-        self.set_property_value(k_const.RUN_IS_ITALIC, is_italic)
+        self.set_property_value(pr_const.RunProperty.ITALIC.key, is_italic)
 
     def is_strike(self) -> bool:
-        result = self.get_property(k_const.RUN_IS_STRIKE)
+        result = self.get_property(pr_const.RunProperty.STRIKE.key)
         return result if result is not None else False
 
     def set_as_strike(self, is_strike: Union[bool, None] = True):
-        self.set_property_value(k_const.RUN_IS_STRIKE, is_strike)
+        self.set_property_value(pr_const.RunProperty.STRIKE.key, is_strike)
 
     def get_language(self) -> Union[str, None]:
-        return self.get_property(k_const.RUN_LANGUAGE)
+        return self.get_property(pr_const.RunProperty.LANGUAGE.key)
 
     def set_language_value(self, value: Union[str, None]):
-        self.set_property_value(k_const.RUN_LANGUAGE, value)
+        self.set_property_value(pr_const.RunProperty.LANGUAGE.key, value)
 
     def get_vertical_align(self) -> Union[str, None]:
-        return self.get_property(k_const.RUN_VERTICAL_ALIGN)
+        return self.get_property(pr_const.RunProperty.VERTICAL_ALIGN.key)
 
     def set_vertical_align_value(self, value: Union[str, None]):
         """
         param value: 'superscript' or 'subscript'
         """
-        self.set_property_value(k_const.RUN_VERTICAL_ALIGN, value)
+        self.set_property_value(pr_const.RunProperty.VERTICAL_ALIGN.key, value)
 
     def get_color(self) -> Union[str, None]:
-        return self.get_property(k_const.RUN_COLOR)
+        return self.get_property(pr_const.RunProperty.COLOR.key)
 
     def set_color_value(self, value: Union[str, None]):
         """
         param value: specifies the color as a hex value in RRGGBB format or auto
         """
-        self.set_property_value(k_const.RUN_COLOR, value)
+        self.set_property_value(pr_const.RunProperty.COLOR.key, value)
 
     def get_theme_color(self) -> Union[str, None]:
-        return self.get_property(k_const.RUN_THEME_COLOR)
+        return self.get_property(pr_const.RunProperty.THEME_COLOR.key)
 
     def set_theme_color_value(self, value: Union[str, None]):
-        self.set_property_value(k_const.RUN_THEME_COLOR, value)
+        self.set_property_value(pr_const.RunProperty.THEME_COLOR.key, value)
 
     def get_background_color(self) -> Union[str, None]:
-        return self.get_property(k_const.RUN_BACKGROUND_COLOR)
+        return self.get_property(pr_const.RunProperty.BACKGROUND_COLOR.key)
 
     def set_background_color_value(self, value: Union[str, None]):
         """
         param value: possible values: black, blue, cyan, darkBlue, darkCyan, darkGray, darkGreen, darkMagenta,
                                     darkRed, darkYellow, green, lightGray, magenta, none, red, white, yellow
         """
-        self.set_property_value(k_const.RUN_BACKGROUND_COLOR, value)
+        self.set_property_value(pr_const.RunProperty.BACKGROUND_COLOR.key, value)
 
     def get_background_fill(self) -> Union[str, None]:
-        return self.get_property(k_const.RUN_BACKGROUND_FILL)
+        return self.get_property(pr_const.RunProperty.BACKGROUND_FILL.key)
 
     def set_background_fill_value(self, value: Union[str, None]):
         """
         param value: specifies the color as a hex value in RRGGBB format or auto
         """
-        self.set_property_value(k_const.RUN_BACKGROUND_FILL, value)
+        self.set_property_value(pr_const.RunProperty.BACKGROUND_FILL.key, value)
 
     def get_underline(self) -> Union[str, None]:
-        return self.get_property(k_const.RUN_UNDERLINE_TYPE)
+        return self.get_property(pr_const.RunProperty.UNDERLINE_TYPE.key)
 
     def set_underline_value(self, value: Union[str, None]):
-        self.set_property_value(k_const.RUN_UNDERLINE_TYPE, value)
+        self.set_property_value(pr_const.RunProperty.UNDERLINE_TYPE.key, value)
 
     def get_underline_color(self) -> Union[str, None]:
-        return self.get_property(k_const.RUN_UNDERLINE_COLOR)
+        return self.get_property(pr_const.RunProperty.UNDERLINE_COLOR.key)
 
     def set_underline_color_value(self, value: Union[str, None]):
         """
         param value: specifies the color as a hex value in RRGGBB format or auto
         """
-        self.set_property_value(k_const.RUN_UNDERLINE_COLOR, value)
+        self.set_property_value(pr_const.RunProperty.UNDERLINE_COLOR.key, value)
 
-    def get_border(self, property_name: str) -> Union[str, None]:
+    def get_border(self, property_name: [str, pr_const.BorderProperty]) -> Union[str, None]:
         """
-        :param property_name: color, size, space, type
-        (keys of XMLementPropertyDescriptions.Const_property_names dict)
+        :param property_name: color, size, space, type (or corresponding value of property_enums.BorderProperty)
         """
-        return self.get_property(k_const.get_property_key(
-            k_const.Element.RUN, k_const.SubElement.BORDER, property_name=property_name)
-        )
+        return self.get_property(pr_const.RunProperty.get_border_property_enum_value(None, property_name).key)
 
-    def set_border_value(self, property_name: str, value: Union[str, None]):
+    def set_border_value(self, property_name: [str, pr_const.BorderProperty], value: Union[str, None]):
         """
-        :param property_name: color, size, space or type
-        (keys of XMLementPropertyDescriptions.Const_property_names dict)
+        :param property_name: color, size, space or type (or corresponding value of property_enums.BorderProperty)
         """
-        self.set_property_value(k_const.get_property_key(
-            k_const.Element.RUN, k_const.SubElement.BORDER, property_name=property_name), value
-        )
+        self.set_property_value(pr_const.RunProperty.get_border_property_enum_value(None, property_name).key, value)
 
 
 class TablePropertiesGetSetMixin(GetSetMixin, ABC):
@@ -207,121 +202,120 @@ class TablePropertiesGetSetMixin(GetSetMixin, ABC):
         return: Tuple(width, type, layout)
         """
         return (
-            self.get_property(k_const.TABLE_WIDTH),
-            self.get_property(k_const.TABLE_WIDTH_TYPE),
-            self.get_property(k_const.TABLE_LAYOUT)
+            self.get_property(pr_const.TableProperty.WIDTH.key),
+            self.get_property(pr_const.TableProperty.WIDTH_TYPE.key),
+            self.get_property(pr_const.TableProperty.LAYOUT.key)
         )
 
     def set_width_value(self, width: Union[str, None], width_type: Union[str, None], layout: str = 'autofit'):
-        self.set_property_value(k_const.TABLE_WIDTH, width)
-        self.set_property_value(k_const.TABLE_WIDTH_TYPE, width_type)
-        self.set_property_value(k_const.TABLE_LAYOUT, layout)
+        self.set_property_value(pr_const.TableProperty.WIDTH.key, width)
+        self.set_property_value(pr_const.TableProperty.WIDTH_TYPE.key, width_type)
+        self.set_property_value(pr_const.TableProperty.LAYOUT.key, layout)
 
     def get_align(self) -> Union[str, None]:
-        return self.get_property(k_const.TABLE_ALIGN)
+        return self.get_property(pr_const.TableProperty.ALIGN.key)
 
     def set_align_value(self, value: Union[str, None]):
-        self.set_property_value(k_const.TABLE_ALIGN, value)
+        self.set_property_value(pr_const.TableProperty.ALIGN.key, value)
 
-    def get_border(self, direction: str, property_name: str) -> Union[str, None]:
+    def get_border(self, direction: Union[str, pr_const.Direction],
+                   property_name: [str, pr_const.BorderProperty]) -> Union[str, None]:
         """
-        :param direction: top, bottom, right, left      (keys of XMLementPropertyDescriptions.Const_property_names dict)
-        :param property_name: color, size, type         (keys of XMLementPropertyDescriptions.Const_property_names dict)
+        :param direction: top, bottom, right, left      (or corresponding value of property_enums.Direction)
+        :param property_name: color, size, type         (or corresponding value of property_enums.BorderProperty)
         """
-        return self.get_property(k_const.get_property_key(
-            k_const.Element.TABLE, k_const.SubElement.BORDER, direction=direction, property_name=property_name)
-        )
+        return self.get_property(pr_const.TableProperty.get_border_property_enum_value(direction, property_name).key)
 
-    def set_border_value(self, direction: str, property_name: str, value: Union[str, None]):
+    def set_border_value(self, direction: Union[str, pr_const.Direction],
+                         property_name: [str, pr_const.BorderProperty], value: Union[str, None]):
         """
-        :param direction: top, bottom, right, left      (keys of XMLementPropertyDescriptions.Const_property_names dict)
-        :param property_name: color, size, type         (keys of XMLementPropertyDescriptions.Const_property_names dict)
+        :param direction: top, bottom, right, left      (or corresponding value of property_enums.Direction)
+        :param property_name: color, size, type         (or corresponding value of property_enums.BorderProperty)
         """
-        self.set_property_value(k_const.get_property_key(
-            k_const.Element.TABLE, k_const.SubElement.BORDER, direction=direction, property_name=property_name), value
+        self.set_property_value(
+            pr_const.TableProperty.get_border_property_enum_value(direction, property_name).key,
+            value
         )
 
     def get_indentation(self) -> Tuple[Union[str, None], Union[str, None]]:
         """
         return: Tuple(value, type)
         """
-        return self.get_property(k_const.TABLE_INDENTATION), self.get_property(k_const.TABLE_INDENTATION_TYPE)
+        return (self.get_property(pr_const.TableProperty.INDENTATION.key),
+                self.get_property(pr_const.TableProperty.INDENTATION_TYPE.key))
 
     def set_indentation_value(self, width: Union[str, None], width_type: Union[str, None]):
-        self.set_property_value(k_const.TABLE_INDENTATION, width)
-        self.set_property_value(k_const.TABLE_INDENTATION_TYPE, width_type)
+        self.set_property_value(pr_const.TableProperty.INDENTATION.key, width)
+        self.set_property_value(pr_const.TableProperty.INDENTATION_TYPE.key, width_type)
 
-    def get_inside_border(self, direction: str, property_name: str) -> Union[str, None]:
+    def get_inside_border(self, direction: Union[str, pr_const.Direction],
+                          property_name: [str, pr_const.BorderProperty]) -> Union[str, None]:
         """
-        :param direction: 'horizontal' or 'vertical'
-        :param property_name: 'color', 'size', 'type'  (keys of XMLementPropertyDescriptions.Const_property_names dict)
+        :param direction: 'horizontal' or 'vertical'    (or corresponding value of property_enums.Direction)
+        :param property_name: 'color', 'size', 'type'   (or corresponding value of property_enums.BorderProperty)
         """
-        return self.get_property(
-            k_const.get_property_key(k_const.Element.TABLE,
-                                     subelements=[k_const.Element.CELL, k_const.SubElement.BORDER],
-                                     direction=direction, property_name=property_name)
-        )
+        return self.get_property(pr_const.TableProperty.get_border_property_enum_value(direction, property_name).key)
 
-    def set_inside_border_value(self, direction: str, property_name: str, value: Union[str, None]):
+    def set_inside_border_value(self, direction: Union[str, pr_const.Direction],
+                                property_name: [str, pr_const.BorderProperty], value: Union[str, None]):
         """
-        :param direction: 'horizontal' or 'vertical'
-        :param property_name: 'color', 'size', 'type'  (keys of XMLementPropertyDescriptions.Const_property_names dict)
+        :param direction: 'horizontal' or 'vertical'    (or corresponding value of property_enums.Direction)
+        :param property_name: 'color', 'size', 'type'   (or corresponding value of property_enums.BorderProperty)
         """
         self.set_property_value(
-            k_const.get_property_key(k_const.Element.TABLE,
-                                     subelements=[k_const.Element.CELL, k_const.SubElement.BORDER],
-                                     direction=direction, property_name=property_name),
+            pr_const.TableProperty.get_border_property_enum_value(direction, property_name).key,
             value
         )
 
     def get_cells_margin(self, direction: str) -> Tuple[Union[str, None], Union[str, None]]:
         """
-        :param direction: 'top', 'bottom', 'right', 'left'  (keys of XMLementPropertyDescriptions.Const_directions dict)
+        :param direction: 'top', 'bottom', 'right', 'left'  (or corresponding value of property_enums.Direction)
         :result: value, value_type
         """
         return (
-            self.get_property(k_const.get_property_key(
-                k_const.Element.TABLE, subelements=[k_const.Element.CELL, k_const.SubElement.MARGIN],
-                direction=direction, property_name=k_const.PropertyName.SIZE)
+            self.get_property(
+                pr_const.TableProperty.get_cell_margin_property_enum_value(direction, pr_const.MarginProperty.SIZE).key
             ),
-            self.get_property(k_const.get_property_key(
-                k_const.Element.TABLE, subelements=[k_const.Element.CELL, k_const.SubElement.MARGIN],
-                direction=direction, property_name=k_const.PropertyName.TYPE)
+            self.get_property(
+                pr_const.TableProperty.get_cell_margin_property_enum_value(direction, pr_const.MarginProperty.TYPE).key
             )
         )
 
     def set_cells_margin_value(self, direction: str, value: Union[str, None], value_type: Union[str, None] = 'dxa'):
         """
-        :param direction: 'top', 'bottom', 'right', 'left'  (keys of XMLementPropertyDescriptions.Const_directions dict)
+        :param direction: 'top', 'bottom', 'right', 'left'  (or corresponding value of property_enums.Direction)
         :param value_type: 'dxa' or 'nil'
         """
-        self.set_property_value(k_const.get_property_key(k_const.Element.TABLE,
-                                                         subelements=[k_const.Element.CELL, k_const.SubElement.MARGIN],
-                                                         direction=direction, property_name=k_const.PropertyName.SIZE),
-                                value)
-        self.set_property_value(k_const.get_property_key(k_const.Element.TABLE,
-                                                         subelements=[k_const.Element.CELL, k_const.SubElement.MARGIN],
-                                                         direction=direction, property_name=k_const.PropertyName.TYPE),
-                                value_type)
+        self.set_property_value(
+            pr_const.TableProperty.get_cell_margin_property_enum_value(direction, pr_const.MarginProperty.SIZE).key,
+            value
+        )
+        self.set_property_value(
+            pr_const.TableProperty.get_cell_margin_property_enum_value(direction, pr_const.MarginProperty.TYPE).key,
+            value_type
+        )
 
 
 class RowPropertiesGetSetMixin(GetSetMixin, ABC):
     def is_header(self) -> bool:
-        result = self.get_property(k_const.ROW_IS_HEADER)
+        result = self.get_property(pr_const.RowProperty.HEADER.key)
         return result if result is not None else False
 
     def set_as_header(self, is_header: Union[bool, None] = True):
-        self.set_property_value(k_const.ROW_IS_HEADER, is_header)
+        self.set_property_value(pr_const.RowProperty.HEADER.key, is_header)
 
     def get_height(self) -> Tuple[Union[str, None], Union[str, None]]:
         """
         return: Tuple(height, rule)
         """
-        return self.get_property(k_const.ROW_HEIGHT), self.get_property(k_const.ROW_HEIGHT_RULE)
+        return (
+            self.get_property(pr_const.RowProperty.HEIGHT.key),
+            self.get_property(pr_const.RowProperty.HEIGHT_RULE.key)
+        )
 
     def set_height_value(self, value: Union[str, None], height_rule: str = 'atLeast'):
-        self.set_property_value(k_const.ROW_HEIGHT, value)
-        self.set_property_value(k_const.ROW_HEIGHT_RULE, height_rule)
+        self.set_property_value(pr_const.RowProperty.HEIGHT.key, value)
+        self.set_property_value(pr_const.RowProperty.HEIGHT_RULE.key, height_rule)
 
 
 class CellPropertiesGetSetMixin(GetSetMixin, ABC):
@@ -346,55 +340,58 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
         pass
 
     def get_fill_color(self) -> Union[str, None]:
-        return self.get_property(k_const.CELL_FILL_COLOR)
+        return self.get_property(pr_const.CellProperty.FILL_COLOR.key)
 
     def set_fill_color_value(self, value: Union[str, None]):
-        self.set_property_value(k_const.CELL_FILL_COLOR, value)
+        self.set_property_value(pr_const.CellProperty.FILL_COLOR.key, value)
 
     def get_fill_theme(self) -> Union[str, None]:
-        return self.get_property(k_const.CELL_FILL_THEME)
+        return self.get_property(pr_const.CellProperty.FILL_THEME.key)
 
     def set_fill_theme_value(self, value: Union[str, None]):
-        self.set_property_value(k_const.CELL_FILL_THEME, value)
+        self.set_property_value(pr_const.CellProperty.FILL_THEME.key, value)
 
-    def get_border(self, direction: str, property_name: str) -> Union[str, None]:
+    def get_border(self, direction: Union[str, pr_const.Direction],
+                   property_name: Union[str, pr_const.BorderProperty]) -> Union[str, None]:
         """
-        :param direction: top, bottom, right, left  (keys of XMLementPropertyDescriptions.Const_directions dict)
-        :param property_name: color, size, type (keys of XMLementPropertyDescriptions.Const_property_names dict)
+        :param direction: top, bottom, right, left  (or corresponding value of property_enums.Direction)
+        :param property_name: color, size, type     (or corresponding value of property_enums.BorderProperty)
         """
-        result = self.get_property(k_const.get_property_key(k_const.Element.CELL, k_const.SubElement.BORDER,
-                                                            direction=direction, property_name=property_name)
-                                   )
-        if result is None or (k_const.PropertyName.COLOR == property_name and result == 'auto'):
-            if not (self.is_first_in_row() and k_const.Direction.LEFT == direction) and \
-               not (self.is_last_in_row() and k_const.Direction.RIGHT == direction) and \
-               not (self.is_top() and k_const.Direction.TOP == direction) and \
-               not (self.is_bottom() and k_const.Direction.BOTTOM == direction):
-                d = k_const.Direction.horizontal_or_vertical_straight(direction)
-                return self.get_parent_table().get_inside_border(d, property_name)
-        return result
+        direct: pr_const.Direction = pr_const.convert_to_enum_element(direction, pr_const.Direction)
+        pr_name: pr_const.BorderProperty = pr_const.convert_to_enum_element(property_name, pr_const.BorderProperty)
+
+        maybe_result = self.get_property(pr_const.CellProperty.get_border_property_enum_value(direct, pr_name).key)
+        if maybe_result is None or (pr_name == pr_const.BorderProperty.COLOR and maybe_result == 'auto'):
+            if not (self.is_first_in_row() and direct == pr_const.Direction.LEFT) and \
+               not (self.is_last_in_row() and direct == pr_const.Direction.RIGHT) and \
+               not (self.is_top() and direct == pr_const.Direction.TOP) and \
+               not (self.is_bottom() and direct == pr_const.Direction.BOTTOM):
+                d: pr_const.Direction = pr_const.Direction.horizontal_or_vertical_straight(direct)
+                return self.get_parent_table().get_inside_border(d, pr_name)
+        return maybe_result
 
     def get_width(self) -> Tuple[Union[str, None], Union[str, None]]:
         """
         return: Tuple(width, type)
         """
-        return self.get_property(k_const.CELL_WIDTH), self.get_property(k_const.CELL_WIDTH_TYPE)
+        return (self.get_property(pr_const.CellProperty.WIDTH.key),
+                self.get_property(pr_const.CellProperty.WIDTH_TYPE.key))
 
     def set_width_value(self, width: Union[str, None], width_type: Union[str, None]):
-        self.set_property_value(k_const.CELL_WIDTH, width)
-        self.set_property_value(k_const.CELL_WIDTH_TYPE, width_type)
+        self.set_property_value(pr_const.CellProperty.WIDTH.type, width)
+        self.set_property_value(pr_const.CellProperty.WIDTH_TYPE.type, width_type)
 
     def get_vertical_align(self) -> Union[str, None]:
-        return self.get_property(k_const.CELL_VERTICAL_ALIGN)
+        return self.get_property(pr_const.CellProperty.VERTICAL_ALIGN.key)
 
     def set_vertical_align_value(self, value: str):
-        self.set_property_value(k_const.CELL_VERTICAL_ALIGN, value)
+        self.set_property_value(pr_const.CellProperty.VERTICAL_ALIGN.key, value)
 
     def get_text_direction(self) -> Union[str, None]:
-        return self.get_property(k_const.CELL_TEXT_DIRECTION)
+        return self.get_property(pr_const.CellProperty.TEXT_DIRECTION.key)
 
     def set_text_direction_value(self, value: Union[str, None]):
-        self.set_property_value(k_const.CELL_TEXT_DIRECTION, value)
+        self.set_property_value(pr_const.CellProperty.TEXT_DIRECTION.key, value)
 
     def get_margin(self, direction: str) -> Tuple[Union[str, None], Union[str, None]]:
         """
@@ -402,26 +399,26 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
         (keys of XMLementPropertyDescriptions.Const_directions dict)
         :return: (margin, type)
         """
-        if self.get_property(k_const.get_property_key(k_const.Element.CELL, k_const.SubElement.MARGIN,
-                                                      direction=direction, property_name=k_const.PropertyName.SIZE)
-                             ) is None:
+        if self.get_property(
+                pr_const.CellProperty.get_cell_margin_property_enum_value(direction, pr_const.MarginProperty.SIZE).key
+        ) is None:
             return (
                 self.get_parent_table().get_property(
-                    k_const.get_property_key(k_const.Element.TABLE,
-                                             subelements=[k_const.Element.CELL, k_const.SubElement.MARGIN],
-                                             direction=direction, property_name=k_const.PropertyName.SIZE)
+                    pr_const.TableProperty.get_cell_margin_property_enum_value(direction,
+                                                                               pr_const.MarginProperty.SIZE).key
                 ),
                 self.get_parent_table().get_property(
-                    k_const.get_property_key(k_const.Element.TABLE,
-                                             subelements=[k_const.Element.CELL, k_const.SubElement.MARGIN],
-                                             direction=direction, property_name=k_const.PropertyName.TYPE)
+                    pr_const.TableProperty.get_cell_margin_property_enum_value(direction,
+                                                                               pr_const.MarginProperty.TYPE).key
                 )
             )
         return (
-            self.get_property(k_const.get_property_key(k_const.Element.CELL, k_const.SubElement.MARGIN,
-                                                       direction=direction, property_name=k_const.PropertyName.SIZE)),
-            self.get_property(k_const.get_property_key(k_const.Element.CELL, k_const.SubElement.MARGIN,
-                                                       direction=direction, property_name=k_const.PropertyName.TYPE))
+            self.get_property(
+                pr_const.CellProperty.get_cell_margin_property_enum_value(direction, pr_const.MarginProperty.SIZE).key
+            ),
+            self.get_property(
+                pr_const.CellProperty.get_cell_margin_property_enum_value(direction, pr_const.MarginProperty.TYPE).key
+            )
         )
 
     def set_margin_value(self, direction: str, value: Union[str, None], value_type: Union[str, None] = 'dxa'):
@@ -430,9 +427,11 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
         (keys of XMLementPropertyDescriptions.Const_directions dict)
         :param value_type: 'dxa' or 'nil'
         """
-        self.set_property_value(k_const.get_property_key(k_const.Element.CELL, k_const.SubElement.MARGIN,
-                                                         direction=direction, property_name=k_const.PropertyName.SIZE),
-                                value)
-        self.set_property_value(k_const.get_property_key(k_const.Element.CELL, k_const.SubElement.MARGIN,
-                                                         direction=direction, property_name=k_const.PropertyName.TYPE),
-                                value_type)
+        self.set_property_value(
+            pr_const.CellProperty.get_cell_margin_property_enum_value(direction, pr_const.MarginProperty.SIZE).key,
+            value
+        )
+        self.set_property_value(
+            pr_const.CellProperty.get_cell_margin_property_enum_value(direction, pr_const.MarginProperty.TYPE).key,
+            value_type
+        )

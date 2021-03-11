@@ -3,8 +3,7 @@ from .constants.namespaces import namespaces, check_namespace_of_tag
 from typing import Union, List, Callable, Dict, Tuple
 import re
 from .properties import Property, PropertyDescription
-from .constants import properties_consts as p_consts
-from .constants import keys_consts as k_consts
+from .constants import property_enums as pr_const
 
 
 class Parser:
@@ -43,7 +42,7 @@ class Parser:
             else:
                 return Property(property_element.get(check_namespace_of_tag(tags)))
         else:
-            value: Union[str, None] = property_element.get(check_namespace_of_tag(k_consts.BoolPropertyValue))
+            value: Union[str, None] = property_element.get(check_namespace_of_tag(pr_const.BoolPropertyValue))
             if value is not None and value == '0':
                 return Property(False)
             else:
@@ -53,21 +52,21 @@ class Parser:
         from .models import Document, Table, Paragraph, Drawing
 
         tags: Dict[str, Callable] = {
-            check_namespace_of_tag(Document.Body.tag): Document.Body,
-            check_namespace_of_tag(Table.tag): Table,
-            check_namespace_of_tag(Table.Row.tag): Table.Row,
-            check_namespace_of_tag(Table.Row.Cell.tag): Table.Row.Cell,
-            check_namespace_of_tag(Paragraph.tag): Paragraph,
-            check_namespace_of_tag(Paragraph.Run.tag): Paragraph.Run,
-            check_namespace_of_tag(Paragraph.Run.Text.tag): Paragraph.Run.Text,
-            check_namespace_of_tag(Drawing.tag): Drawing,
-            check_namespace_of_tag(Drawing.Image.tag): Drawing.Image,
+            check_namespace_of_tag(Document.Body.element_description.tag): Document.Body,
+            check_namespace_of_tag(Table.element_description.tag): Table,
+            check_namespace_of_tag(Table.Row.element_description.tag): Table.Row,
+            check_namespace_of_tag(Table.Row.Cell.element_description.tag): Table.Row.Cell,
+            check_namespace_of_tag(Paragraph.element_description.tag): Paragraph,
+            check_namespace_of_tag(Paragraph.Run.element_description.tag): Paragraph.Run,
+            check_namespace_of_tag(Paragraph.Run.Text.element_description.tag): Paragraph.Run.Text,
+            check_namespace_of_tag(Drawing.element_description.tag): Drawing,
+            check_namespace_of_tag(Drawing.Image.element_description.tag): Drawing.Image,
         }
 
         return tags[element.tag](element, self) if element.tag in tags else None
 
     def _get_elements(self, class_of_element):
-        element_tag: str = class_of_element.tag.value
+        element_tag: str = class_of_element.element_description.tag
         if class_of_element._is_unique:
             element: Union[ET.Element, None] = self._element.find(element_tag, namespaces)
             return class_of_element(element, self) if element is not None else None
@@ -143,29 +142,27 @@ class DocumentParser(Parser):
         from .styles import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
 
         types: Dict[str, Callable] = {
-            ParagraphStyle.type: ParagraphStyle,
-            CharacterStyle.type: CharacterStyle,
-            TableStyle.type: TableStyle,
-            NumberingStyle.type: NumberingStyle,
+            ParagraphStyle.element_description.type: ParagraphStyle,
+            CharacterStyle.element_description.type: CharacterStyle,
+            TableStyle.element_description.type: TableStyle,
+            NumberingStyle.element_description.type: NumberingStyle,
         }
 
         parameters: Tuple[str, str, bool, bool] = (
-            element.get(check_namespace_of_tag(p_consts.Style_parameters[p_consts.StyleParam_type])),
-            element.get(check_namespace_of_tag(p_consts.Style_parameters[p_consts.StyleParam_id])),
+            element.get(check_namespace_of_tag(pr_const.StyleProperty.TYPE.description.tag_property)),
+            element.get(check_namespace_of_tag(pr_const.StyleProperty.ID.description.tag_property)),
             False if element.get(check_namespace_of_tag(
-                p_consts.Style_parameters[p_consts.StyleParam_is_default])
+                pr_const.StyleProperty.DEFAULT.description.tag_property)
             ) is None else True,
             False if element.get(check_namespace_of_tag(
-                p_consts.Style_parameters[p_consts.StyleParam_is_custom])
+                pr_const.StyleProperty.CUSTOM.description.tag_property)
             ) is None else True,
         )
         return types[parameters[0]](element, self, parameters[1],
                                     parameters[2], parameters[3]) if parameters[0] in types else None
 
     def _parse_styles(self):
-        from .styles import Style
-
-        for el in self.get_xml_file('styles.xml').findall('./' + Style.tag.value, namespaces):
+        for el in self.get_xml_file('styles.xml').findall('./' + pr_const.Style.tag(), namespaces):
             elem = self.__parse_style(el)
             if elem is not None:
                 self._styles[elem.id] = elem
@@ -215,15 +212,12 @@ class DocumentParser(Parser):
 
 
 class XMLement(Parser):
-    tag: str    # element of constants.keys_consts.ElementTag enum
+    element_description: Union[pr_const.Element, pr_const.Style, pr_const.SubStyle]
     from .constants.translate_formats import TranslateFormat
     translators = {}        # {TranslateFormat: translator}
     translate_format: TranslateFormat = TranslateFormat.HTML
     _is_unique: bool = False   # True if parent can containing only one this element
     # all_style_properties: Dict[str, Tuple[str, Union[str, None], bool]] = {}
-
-    # function that return Dict of property descriptions
-    _property_descriptions_getter: Callable = p_consts.get_properties_dict
 
     # first element of Tuple is correct variant of property value; second element is variants of this value
     # _properties_validate method set correct variant if find value equal of one of variant
@@ -237,7 +231,7 @@ class XMLement(Parser):
         self.parent: Union[XMLement, None] = parent
         super(XMLement, self).__init__(element)
         self._init()
-        self._all_properties = XMLement._property_descriptions_getter(self)
+        self._all_properties = self.element_description.get_property_descriptions_dict()
         self._properties: Dict[str, Property] = self._parse_properties()
         self._properties_unificate()
         self._base_style = self._get_style_from_document()

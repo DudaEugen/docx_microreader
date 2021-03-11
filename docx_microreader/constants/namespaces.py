@@ -37,14 +37,11 @@ namespaces: Dict[str, str] = {
 
 def check_namespace_of_tag(tag: str) -> str:
     """
-    :param tag: string or element of constants.keys_consts.ElementTag enum
+    :param tag: string
     :return: tag with replaced namespace
     """
-    from .keys_consts import ElementTag
     import re
 
-    if isinstance(tag, ElementTag):
-        tag = tag.value
     if ':' in tag:
         key = re.split(':', tag)[0]
         return tag.replace(key + ':', '{' + namespaces[key] + '}')

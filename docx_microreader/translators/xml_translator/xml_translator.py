@@ -29,7 +29,7 @@ class TranslatorToXML:
         return result
 
     def create_xml(self, element) -> ET.Element:
-        result: ET.Element = ET.Element(element.tag.value)
+        result: ET.Element = ET.Element(element.element_description.tag)
         inner_elements = {}
         for pr_key, pr_description in element._all_properties.items():
             tags_description = pr_description.get_wrapped_tags()

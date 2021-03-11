@@ -208,7 +208,7 @@ class ImageTranslatorToHTML(TranslatorToHTML):
 
     def _do_methods(self, image):
         self._to_attribute_src(image)
-        self._to_attribute_wight(image)
+        self._to_attribute_width(image)
         self._to_attribute_height(image)
 
     def _get_html_tag(self) -> str:
@@ -225,11 +225,11 @@ class ImageTranslatorToHTML(TranslatorToHTML):
     def _emu_to_px(value: int) -> int:
         return value // 12700
 
-    def _to_attribute_wight(self, image):
-        self.attributes['wight'] = str(ImageTranslatorToHTML._emu_to_px(image.get_size('horizontal')))
+    def _to_attribute_width(self, image):
+        self.attributes['width'] = str(ImageTranslatorToHTML._emu_to_px(image.get_size()[0]))
 
     def _to_attribute_height(self, image):
-        self.attributes['height'] = str(ImageTranslatorToHTML._emu_to_px(image.get_size('vertical')))
+        self.attributes['height'] = str(ImageTranslatorToHTML._emu_to_px(image.get_size()[1]))
 
 
 class ParagraphTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
