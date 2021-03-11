@@ -133,3 +133,6 @@ test/
 reader.py
 
 .vscode/
+
+#xml files
+document.xml
