@@ -49,18 +49,18 @@ class Parser:
                 return Property(True)
 
     def _parse_element(self, element: ET.Element):
-        from .models import Document, Table, Paragraph, Drawing
+        from .models import Body, Table, Row, Cell, Paragraph, Run, Text, Drawing, Image
 
         tags: Dict[str, Callable] = {
-            check_namespace_of_tag(Document.Body.element_description.tag): Document.Body,
+            check_namespace_of_tag(Body.element_description.tag): Body,
             check_namespace_of_tag(Table.element_description.tag): Table,
-            check_namespace_of_tag(Table.Row.element_description.tag): Table.Row,
-            check_namespace_of_tag(Table.Row.Cell.element_description.tag): Table.Row.Cell,
+            check_namespace_of_tag(Row.element_description.tag): Row,
+            check_namespace_of_tag(Cell.element_description.tag): Cell,
             check_namespace_of_tag(Paragraph.element_description.tag): Paragraph,
-            check_namespace_of_tag(Paragraph.Run.element_description.tag): Paragraph.Run,
-            check_namespace_of_tag(Paragraph.Run.Text.element_description.tag): Paragraph.Run.Text,
+            check_namespace_of_tag(Run.element_description.tag): Run,
+            check_namespace_of_tag(Text.element_description.tag): Text,
             check_namespace_of_tag(Drawing.element_description.tag): Drawing,
-            check_namespace_of_tag(Drawing.Image.element_description.tag): Drawing.Image,
+            check_namespace_of_tag(Image.element_description.tag): Image,
         }
 
         return tags[element.tag](element, self) if element.tag in tags else None
