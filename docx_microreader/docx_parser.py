@@ -271,18 +271,31 @@ class XMLement(Parser):
             else:
                 raise KeyError(f'not found key "{key}" from _properties_validators in _all_properties')
 
+    @staticmethod
+    def _key_of_property(property_name) -> str:
+        """
+        :param property_name: str or instance of Enum from constants.property_enums
+        :return: key of property
+        """
+        return property_name if isinstance(property_name, str) else property_name.key
+
     def get_inner_text(self) -> Union[str, None]:
         return None
 
     def get_parent(self):
         return self.parent
 
-    def get_property(self, property_name: str) -> Union[str, None, bool]:
-        if property_name in self._properties:
-            if self._properties[property_name].value is not None:
-                return self._properties[property_name].value
+    def get_property(self, property_name) -> Union[str, None, bool]:
+        """
+        :param property_name: key of property (str or instance of Enum from constants.property_enums)
+        :return: Property.value or None
+        """
+        key: str = XMLement._key_of_property(property_name)
+        if key in self._properties:
+            if self._properties[key].value is not None:
+                return self._properties[key].value
         if self._base_style is not None:
-            return self._base_style.get_property(property_name)
+            return self._base_style.get_property(key)
         return None
 
     def get_style(self):
@@ -291,8 +304,12 @@ class XMLement(Parser):
     def set_style(self, style_id: str):
         self._base_style = self._get_document().get_style(style_id)
 
-    def set_property_value(self, property_name: str, value: Union[str, bool, None]):
-        self._properties[property_name].value = value
+    def set_property_value(self, property_name, value: Union[str, bool, None]):
+        """
+        :param property_name: key of property (str or instance of Enum from constants.property_enums)
+        :param value: new value
+        """
+        self._properties[XMLement._key_of_property(property_name)].value = value
 
     def _get_style_from_document(self):
         style_id = self._get_style_id()

@@ -90,9 +90,14 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
             result += str(run)
         return result
 
-    def get_property(self, property_name: str) -> Union[str, None, bool]:
-        result: Union[str, None, bool] = super(Paragraph, self).get_property(property_name)
-        return result if result is not None else self.parent.get_property(property_name)
+    def get_property(self, property_name) -> Union[str, None, bool]:
+        """
+        :param property_name: key of property (str or instance of Enum from constants.property_enums)
+        :return: Property.value or None
+        """
+        key: str = XMLement._key_of_property(property_name)
+        result: Union[str, None, bool] = super(Paragraph, self).get_property(key)
+        return result if result is not None else self.parent.get_property(key)
 
     class Run(XMLement, RunPropertiesGetSetMixin):
         element_description = pr_const.Element.RUN
@@ -122,9 +127,14 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
                 return str(self.text)
             return str(self.image)
 
-        def get_property(self, property_name: str) -> Union[str, None, bool]:
-            result: Union[str, None, bool] = super(Paragraph.Run, self).get_property(property_name)
-            return result if result is not None else self.parent.get_property(property_name)
+        def get_property(self, property_name) -> Union[str, None, bool]:
+            """
+            :param property_name: key of property (str or instance of Enum from constants.property_enums)
+            :return: Property.value or None
+            """
+            key: str = XMLement._key_of_property(property_name)
+            result: Union[str, None, bool] = super(Paragraph.Run, self).get_property(key)
+            return result if result is not None else self.parent.get_property(key)
 
         class Text(XMLement):
             element_description = pr_const.Element.TEXT
@@ -214,11 +224,11 @@ class Table(XMLement, TablePropertiesGetSetMixin):
             cells_for_delete: List[Table.Row.Cell] = []
             col: int = 0
             for cell in row.cells:
-                if cell.get_property(pr_const.CellProperty.VERTICAL_MERGE.key) == 'restart':
+                if cell.get_property(pr_const.CellProperty.VERTICAL_MERGE) == 'restart':
                     cell_for_row_span[col] = cell
                     cell_for_row_span[col].row_span = 1
-                elif cell.get_property(pr_const.CellProperty.VERTICAL_MERGE.key) == 'continue' or \
-                        cell.get_property(pr_const.CellProperty.VERTICAL_MARGE_CONTINUE.key):
+                elif cell.get_property(pr_const.CellProperty.VERTICAL_MERGE) == 'continue' or \
+                        cell.get_property(pr_const.CellProperty.VERTICAL_MARGE_CONTINUE):
                     cell_for_row_span[col].row_span += 1
                     cells_for_delete.append(cell)
                 col_span = cell.get_col_span()
@@ -520,14 +530,19 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     if result is not None or is_met_contition:
                         return result
 
-            def get_property(self, property_name: str) -> Union[str, None, bool]:
-                result = self._properties.get(property_name)
+            def get_property(self, property_name) -> Union[str, None, bool]:
+                """
+                :param property_name: key of property (str or instance of Enum from constants.property_enums)
+                :return: Property.value or None
+                """
+                key: str = XMLement._key_of_property(property_name)
+                result = self._properties.get(key)
                 if result is not None and result.value is not None:
                     return result.value
-                result = self.__define_table_area_style_and_get_property(property_name)
+                result = self.__define_table_area_style_and_get_property(key)
                 if result is not None:
                     return result
-                return self.get_parent_row().get_property(property_name)
+                return self.get_parent_row().get_property(key)
 
             def get_border(self, direction: str, property_name: str) -> Union[str, None]:
                 """
@@ -553,21 +568,21 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                                 self.get_parent_table().header_row_number > 1 and \
                                 self.get_parent_row().is_header() and not self.get_parent_row().is_last_row_in_header:
                             return self.__define_table_area_style_and_get_property_for_inside_borders_of_header(
-                                        pr_const.TableProperty.get_border_property_enum_value(d, pr_name).key
+                                        pr_const.TableProperty.get_border_property_enum_value(d, pr_name)
                                     )
                         maybe_result = self.get_parent_table().get_inside_border(d, pr_name)
                         if maybe_result is None:
                             maybe_result = self.__define_table_area_style_and_get_property(
-                                pr_const.CellProperty.get_border_property_enum_value(direct, pr_name).key
+                                pr_const.CellProperty.get_border_property_enum_value(direct, pr_name)
                             )
                             if maybe_result is None:
                                 if d == pr_const.Direction.HORIZONTAL:
                                     maybe_result = self.__define_table_area_style_and_get_property_for_horizontal_inside_borders(
-                                        pr_const.TableProperty.get_border_property_enum_value(d, pr_name).key,
+                                        pr_const.TableProperty.get_border_property_enum_value(d, pr_name)
                                     )
                                 else:
                                     maybe_result = self.__define_table_area_style_and_get_property_for_vertical_inside_borders(
-                                        pr_const.TableProperty.get_border_property_enum_value(d, pr_name).key
+                                        pr_const.TableProperty.get_border_property_enum_value(d, pr_name)
                                     )
                 return maybe_result
 
@@ -577,7 +592,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                 :param property_name: color, size, type     (or corresponding value of property_enums.BorderProperty)
                 """
                 self.set_property_value(
-                    pr_const.CellProperty.get_border_property_enum_value(direction, property_name).key,
+                    pr_const.CellProperty.get_border_property_enum_value(direction, property_name),
                     value
                 )
 
