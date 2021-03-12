@@ -2,6 +2,8 @@ from enum import Enum, unique
 from ..properties import PropertyDescription
 from typing import Dict, Union
 from functools import cache
+from ..utils.enums import ElementPropertyEnum, convert_to_enum_element
+from ..mixins.enums import EnumOfBorderedElementMixin, CellMarginEnumMixin
 
 
 _BODY_NAME: str = 'body'
@@ -16,38 +18,6 @@ _IMAGE_NAME: str = 'image'
 
 # name of attribute for bool property values
 BoolPropertyValue: str = 'w:val'
-
-
-@cache
-def _construct_dict_of_str_from_enum(enum_cls) -> dict:
-    """
-    Convert enum to dict
-    :param enum_cls: Enum class
-    :return: Dict[el.value, el] where el is instance of enum
-    """
-    result = {}
-    for el in enum_cls:
-        if isinstance(el.value, str):
-            result[el.value] = el
-        elif isinstance(el.value, tuple):
-            result[el.value[0]] = el
-        else:
-            raise TypeError(f"can't convert {enum_cls} Enum to dict")
-    return result
-
-
-def convert_to_enum_element(s, enum_cls):
-    """
-    convert s to value of Enum if it possible. Else pass Error
-    :param enum_cls: Enum class
-    :param s: str or enum_cls instance
-    :return: instance of enum_cls
-    """
-    if isinstance(s, str):
-        return _construct_dict_of_str_from_enum(enum_cls)[s]
-    elif isinstance(s, enum_cls):
-        return s
-    raise TypeError(f"can't convert {s} to {enum_cls} enum")
 
 
 @unique
@@ -92,7 +62,7 @@ class MarginProperty(str, Enum):
 
 
 @cache
-def _subelement_property_key(subelement: SubElement, direction: Union[str, None, Direction],
+def subelement_property_key(subelement: SubElement, direction: Union[str, None, Direction],
                              property_name: Union[str, BorderProperty, MarginProperty]) -> str:
     """
     create key for properties of SubElement instances
@@ -123,45 +93,45 @@ def _subelement_property_key(subelement: SubElement, direction: Union[str, None,
 
 @unique
 class ElementBorderProperty(str, Enum):
-    TOP_TYPE = _subelement_property_key(SubElement.BORDER, Direction.TOP, BorderProperty.TYPE)
-    TOP_COLOR = _subelement_property_key(SubElement.BORDER, Direction.TOP, BorderProperty.COLOR)
-    TOP_SIZE = _subelement_property_key(SubElement.BORDER, Direction.TOP, BorderProperty.SIZE)
-    TOP_SPACE = _subelement_property_key(SubElement.BORDER, Direction.TOP, BorderProperty.SPACE)
-    BOTTOM_TYPE = _subelement_property_key(SubElement.BORDER, Direction.BOTTOM, BorderProperty.TYPE)
-    BOTTOM_COLOR = _subelement_property_key(SubElement.BORDER, Direction.BOTTOM, BorderProperty.COLOR)
-    BOTTOM_SIZE = _subelement_property_key(SubElement.BORDER, Direction.BOTTOM, BorderProperty.SIZE)
-    BOTTOM_SPACE = _subelement_property_key(SubElement.BORDER, Direction.BOTTOM, BorderProperty.SPACE)
-    LEFT_TYPE = _subelement_property_key(SubElement.BORDER, Direction.LEFT, BorderProperty.TYPE)
-    LEFT_COLOR = _subelement_property_key(SubElement.BORDER, Direction.LEFT, BorderProperty.COLOR)
-    LEFT_SIZE = _subelement_property_key(SubElement.BORDER, Direction.LEFT, BorderProperty.SIZE)
-    LEFT_SPACE = _subelement_property_key(SubElement.BORDER, Direction.LEFT, BorderProperty.SPACE)
-    RIGHT_TYPE = _subelement_property_key(SubElement.BORDER, Direction.RIGHT, BorderProperty.TYPE)
-    RIGHT_COLOR = _subelement_property_key(SubElement.BORDER, Direction.RIGHT, BorderProperty.COLOR)
-    RIGHT_SIZE = _subelement_property_key(SubElement.BORDER, Direction.RIGHT, BorderProperty.SIZE)
-    RIGHT_SPACE = _subelement_property_key(SubElement.BORDER, Direction.RIGHT, BorderProperty.SPACE)
-    HORIZONTAL_TYPE = _subelement_property_key(SubElement.BORDER, Direction.HORIZONTAL, BorderProperty.TYPE)
-    HORIZONTAL_COLOR = _subelement_property_key(SubElement.BORDER, Direction.HORIZONTAL, BorderProperty.COLOR)
-    HORIZONTAL_SIZE = _subelement_property_key(SubElement.BORDER, Direction.HORIZONTAL, BorderProperty.SIZE)
-    VERTICAL_TYPE = _subelement_property_key(SubElement.BORDER, Direction.VERTICAL, BorderProperty.TYPE)
-    VERTICAL_COLOR = _subelement_property_key(SubElement.BORDER, Direction.VERTICAL, BorderProperty.COLOR)
-    VERTICAL_SIZE = _subelement_property_key(SubElement.BORDER, Direction.VERTICAL, BorderProperty.SIZE)
+    TOP_TYPE = subelement_property_key(SubElement.BORDER, Direction.TOP, BorderProperty.TYPE)
+    TOP_COLOR = subelement_property_key(SubElement.BORDER, Direction.TOP, BorderProperty.COLOR)
+    TOP_SIZE = subelement_property_key(SubElement.BORDER, Direction.TOP, BorderProperty.SIZE)
+    TOP_SPACE = subelement_property_key(SubElement.BORDER, Direction.TOP, BorderProperty.SPACE)
+    BOTTOM_TYPE = subelement_property_key(SubElement.BORDER, Direction.BOTTOM, BorderProperty.TYPE)
+    BOTTOM_COLOR = subelement_property_key(SubElement.BORDER, Direction.BOTTOM, BorderProperty.COLOR)
+    BOTTOM_SIZE = subelement_property_key(SubElement.BORDER, Direction.BOTTOM, BorderProperty.SIZE)
+    BOTTOM_SPACE = subelement_property_key(SubElement.BORDER, Direction.BOTTOM, BorderProperty.SPACE)
+    LEFT_TYPE = subelement_property_key(SubElement.BORDER, Direction.LEFT, BorderProperty.TYPE)
+    LEFT_COLOR = subelement_property_key(SubElement.BORDER, Direction.LEFT, BorderProperty.COLOR)
+    LEFT_SIZE = subelement_property_key(SubElement.BORDER, Direction.LEFT, BorderProperty.SIZE)
+    LEFT_SPACE = subelement_property_key(SubElement.BORDER, Direction.LEFT, BorderProperty.SPACE)
+    RIGHT_TYPE = subelement_property_key(SubElement.BORDER, Direction.RIGHT, BorderProperty.TYPE)
+    RIGHT_COLOR = subelement_property_key(SubElement.BORDER, Direction.RIGHT, BorderProperty.COLOR)
+    RIGHT_SIZE = subelement_property_key(SubElement.BORDER, Direction.RIGHT, BorderProperty.SIZE)
+    RIGHT_SPACE = subelement_property_key(SubElement.BORDER, Direction.RIGHT, BorderProperty.SPACE)
+    HORIZONTAL_TYPE = subelement_property_key(SubElement.BORDER, Direction.HORIZONTAL, BorderProperty.TYPE)
+    HORIZONTAL_COLOR = subelement_property_key(SubElement.BORDER, Direction.HORIZONTAL, BorderProperty.COLOR)
+    HORIZONTAL_SIZE = subelement_property_key(SubElement.BORDER, Direction.HORIZONTAL, BorderProperty.SIZE)
+    VERTICAL_TYPE = subelement_property_key(SubElement.BORDER, Direction.VERTICAL, BorderProperty.TYPE)
+    VERTICAL_COLOR = subelement_property_key(SubElement.BORDER, Direction.VERTICAL, BorderProperty.COLOR)
+    VERTICAL_SIZE = subelement_property_key(SubElement.BORDER, Direction.VERTICAL, BorderProperty.SIZE)
 
 
 @unique
 class ElementMarginProperty(str, Enum):
-    TOP_TYPE = _subelement_property_key(SubElement.MARGIN, Direction.TOP, BorderProperty.TYPE)
-    TOP_SIZE = _subelement_property_key(SubElement.MARGIN, Direction.TOP, BorderProperty.SIZE)
-    BOTTOM_TYPE = _subelement_property_key(SubElement.MARGIN, Direction.BOTTOM, BorderProperty.TYPE)
-    BOTTOM_SIZE = _subelement_property_key(SubElement.MARGIN, Direction.BOTTOM, BorderProperty.SIZE)
-    LEFT_TYPE = _subelement_property_key(SubElement.MARGIN, Direction.LEFT, BorderProperty.TYPE)
-    LEFT_SIZE = _subelement_property_key(SubElement.MARGIN, Direction.LEFT, BorderProperty.SIZE)
-    RIGHT_TYPE = _subelement_property_key(SubElement.MARGIN, Direction.RIGHT, BorderProperty.TYPE)
-    RIGHT_SIZE = _subelement_property_key(SubElement.MARGIN, Direction.RIGHT, BorderProperty.SIZE)
+    TOP_TYPE = subelement_property_key(SubElement.MARGIN, Direction.TOP, BorderProperty.TYPE)
+    TOP_SIZE = subelement_property_key(SubElement.MARGIN, Direction.TOP, BorderProperty.SIZE)
+    BOTTOM_TYPE = subelement_property_key(SubElement.MARGIN, Direction.BOTTOM, BorderProperty.TYPE)
+    BOTTOM_SIZE = subelement_property_key(SubElement.MARGIN, Direction.BOTTOM, BorderProperty.SIZE)
+    LEFT_TYPE = subelement_property_key(SubElement.MARGIN, Direction.LEFT, BorderProperty.TYPE)
+    LEFT_SIZE = subelement_property_key(SubElement.MARGIN, Direction.LEFT, BorderProperty.SIZE)
+    RIGHT_TYPE = subelement_property_key(SubElement.MARGIN, Direction.RIGHT, BorderProperty.TYPE)
+    RIGHT_SIZE = subelement_property_key(SubElement.MARGIN, Direction.RIGHT, BorderProperty.SIZE)
 
 
 @cache
-def _subelement_property_key_of_element(element_name: str, subelement_property_name: Union[str, ElementBorderProperty,
-                                                                                      ElementMarginProperty]) -> str:
+def subelement_property_key_of_element(element_name: str, subelement_property_name: Union[str, ElementBorderProperty,
+                                                                                          ElementMarginProperty]) -> str:
     """
     Combines the element name and property name into a key
     :param element_name: name of element
@@ -173,80 +143,13 @@ def _subelement_property_key_of_element(element_name: str, subelement_property_n
     return f'{subelement_property_name.value} of {element_name}'
 
 
-class _ElementPropertyEnum(Enum):
-    def __init__(self, key: str, property_description: PropertyDescription, is_style_property: bool = False):
-        self.key: str = key
-        self.description: PropertyDescription = property_description
-        self.is_style_property: bool = is_style_property
-
-    @classmethod
-    def get_properties_description_dict(cls, is_only_style_properties: bool = False) -> Dict[str, PropertyDescription]:
-        """
-        create keys for dict of property descriptions (those keys use also for corresponding properties)
-        :param is_only_style_properties: don't using instances of cls for whom is_style_property == False if True
-        :return: Dict[el.key, el.description] where el is instance of cls
-        """
-        result: Dict[str, PropertyDescription] = {}
-        for i in cls:
-            if not is_only_style_properties or i.is_style_property:
-                if i.key in result:
-                    raise KeyError(f'duplicate key {i.key} in {cls} Enum')
-                result[i.key] = i.description
-        return result
-
-
-class _EnumOfBorderedElementMixin:
-    @classmethod
-    def _element_key(cls) -> str:
-        raise NotImplementedError('method _element_key is not implemented. Your class must implement this method or'
-                                  'GetSetMixin must be inherited after the class that implements this method')
-
-    @classmethod
-    def get_border_property_enum_value(cls, direction: Union[str, None, Direction], prop_name: [str, BorderProperty]):
-        """
-        :param direction: instance of Direction or corresponding value
-        :param prop_name: instance of BorderProperty or corresponding value
-        :return: instance of border property of cls
-        """
-        return convert_to_enum_element(
-            _subelement_property_key_of_element(
-                cls._element_key(), _subelement_property_key(
-                    SubElement.BORDER, direction, prop_name
-                )
-            ), cls
-        )
-
-
-class _CellMarginEnumMixin:
-    @classmethod
-    def _element_key(cls) -> str:
-        raise NotImplementedError('method _element_key is not implemented. Your class must implement this method or'
-                                  'GetSetMixin must be inherited after the class that implements this method')
-
-    @classmethod
-    def get_cell_margin_property_enum_value(cls, direction: Union[str, None, Direction],
-                                            prop_name: [str, MarginProperty]):
-        """
-        :param direction: instance of Direction or corresponding value
-        :param prop_name: instance of MarginProperty or corresponding value
-        :return: instance of margin property of cls
-        """
-        return convert_to_enum_element(
-            _subelement_property_key_of_element(
-                cls._element_key(), _subelement_property_key(
-                    SubElement.MARGIN, direction, prop_name
-                )
-            ), cls
-        )
-
-
 @unique
-class BodyProperty(_ElementPropertyEnum):
+class BodyProperty(ElementPropertyEnum):
     pass
 
 
 @unique
-class ParagraphProperty(_EnumOfBorderedElementMixin, _ElementPropertyEnum):
+class ParagraphProperty(EnumOfBorderedElementMixin, ElementPropertyEnum):
     ALIGN = ('align of paragraph', PropertyDescription('w:pPr', 'w:jc', 'w:val'), True)
     INDENT_LEFT = ('indent left of paragraph', PropertyDescription('w:pPr', 'w:ind', ['w:left', 'w:start']), True)
     INDENT_RIGHT = ('indent right of paragraph', PropertyDescription('w:pPr', 'w:ind', ['w:right', 'w:end']), True)
@@ -255,37 +158,37 @@ class ParagraphProperty(_EnumOfBorderedElementMixin, _ElementPropertyEnum):
     KEEP_LINES = ('keep lines of paragraph', PropertyDescription('w:pPr', 'w:keepLines', None), True)
     KEEP_NEXT = ('keep next of paragraph', PropertyDescription('w:pPr', 'w:keepNext', None), True)
     OUTLINE_LEVEL = ('outline level of paragraph', PropertyDescription('w:pPr', 'w:outlineLvl', 'w:val'), True)
-    TOP_BORDER_TYPE = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.TOP_TYPE),
+    TOP_BORDER_TYPE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.TOP_TYPE),
                        PropertyDescription('w:pPr/w:pBdr', 'w:top', 'w:val'), True)
-    TOP_BORDER_COLOR = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.TOP_COLOR),
+    TOP_BORDER_COLOR = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.TOP_COLOR),
                         PropertyDescription('w:pPr/w:pBdr', 'w:top', 'w:color'), True)
-    TOP_BORDER_SIZE = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.TOP_SIZE),
+    TOP_BORDER_SIZE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.TOP_SIZE),
                        PropertyDescription('w:pPr/w:pBdr', 'w:top', 'w:sz'), True)
-    TOP_BORDER_SPACE = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.TOP_SPACE),
+    TOP_BORDER_SPACE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.TOP_SPACE),
                         PropertyDescription('w:pPr/w:pBdr', 'w:top', 'w:space'), True)
-    BOTTOM_BORDER_TYPE = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.BOTTOM_TYPE),
+    BOTTOM_BORDER_TYPE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.BOTTOM_TYPE),
                           PropertyDescription('w:pPr/w:pBdr', 'w:bottom', 'w:val'), True)
-    BOTTOM_BORDER_COLOR = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.BOTTOM_COLOR),
+    BOTTOM_BORDER_COLOR = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.BOTTOM_COLOR),
                            PropertyDescription('w:pPr/w:pBdr', 'w:bottom', 'w:color'), True)
-    BOTTOM_BORDER_SIZE = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.BOTTOM_SIZE),
+    BOTTOM_BORDER_SIZE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.BOTTOM_SIZE),
                           PropertyDescription('w:pPr/w:pBdr', 'w:bottom', 'w:sz'), True)
-    BOTTOM_BORDER_SPACE = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.BOTTOM_SPACE),
+    BOTTOM_BORDER_SPACE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.BOTTOM_SPACE),
                            PropertyDescription('w:pPr/w:pBdr', 'w:bottom', 'w:space'), True)
-    RIGHT_BORDER_TYPE = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.RIGHT_TYPE),
+    RIGHT_BORDER_TYPE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.RIGHT_TYPE),
                          PropertyDescription('w:pPr/w:pBdr', 'w:right', 'w:val'), True)
-    RIGHT_BORDER_COLOR = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.RIGHT_COLOR),
+    RIGHT_BORDER_COLOR = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.RIGHT_COLOR),
                           PropertyDescription('w:pPr/w:pBdr', 'w:right', 'w:color'), True)
-    RIGHT_BORDER_SIZE = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.RIGHT_SIZE),
+    RIGHT_BORDER_SIZE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.RIGHT_SIZE),
                          PropertyDescription('w:pPr/w:pBdr', 'w:right', 'w:sz'), True)
-    RIGHT_BORDER_SPACE = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.RIGHT_SPACE),
+    RIGHT_BORDER_SPACE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.RIGHT_SPACE),
                           PropertyDescription('w:pPr/w:pBdr', 'w:right', 'w:space'), True)
-    LEFT_BORDER_TYPE = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.LEFT_TYPE),
+    LEFT_BORDER_TYPE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.LEFT_TYPE),
                         PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:val'), True)
-    LEFT_BORDER_COLOR = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.LEFT_COLOR),
+    LEFT_BORDER_COLOR = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.LEFT_COLOR),
                          PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:color'), True)
-    LEFT_BORDER_SIZE = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.LEFT_SIZE),
+    LEFT_BORDER_SIZE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.LEFT_SIZE),
                         PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:sz'), True)
-    LEFT_BORDER_SPACE = (_subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.LEFT_SPACE),
+    LEFT_BORDER_SPACE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.LEFT_SPACE),
                          PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:space'), True)
     STYLE = ('style of paragraph', PropertyDescription('w:pPr', 'w:pStyle', 'w:val'))
 
@@ -295,7 +198,7 @@ class ParagraphProperty(_EnumOfBorderedElementMixin, _ElementPropertyEnum):
 
 
 @unique
-class RunProperty(_EnumOfBorderedElementMixin, _ElementPropertyEnum):
+class RunProperty(EnumOfBorderedElementMixin, ElementPropertyEnum):
     FONT_ASCII = ('font ascii of run', PropertyDescription('w:rPr', 'w:rFonts', 'w:ascii'), True)
     FONT_EAST_ASIA = ('font east asia of run', PropertyDescription('w:rPr', 'w:rFonts', 'w:eastAsia'), True)
     FONT_H_ANSI = ('font h ansi of run', PropertyDescription('w:rPr', 'w:rFonts', 'w:hAnsi'), True)
@@ -313,29 +216,29 @@ class RunProperty(_EnumOfBorderedElementMixin, _ElementPropertyEnum):
     UNDERLINE_TYPE = ('underline type of run', PropertyDescription('w:rPr', 'w:u', 'w:val'), True)
     UNDERLINE_COLOR = ('underline color of run', PropertyDescription('w:rPr', 'w:u', 'w:color'), True)
     BORDER_TYPE = (
-        _subelement_property_key_of_element(
-            _RUN_NAME, _subelement_property_key(SubElement.BORDER, None, BorderProperty.TYPE)
+        subelement_property_key_of_element(
+            _RUN_NAME, subelement_property_key(SubElement.BORDER, None, BorderProperty.TYPE)
         ),
         PropertyDescription('w:rPr', 'w:bdr', 'w:val'),
         True
     )
     BORDER_COLOR = (
-        _subelement_property_key_of_element(
-            _RUN_NAME, _subelement_property_key(SubElement.BORDER, None, BorderProperty.COLOR)
+        subelement_property_key_of_element(
+            _RUN_NAME, subelement_property_key(SubElement.BORDER, None, BorderProperty.COLOR)
         ),
         PropertyDescription('w:rPr', 'w:bdr', 'w:color'),
         True
     )
     BORDER_SIZE = (
-        _subelement_property_key_of_element(
-            _RUN_NAME, _subelement_property_key(SubElement.BORDER, None, BorderProperty.SIZE)
+        subelement_property_key_of_element(
+            _RUN_NAME, subelement_property_key(SubElement.BORDER, None, BorderProperty.SIZE)
         ),
         PropertyDescription('w:rPr', 'w:bdr', 'w:sz'),
         True
     )
     BORDER_SPACE = (
-        _subelement_property_key_of_element(
-            _RUN_NAME, _subelement_property_key(SubElement.BORDER, None, BorderProperty.SPACE)
+        subelement_property_key_of_element(
+            _RUN_NAME, subelement_property_key(SubElement.BORDER, None, BorderProperty.SPACE)
         ),
         PropertyDescription('w:rPr', 'w:bdr', 'w:space'),
         True
@@ -348,12 +251,12 @@ class RunProperty(_EnumOfBorderedElementMixin, _ElementPropertyEnum):
 
 
 @unique
-class TextProperty(_ElementPropertyEnum):
+class TextProperty(ElementPropertyEnum):
     pass
 
 
 @unique
-class TableProperty(_EnumOfBorderedElementMixin, _CellMarginEnumMixin, _ElementPropertyEnum):
+class TableProperty(EnumOfBorderedElementMixin, CellMarginEnumMixin, ElementPropertyEnum):
     LAYOUT = ('layout of table', PropertyDescription('w:tblPr', 'w:tblLayout', 'w:type'), True)
     WIDTH = ('width of table', PropertyDescription('w:tblPr', 'w:tblW', 'w:w'), True)
     WIDTH_TYPE = ('width type of table', PropertyDescription('w:tblPr', 'w:tblW', 'w:type'), True)
@@ -361,74 +264,74 @@ class TableProperty(_EnumOfBorderedElementMixin, _CellMarginEnumMixin, _ElementP
     INDENTATION = ('indentation of table', PropertyDescription('w:tblPr', 'w:tblInd', ['w:w', 'w:val']), True)
     INDENTATION_TYPE = ('indentation type of table', PropertyDescription('w:tblPr', 'w:tblInd', 'w:type'), True)
     INSIDE_HORIZONTAL_BORDER_TYPE = (
-        _subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.HORIZONTAL_TYPE),
+        subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.HORIZONTAL_TYPE),
         PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideH', 'w:val'),
         True
     )
     INSIDE_HORIZONTAL_BORDER_COLOR = (
-        _subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.HORIZONTAL_COLOR),
+        subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.HORIZONTAL_COLOR),
         PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideH', 'w:color'),
         True
     )
     INSIDE_HORIZONTAL_BORDER_SIZE = (
-        _subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.HORIZONTAL_SIZE),
+        subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.HORIZONTAL_SIZE),
         PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideH', 'w:sz'),
         True
     )
     INSIDE_VERTICAL_BORDER_TYPE = (
-        _subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.VERTICAL_TYPE),
+        subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.VERTICAL_TYPE),
         PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideV', 'w:val'),
         True
     )
     INSIDE_VERTICAL_BORDER_COLOR = (
-        _subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.VERTICAL_COLOR),
+        subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.VERTICAL_COLOR),
         PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideV', 'w:color'),
         True
     )
     INSIDE_VERTICAL_BORDER_SIZE = (
-        _subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.VERTICAL_SIZE),
+        subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.VERTICAL_SIZE),
         PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideV', 'w:sz'),
         True
     )
-    TOP_BORDER_TYPE = (_subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.TOP_TYPE),
+    TOP_BORDER_TYPE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.TOP_TYPE),
                        PropertyDescription('w:tblPr/w:tblBorders', 'w:top', 'w:val'), True)
-    TOP_BORDER_COLOR = (_subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.TOP_COLOR),
+    TOP_BORDER_COLOR = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.TOP_COLOR),
                         PropertyDescription('w:tblPr/w:tblBorders', 'w:top', 'w:color'), True)
-    TOP_BORDER_SIZE = (_subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.TOP_SIZE),
+    TOP_BORDER_SIZE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.TOP_SIZE),
                        PropertyDescription('w:tblPr/w:tblBorders', 'w:top', 'w:sz'), True)
-    BOTTOM_BORDER_TYPE = (_subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.BOTTOM_TYPE),
+    BOTTOM_BORDER_TYPE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.BOTTOM_TYPE),
                           PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:val'), True)
-    BOTTOM_BORDER_COLOR = (_subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.BOTTOM_COLOR),
+    BOTTOM_BORDER_COLOR = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.BOTTOM_COLOR),
                            PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:color'), True)
-    BOTTOM_BORDER_SIZE = (_subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.BOTTOM_SIZE),
+    BOTTOM_BORDER_SIZE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.BOTTOM_SIZE),
                           PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:sz'), True)
-    LEFT_BORDER_TYPE = (_subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.LEFT_TYPE),
+    LEFT_BORDER_TYPE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.LEFT_TYPE),
                         PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:val'), True)
-    LEFT_BORDER_COLOR = (_subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.LEFT_COLOR),
+    LEFT_BORDER_COLOR = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.LEFT_COLOR),
                          PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:color'), True)
-    LEFT_BORDER_SIZE = (_subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.LEFT_SIZE),
+    LEFT_BORDER_SIZE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.LEFT_SIZE),
                         PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:sz'), True)
-    RIGHT_BORDER_TYPE = (_subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.RIGHT_TYPE),
+    RIGHT_BORDER_TYPE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.RIGHT_TYPE),
                          PropertyDescription('w:tblPr/w:tblBorders', ['w:right', 'w:end'], 'w:val'), True)
-    RIGHT_BORDER_COLOR = (_subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.RIGHT_COLOR),
+    RIGHT_BORDER_COLOR = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.RIGHT_COLOR),
                           PropertyDescription('w:tblPr/w:tblBorders', ['w:right', 'w:end'], 'w:color'), True)
-    RIGHT_BORDER_SIZE = (_subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.RIGHT_SIZE),
+    RIGHT_BORDER_SIZE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.RIGHT_SIZE),
                          PropertyDescription('w:tblPr/w:tblBorders', ['w:right', 'w:end'], 'w:sz'), True)
-    CELL_MARGIN_TOP_SIZE = (_subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.TOP_SIZE),
+    CELL_MARGIN_TOP_SIZE = (subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.TOP_SIZE),
                             PropertyDescription('w:tblPr/w:tblCellMar', 'w:top', 'w:w'), True)
-    CELL_MARGIN_TOP_TYPE = (_subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.TOP_TYPE),
+    CELL_MARGIN_TOP_TYPE = (subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.TOP_TYPE),
                             PropertyDescription('w:tblPr/w:tblCellMar', 'w:top', 'w:type'), True)
-    CELL_MARGIN_LEFT_SIZE = (_subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.LEFT_SIZE),
+    CELL_MARGIN_LEFT_SIZE = (subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.LEFT_SIZE),
                              PropertyDescription('w:tblPr/w:tblCellMar', ['w:left', 'w:start'], 'w:w'), True)
-    CELL_MARGIN_LEFT_TYPE = (_subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.LEFT_TYPE),
+    CELL_MARGIN_LEFT_TYPE = (subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.LEFT_TYPE),
                              PropertyDescription('w:tblPr/w:tblCellMar', ['w:left', 'w:start'], 'w:type'), True)
-    CELL_MARGIN_BOTTOM_SIZE = (_subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.BOTTOM_SIZE),
+    CELL_MARGIN_BOTTOM_SIZE = (subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.BOTTOM_SIZE),
                                PropertyDescription('w:tblPr/w:tblCellMar', 'w:bottom', 'w:w'), True)
-    CELL_MARGIN_BOTTOM_TYPE = (_subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.BOTTOM_TYPE),
+    CELL_MARGIN_BOTTOM_TYPE = (subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.BOTTOM_TYPE),
                                PropertyDescription('w:tblPr/w:tblCellMar', 'w:bottom', 'w:type'), True)
-    CELL_MARGIN_RIGHT_SIZE = (_subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.RIGHT_SIZE),
+    CELL_MARGIN_RIGHT_SIZE = (subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.RIGHT_SIZE),
                               PropertyDescription('w:tblPr/w:tblCellMar', ['w:right', 'w:end'], 'w:w'), True)
-    CELL_MARGIN_RIGHT_TYPE = (_subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.RIGHT_TYPE),
+    CELL_MARGIN_RIGHT_TYPE = (subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.RIGHT_TYPE),
                               PropertyDescription('w:tblPr/w:tblCellMar', ['w:right', 'w:end'], 'w:type'), True)
     STYLE = ('style of table', PropertyDescription('w:tblPr', 'w:tblStyle', 'w:val'))
     FIRST_ROW_STYLE_LOOK = ('first row style of table look', PropertyDescription('w:tblPr', 'w:tblLook', 'w:firstRow'))
@@ -446,14 +349,14 @@ class TableProperty(_EnumOfBorderedElementMixin, _CellMarginEnumMixin, _ElementP
 
 
 @unique
-class RowProperty(_ElementPropertyEnum):
+class RowProperty(ElementPropertyEnum):
     HEADER = ('is header row', PropertyDescription('w:trPr', 'w:tblHeader', None), True)
     HEIGHT = ('height of row', PropertyDescription('w:trPr', 'w:trHeight', 'w:val'), True)
     HEIGHT_RULE = ('height rule of row', PropertyDescription('w:trPr', 'w:trHeight', 'w:hRule'), True)
 
 
 @unique
-class CellProperty(_EnumOfBorderedElementMixin, _CellMarginEnumMixin, _ElementPropertyEnum):
+class CellProperty(EnumOfBorderedElementMixin, CellMarginEnumMixin, ElementPropertyEnum):
     FILL_COLOR = ('fill color of cell', PropertyDescription('w:tcPr', 'w:shd', 'w:fill'), True)
     FILL_THEME = ('fill theme of cell', PropertyDescription('w:tcPr', 'w:shd', 'w:themeFill'), True)
     WIDTH = ('width of cell', PropertyDescription('w:tcPr', 'w:tcW', 'w:w'), True)
@@ -464,102 +367,102 @@ class CellProperty(_EnumOfBorderedElementMixin, _CellMarginEnumMixin, _ElementPr
     VERTICAL_ALIGN = ('vertical align of cell', PropertyDescription('w:tcPr', 'w:vAlign', 'w:val'), True)
     TEXT_DIRECTION = ('text direction of cell', PropertyDescription('w:tcPr', 'w:textDirection', 'w:val'), True)
     TOP_BORDER_TYPE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.TOP_TYPE),
+        subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.TOP_TYPE),
         PropertyDescription('w:tcPr/w:tcBorders', 'w:top', 'w:val'),
         True
     )
     TOP_BORDER_COLOR = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.TOP_COLOR),
+        subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.TOP_COLOR),
         PropertyDescription('w:tcPr/w:tcBorders', 'w:top', 'w:color'),
         True
     )
     TOP_BORDER_SIZE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.TOP_SIZE),
+        subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.TOP_SIZE),
         PropertyDescription('w:tcPr/w:tcBorders', 'w:top', 'w:sz'),
         True
     )
     BOTTOM_BORDER_TYPE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.BOTTOM_TYPE),
+        subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.BOTTOM_TYPE),
         PropertyDescription('w:tcPr/w:tcBorders', 'w:bottom', 'w:val'),
         True
     )
     BOTTOM_BORDER_COLOR = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.BOTTOM_COLOR),
+        subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.BOTTOM_COLOR),
         PropertyDescription('w:tcPr/w:tcBorders', 'w:bottom', 'w:color'),
         True
     )
     BOTTOM_BORDER_SIZE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.BOTTOM_SIZE),
+        subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.BOTTOM_SIZE),
         PropertyDescription('w:tcPr/w:tcBorders', 'w:bottom', 'w:sz'),
         True
     )
     RIGHT_BORDER_TYPE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.RIGHT_TYPE),
+        subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.RIGHT_TYPE),
         PropertyDescription('w:tcPr/w:tcBorders', ['w:right', 'w:end'], 'w:val'),
         True
     )
     RIGHT_BORDER_COLOR = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.RIGHT_COLOR),
+        subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.RIGHT_COLOR),
         PropertyDescription('w:tcPr/w:tcBorders', ['w:right', 'w:end'], 'w:color'),
         True
     )
     RIGHT_BORDER_SIZE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.RIGHT_SIZE),
+        subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.RIGHT_SIZE),
         PropertyDescription('w:tcPr/w:tcBorders', ['w:right', 'w:end'], 'w:sz'),
         True
     )
     LEFT_BORDER_TYPE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.LEFT_TYPE),
+        subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.LEFT_TYPE),
         PropertyDescription('w:tcPr/w:tcBorders', ['w:left', 'w:start'], 'w:val'),
         True
     )
     LEFT_BORDER_COLOR = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.LEFT_COLOR),
+        subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.LEFT_COLOR),
         PropertyDescription('w:tcPr/w:tcBorders', ['w:left', 'w:start'], 'w:color'),
         True
     )
     LEFT_BORDER_SIZE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.LEFT_SIZE),
+        subelement_property_key_of_element(_CELL_NAME, ElementBorderProperty.LEFT_SIZE),
         PropertyDescription('w:tcPr/w:tcBorders', ['w:left', 'w:start'], 'w:sz'),
         True
     )
     TOP_MARGIN_TYPE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.TOP_TYPE),
+        subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.TOP_TYPE),
         PropertyDescription('w:tcPr/w:tcMar', 'w:top', 'w:type'),
         True
     )
     TOP_MARGIN_SIZE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.TOP_SIZE),
+        subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.TOP_SIZE),
         PropertyDescription('w:tcPr/w:tcMar', 'w:top', 'w:w'),
         True
     )
     BOTTOM_MARGIN_TYPE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.BOTTOM_TYPE),
+        subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.BOTTOM_TYPE),
         PropertyDescription('w:tcPr/w:tcMar', 'w:bottom', 'w:type'),
         True
     )
     BOTTOM_MARGIN_SIZE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.BOTTOM_SIZE),
+        subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.BOTTOM_SIZE),
         PropertyDescription('w:tcPr/w:tcMar', 'w:bottom', 'w:w'),
         True
     )
     LEFT_MARGIN_TYPE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.LEFT_TYPE),
+        subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.LEFT_TYPE),
         PropertyDescription('w:tcPr/w:tcMar', ['w:left', 'w:start'], 'w:type'),
         True
     )
     LEFT_MARGIN_SIZE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.LEFT_SIZE),
+        subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.LEFT_SIZE),
         PropertyDescription('w:tcPr/w:tcMar', ['w:left', 'w:start'], 'w:w'),
         True
     )
     RIGHT_MARGIN_TYPE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.RIGHT_TYPE),
+        subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.RIGHT_TYPE),
         PropertyDescription('w:tcPr/w:tcMar', ['w:right', 'w:end'], 'w:type'),
         True
     )
     RIGHT_MARGIN_SIZE = (
-        _subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.RIGHT_SIZE),
+        subelement_property_key_of_element(_CELL_NAME, ElementMarginProperty.RIGHT_SIZE),
         PropertyDescription('w:tcPr/w:tcMar', ['w:right', 'w:end'], 'w:w'),
         True
     )
@@ -570,13 +473,13 @@ class CellProperty(_EnumOfBorderedElementMixin, _CellMarginEnumMixin, _ElementPr
 
 
 @unique
-class DrawingProperty(_ElementPropertyEnum):
+class DrawingProperty(ElementPropertyEnum):
     HORIZONTAL_SIZE = ('horizontal size of drawing', PropertyDescription('wp:inline', 'wp:extent', 'cx'))
     VERTICAL_SIZE = ('vertical size of drawing', PropertyDescription('wp:inline', 'wp:extent', 'cy'))
 
 
 @unique
-class ImageProperty(_ElementPropertyEnum):
+class ImageProperty(ElementPropertyEnum):
     ID = ('id of image', PropertyDescription(None, None, 'r:embed'))
 
 
@@ -605,24 +508,12 @@ class Element(Enum):
 
 
 @unique
-class StyleProperty(_ElementPropertyEnum):
+class StyleProperty(ElementPropertyEnum):
     TYPE = ('type of style', PropertyDescription(None, None, 'w:type'))
     ID = ('id of style', PropertyDescription(None, None, 'w:styleId'))
     DEFAULT = ('is default style', PropertyDescription(None, None, 'w:default'))
     CUSTOM = ('is custom style', PropertyDescription(None, None, 'w:customStyle'))
     BASE_STYLE = ('style based on', PropertyDescription(None, 'w:basedOn', 'w:val'), True)
-
-
-def _merge_dicts(dict_list: list) -> dict:
-    """
-    merging dicts from dict_list to one dict. If dicts from dict_list have same keys pass KeyError
-    """
-    result: dict = {}
-    for d in dict_list:
-        if len(set(d.keys()) & set(result.keys())) > 0:
-            raise KeyError(rf'keys_consts have same keys: {set(d.keys()) & set(result.keys())}')
-        result.update(d)
-    return result
 
 
 # substyle is element of other style like style for area of table
@@ -641,7 +532,9 @@ class SubStyle(Enum):
         """
         create keys for dict of property descriptions of substyles (those keys use also for corresponding properties)
         """
-        return _merge_dicts(
+        from ..utils.dicts import merge_dicts
+
+        return merge_dicts(
             [enum.get_properties_description_dict(True) for enum in self._property_enums]
         )
 
@@ -680,7 +573,9 @@ class Style(Enum):
         """
         create keys for dict of property descriptions of styles (those keys use also for corresponding properties)
         """
-        return _merge_dicts(
+        from ..utils.dicts import merge_dicts
+
+        return merge_dicts(
             [enum.get_properties_description_dict(True) for enum in self._property_enums]
         )
 
