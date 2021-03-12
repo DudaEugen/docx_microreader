@@ -190,73 +190,73 @@ class Cell(XMLcontainer, CellPropertiesGetSetMixin):
             return table_area_style.get_property(property_name)
         return None
 
-    def __get_property_of_top_left_cell_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+    def __get_property_of_top_left_cell_area_style(self, property_name) -> Tuple[Union[str, None, bool], bool]:
         if self.is_top() and self.get_parent_table().is_use_style_of_first_row() and \
                 self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
             return self.__get_property_of_table_area_style(property_name, pr_const.TableArea.TOP_LEFT_CELL.value), True
         return None, False
 
-    def __get_property_of_top_right_cell_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+    def __get_property_of_top_right_cell_area_style(self, property_name) -> Tuple[Union[str, None, bool], bool]:
         if self.is_top() and self.get_parent_table().is_use_style_of_first_row() and \
                 self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
             return self.__get_property_of_table_area_style(property_name, pr_const.TableArea.TOP_RIGHT_CELL.value), True
         return None, False
 
-    def __get_property_of_bottom_left_cell_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+    def __get_property_of_bottom_left_cell_area_style(self, property_name) -> Tuple[Union[str, None, bool], bool]:
         if self.is_bottom() and self.get_parent_table().is_use_style_of_last_row() and \
                 self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
             return self.__get_property_of_table_area_style(property_name, pr_const.TableArea.BOTTOM_LEFT_CELL.value), \
                    True
         return None, False
 
-    def __get_property_of_bottom_right_cell_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+    def __get_property_of_bottom_right_cell_area_style(self, property_name) -> Tuple[Union[str, None, bool], bool]:
         if self.is_bottom() and self.get_parent_table().is_use_style_of_last_row() and \
                 self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
             return self.__get_property_of_table_area_style(property_name, pr_const.TableArea.BOTTOM_RIGHT_CELL.value),\
                    True
         return None, False
 
-    def __get_property_of_first_column_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+    def __get_property_of_first_column_area_style(self, property_name) -> Tuple[Union[str, None, bool], bool]:
         if self.is_first_in_row() and self.get_parent_table().is_use_style_of_first_column():
             return self.__get_property_of_table_area_style(property_name, pr_const.TableArea.FIRST_COLUMN.value), True
         return None, False
 
-    def __get_property_of_last_column_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+    def __get_property_of_last_column_area_style(self, property_name) -> Tuple[Union[str, None, bool], bool]:
         if self.is_last_in_row() and self.get_parent_table().is_use_style_of_last_column():
             return self.__get_property_of_table_area_style(property_name, pr_const.TableArea.LAST_COLUMN.value), True
         return None, False
 
-    def __get_property_of_first_row_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+    def __get_property_of_first_row_area_style(self, property_name) -> Tuple[Union[str, None, bool], bool]:
         if self.is_top() and self.get_parent_table().is_use_style_of_first_row():
             return self.__get_property_of_table_area_style(property_name, pr_const.TableArea.FIRST_ROW.value), True
         return None, False
 
-    def __get_property_of_last_row_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+    def __get_property_of_last_row_area_style(self, property_name) -> Tuple[Union[str, None, bool], bool]:
         if self.is_bottom() and self.get_parent_table().is_use_style_of_last_row():
             return self.__get_property_of_table_area_style(property_name, pr_const.TableArea.LAST_ROW.value), True
         return None, False
 
-    def __get_property_of_odd_row_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+    def __get_property_of_odd_row_area_style(self, property_name) -> Tuple[Union[str, None, bool], bool]:
         if self.get_parent_row().is_odd() and self.get_parent_table().is_use_style_of_horizontal_banding():
             return self.__get_property_of_table_area_style(property_name, pr_const.TableArea.ODD_ROW.value), True
         return None, False
 
-    def __get_property_of_even_row_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+    def __get_property_of_even_row_area_style(self, property_name) -> Tuple[Union[str, None, bool], bool]:
         if self.get_parent_row().is_even() and self.get_parent_table().is_use_style_of_horizontal_banding():
             return self.__get_property_of_table_area_style(property_name, pr_const.TableArea.EVEN_ROW.value), True
         return None, False
 
-    def __get_property_of_odd_column_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+    def __get_property_of_odd_column_area_style(self, property_name) -> Tuple[Union[str, None, bool], bool]:
         if self.is_odd() and self.get_parent_table().is_use_style_of_vertical_banding():
             return self.__get_property_of_table_area_style(property_name, pr_const.TableArea.ODD_COLUMN.value), True
         return None, False
 
-    def __get_property_of_even_column_area_style(self, property_name: str) -> Tuple[Union[str, None, bool], bool]:
+    def __get_property_of_even_column_area_style(self, property_name) -> Tuple[Union[str, None, bool], bool]:
         if self.is_even() and self.get_parent_table().is_use_style_of_vertical_banding():
             return self.__get_property_of_table_area_style(property_name, pr_const.TableArea.EVEN_COLUMN.value), True
         return None, False
 
-    def __define_table_area_style_and_get_property(self, property_name: str) -> Union[str, None, bool]:
+    def __define_table_area_style_and_get_property(self, property_name) -> Union[str, None, bool]:
         methods: List[Callable] = [
             self.__get_property_of_top_left_cell_area_style,
             self.__get_property_of_top_right_cell_area_style,
@@ -276,7 +276,7 @@ class Cell(XMLcontainer, CellPropertiesGetSetMixin):
             if result is not None:
                 return result
 
-    def __define_table_area_style_and_get_property_for_horizontal_inside_borders(self, property_name: str) -> \
+    def __define_table_area_style_and_get_property_for_horizontal_inside_borders(self, property_name) -> \
             Union[str, None, bool]:
         methods: List[Callable] = [
             self.__get_property_of_top_left_cell_area_style,
@@ -295,7 +295,7 @@ class Cell(XMLcontainer, CellPropertiesGetSetMixin):
             if result is not None or is_met_contition:
                 return result
 
-    def __define_table_area_style_and_get_property_for_vertical_inside_borders(self, property_name: str) -> \
+    def __define_table_area_style_and_get_property_for_vertical_inside_borders(self, property_name) -> \
             Union[str, None, bool]:
         methods: List[Callable] = [
             self.__get_property_of_top_left_cell_area_style,
@@ -314,7 +314,7 @@ class Cell(XMLcontainer, CellPropertiesGetSetMixin):
             if result is not None or is_met_contition:
                 return result
 
-    def __define_table_area_style_and_get_property_for_inside_borders_of_header(self, property_name: str) -> \
+    def __define_table_area_style_and_get_property_for_inside_borders_of_header(self, property_name) -> \
             Union[str, None, bool]:
         methods: List[Callable] = [
             self.__get_property_of_first_column_area_style,
@@ -341,7 +341,7 @@ class Cell(XMLcontainer, CellPropertiesGetSetMixin):
             return result
         return self.get_parent_row().get_property(key)
 
-    def get_border(self, direction: str, property_name: str) -> Union[str, None]:
+    def get_border(self, direction: str, property_name) -> Union[str, None]:
         """
         :param direction: top, bottom, right, left  (or corresponding value of property_enums.Direction)
         :param property_name: color, size, type     (or corresponding value of property_enums.BorderProperty)
@@ -380,7 +380,7 @@ class Cell(XMLcontainer, CellPropertiesGetSetMixin):
                             )
         return maybe_result
 
-    def set_border_value(self, direction: str, property_name: str, value: Union[str, None]):
+    def set_border_value(self, direction: str, property_name, value: Union[str, None]):
         """
         :param direction: top, bottom, right, left  (or corresponding value of property_enums.Direction)
         :param property_name: color, size, type     (or corresponding value of property_enums.BorderProperty)
