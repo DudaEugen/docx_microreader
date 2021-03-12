@@ -18,6 +18,14 @@ class Image(XMLement):
     def __init__(self, element: ET.Element, parent):
         super(Image, self).__init__(element, parent)
 
+    def translate(self, to_format: Union[TranslateFormat, None] = None, is_recursive_translate: bool = True) -> str:
+        """
+        :param to_format: using translate_format of element if None
+        :param is_recursive_translate: pass to_format to inner element if True
+        """
+        translator = self.translators[to_format] if to_format is not None else self.translators[self.translate_format]
+        return translator.translate(self, '')
+
     def get_path(self):
         return self._get_document().get_image(self._properties[pr_const.ImageProperty.ID.key].value)
 
@@ -45,10 +53,10 @@ class Drawing(XMLement):
     def _init(self):
         self.image = self._get_elements(Image)
 
-    def get_inner_text(self) -> Union[str, None]:
+    def _get_inner_elements(self) -> list:
         if self.image is not None:
-            return str(self.image)
-        return ''
+            return [self.image]
+        return []
 
     def get_size(self) -> (int, int):
         """
@@ -77,13 +85,13 @@ class Text(XMLement):
     def _init(self):
         self.content = self._element.text
 
-    def __str__(self):
-        if self.translate_format in self.translators:
-            return super(Text, self).__str__()
-        return self.content
-
-    def get_inner_text(self) -> Union[str, None]:
-        return str(self.content)
+    def translate(self, to_format: Union[TranslateFormat, None] = None, is_recursive_translate: bool = True) -> str:
+        """
+        :param to_format: using translate_format of element if None
+        :param is_recursive_translate: pass to_format to inner element if True
+        """
+        translator = self.translators[to_format] if to_format is not None else self.translators[self.translate_format]
+        return translator.translate(self, self.content)
 
 
 class Run(XMLement, RunPropertiesGetSetMixin):
@@ -109,10 +117,9 @@ class Run(XMLement, RunPropertiesGetSetMixin):
     def _get_style_id(self) -> Union[str, None]:
         return self._properties[pr_const.RunProperty.STYLE.key].value
 
-    def get_inner_text(self) -> Union[str, None]:
-        if self.image is None:
-            return str(self.text)
-        return str(self.image)
+    def _get_inner_elements(self) -> list:
+        element = self.text if self.image is None else self.image
+        return [element]
 
     def get_property(self, property_name) -> Union[str, None, bool]:
         """
@@ -150,11 +157,8 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
     def _get_style_id(self) -> Union[str, None]:
         return self._properties[pr_const.ParagraphProperty.STYLE.key].value
 
-    def get_inner_text(self) -> Union[str, None]:
-        result: str = ''
-        for run in self.runs:
-            result += str(run)
-        return result
+    def _get_inner_elements(self) -> list:
+        return self.runs
 
     def get_property(self, property_name) -> Union[str, None, bool]:
         """
@@ -445,11 +449,8 @@ class Row(XMLement, RowPropertiesGetSetMixin):
         self.cells = self._get_elements(Cell)
         self.__set_index_in_row_for_cells()
 
-    def get_inner_text(self) -> Union[str, None]:
-        result: str = ''
-        for cell in self.cells:
-            result += str(cell)
-        return result
+    def _get_inner_elements(self) -> list:
+        return self.cells
 
     def __set_cells_as_header(self):
         for cell in self.cells:
@@ -505,10 +506,14 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         self.header_row_number: int = 0
         super(Table, self).__init__(element, parent)
 
-    def __str__(self):
+    def translate(self, to_format: Union[TranslateFormat, None] = None, is_recursive_translate: bool = True) -> str:
+        """
+        :param to_format: using translate_format of element if None
+        :param is_recursive_translate: pass to_format to inner element if True
+        """
         self.__define_first_and_last_head_rows()
         self.__calculate_rowspan_for_cells()
-        return super(Table, self).__str__()
+        return super(Table, self).translate(to_format, is_recursive_translate)
 
     def _init(self):
         self.rows = self._get_elements(Row)
@@ -517,11 +522,8 @@ class Table(XMLement, TablePropertiesGetSetMixin):
     def _get_style_id(self) -> Union[str, None]:
         return self._properties[pr_const.TableProperty.STYLE.key].value
 
-    def get_inner_text(self) -> Union[str, None]:
-        result: str = ''
-        for row in self.rows:
-            result += str(row)
-        return result
+    def _get_inner_elements(self) -> list:
+        return self.rows
 
     def __set_index_in_table_for_rows(self):
         for index in range(len(self.rows)):
@@ -612,20 +614,34 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 class Body(XMLcontainer):
     element_description = pr_const.Element.BODY
     _is_unique = True
-
-    def __str__(self):
-        return self.get_inner_text()
+    from .translators.html_translators import BodyTranslatorToHTML
+    from .translators.xml_translator.xml_translator import BodyTranslatorToXML
+    translators = {
+        TranslateFormat.HTML: BodyTranslatorToHTML(),
+        TranslateFormat.XML: BodyTranslatorToXML(),
+    }
 
 
 class Document(DocumentParser):
+    from .translators.html_translators import DocumentTranslatorToHTML
+    from .translators.xml_translator.xml_translator import DocumentTranslatorToXML
+    translators = {
+        TranslateFormat.HTML: DocumentTranslatorToHTML(),
+        TranslateFormat.XML: DocumentTranslatorToXML(),
+    }
+
     def __init__(self, path: str, path_for_images: Union[None, str] = None):
         self.body: Body
         super(Document, self).__init__(path, path_for_images)
         self.body: Body = self._get_elements(Body)
         self._remove_raw_xml()
 
-    def __str__(self):
-        return str(self.body)
+    def translate(self, to_format: Union[TranslateFormat, None] = None, is_recursive_translate: bool = True) -> str:
+        """
+        :param to_format: using translate_format of element if None
+        :param is_recursive_translate: pass to_format to inner element if True
+        """
+        return self.body.translate(to_format, is_recursive_translate)
 
     def save_as_docx(self, name: str):
         from .translators.xml_translator.xml_translator import DocumentTranslatorToXML
@@ -633,7 +649,7 @@ class Document(DocumentParser):
         import zipfile
 
         file = open(f'{DocumentTranslatorToXML.template_directory_path()}\\word\\document.xml', 'w', encoding='utf-8')
-        file.write(DocumentTranslatorToXML().translate(self))
+        file.write(DocumentTranslatorToXML().translate(self, ''))
         file.close()
 
         zipf = zipfile.ZipFile(f'{name}.zip', 'w', zipfile.ZIP_DEFLATED)
@@ -656,8 +672,8 @@ class Document(DocumentParser):
             os.remove(name)
         os.rename(f'{name}.zip', name)
 
-    def get_inner_text(self) -> Union[str, None]:
-        return str(self.body)
+    def _get_inner_elements(self) -> list:
+        return [self.body]
 
     def _get_document(self):
         return self

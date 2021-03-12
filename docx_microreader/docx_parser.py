@@ -214,7 +214,8 @@ class DocumentParser(Parser):
 class XMLement(Parser):
     element_description: Union[pr_const.Element, pr_const.Style, pr_const.SubStyle]
     from .constants.translate_formats import TranslateFormat
-    translators = {}        # {TranslateFormat: translator}
+    # {TranslateFormat: translator} tarnslator must have method: def translate(self, xml_element, translated_inner_elements: str)
+    translators = {}
     translate_format: TranslateFormat = TranslateFormat.HTML
     _is_unique: bool = False   # True if parent can containing only one this element
     # all_style_properties: Dict[str, Tuple[str, Union[str, None], bool]] = {}
@@ -237,8 +238,19 @@ class XMLement(Parser):
         self._base_style = self._get_style_from_document()
         self._remove_raw_xml()
 
-    def __str__(self):
-        return self.translators[self.translate_format].translate(self)
+    def translate(self, to_format: Union[TranslateFormat, None] = None, is_recursive_translate: bool = True) -> str:
+        """
+        :param to_format: using translate_format of element if None
+        :param is_recursive_translate: pass to_format to inner element if True
+        """
+        translator = self.translators[to_format] if to_format is not None else self.translators[self.translate_format]
+        translated_inner_elements = []
+        for el in self._get_inner_elements():
+            if is_recursive_translate:
+                translated_inner_elements.append(el.translate(to_format, is_recursive_translate))
+            else:
+                translated_inner_elements.append(el.translate())
+        return translator.translate(self, ''.join(translated_inner_elements))
 
     def _get_document(self):
         return self.parent._get_document()
@@ -279,8 +291,8 @@ class XMLement(Parser):
         """
         return property_name if isinstance(property_name, str) else property_name.key
 
-    def get_inner_text(self) -> Union[str, None]:
-        return None
+    def _get_inner_elements(self) -> list:
+        return []
 
     def get_parent(self):
         return self.parent
@@ -322,6 +334,7 @@ class XMLcontainer(XMLement):
     """
     this objects can containing Tables, Paragraphs, Images, Lists
     """
+    from .constants.translate_formats import TranslateFormat
 
     def _init(self):
         from .models import Paragraph, Table
@@ -343,8 +356,5 @@ class XMLcontainer(XMLement):
         self.elements: List[Union[Table, Paragraph]] = []
         super(XMLcontainer, self).__init__(element, parent)
 
-    def get_inner_text(self) -> Union[str, None]:
-        result: str = ''
-        for element in self.elements:
-            result += str(element)
-        return result
+    def _get_inner_elements(self) -> list:
+        return self.elements

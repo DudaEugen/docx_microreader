@@ -1,4 +1,4 @@
-from typing import Dict, Callable, List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 from abc import ABC
 
 
@@ -15,8 +15,7 @@ class TranslatorToHTML:
         self.attributes = {}
         self.ext_tags = []
 
-    def translate(self, element) -> str:
-        inner_text: str = element.get_inner_text()
+    def translate(self, element, inner_text: str) -> str:
         self._reset_value()     # it is need, because one translator can using for many objects
         # it is need convert inner element before tacking styles, attributes etc
         # because one translator can using for many objects, but this objects can containing each other
@@ -118,6 +117,16 @@ class ContainerTranslatorToHTML(TranslatorToHTML):
     @staticmethod
     def _is_single_tag() -> bool:
         return True
+
+
+class DocumentTranslatorToHTML(TranslatorToHTML):
+    def _get_html_tag(self) -> str:
+        return 'html'
+
+
+class BodyTranslatorToHTML(TranslatorToHTML):
+    def _get_html_tag(self) -> str:
+        return 'body'
 
 
 class TranslatorBorderedElementToHTML(ABC):
@@ -571,7 +580,7 @@ class TextTranslatorToHTML:
         'ґ': '&#1169',
     }
 
-    def translate(self, text_element) -> str:
+    def translate(self, text_element, inner_text: str = '') -> str:
         import re
 
         text = text_element.content

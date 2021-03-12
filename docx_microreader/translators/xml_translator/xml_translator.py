@@ -4,6 +4,8 @@ from ...constants.translate_formats import TranslateFormat
 
 
 class TranslatorToXML:
+    inner_text: str = ''
+
     def insert_elements(self, parent_element: ET.Element, d: dict, properties: dict):
         result: bool = False
         for key, value in d.items():
@@ -50,9 +52,11 @@ class TranslatorToXML:
         return result
 
     def add_inner_xml(self, xml: ET.Element, element) -> ET.Element:
+        xml.text = self.inner_text
         return xml
 
-    def translate(self, element) -> str:
+    def translate(self, element, inner_text: str) -> str:
+        self.inner_text = inner_text
         el = self.create_xml(element)
         return ET.tostring(el, encoding='unicode')
 
@@ -66,7 +70,7 @@ class TextTranslatorToXML(TranslatorToXML):
         return result
 
     def add_inner_xml(self, xml: ET.Element, element) -> ET.Element:
-        xml.text = element.get_inner_text()
+        xml.text = element.content
         return xml
 
 
@@ -118,7 +122,7 @@ class BodyTranslatorToXML(TranslatorToXML):
 
 
 class DocumentTranslatorToXML:
-    def translate(self, element) -> str:
+    def translate(self, element, inner_text: str) -> str:
         from ...constants.namespaces import namespaces
 
         doc = ET.Element('w:document')
