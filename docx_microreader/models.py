@@ -111,7 +111,7 @@ class Run(XMLement, RunPropertiesGetSetMixin):
 
     def _init(self):
         text: Union[str, None] = self._get_elements(Text)
-        self.text = text if text is not None else ''
+        self.text = text
         self.image = self._get_elements(Drawing)
 
     def _get_style_id(self) -> Union[str, None]:
