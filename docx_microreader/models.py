@@ -23,8 +23,9 @@ class Image(XMLement):
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
         """
-        translator = self.translators[to_format] if to_format is not None else self.translators[self.translate_format]
-        return translator.translate(self, '')
+        translator = self.translators[TranslateFormat(to_format)] if to_format is not None else \
+                     self.translators[self.translate_format]
+        return translator.translate(self, [])
 
     def get_path(self):
         return self._get_document().get_image(self._properties[pr_const.ImageProperty.ID.key].value)
@@ -90,8 +91,9 @@ class Text(XMLement):
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
         """
-        translator = self.translators[to_format] if to_format is not None else self.translators[self.translate_format]
-        return translator.translate(self, self.content)
+        translator = self.translators[TranslateFormat(to_format)] if to_format is not None else \
+                     self.translators[self.translate_format]
+        return translator.translate(self, [self.content])
 
 
 class Run(XMLement, RunPropertiesGetSetMixin):
@@ -636,12 +638,13 @@ class Document(DocumentParser):
         self.body: Body = self._get_elements(Body)
         self._remove_raw_xml()
 
-    def translate(self, to_format: Union[TranslateFormat, None] = None, is_recursive_translate: bool = True) -> str:
+    def translate(self, to_format: TranslateFormat, is_recursive_translate: bool = True) -> ET.Element:
         """
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
         """
-        return self.body.translate(to_format, is_recursive_translate)
+        translator = self.translators[TranslateFormat(to_format)]
+        return translator.translate(self, [self.body.translate(to_format, is_recursive_translate)])
 
     def save_as_docx(self, name: str):
         from docx_microreader.translators.xml.xml_translators import DocumentTranslatorToXML
@@ -649,7 +652,8 @@ class Document(DocumentParser):
         import zipfile
 
         file = open(f'{DocumentTranslatorToXML.template_directory_path()}\\word\\document.xml', 'w', encoding='utf-8')
-        file.write(DocumentTranslatorToXML().translate(self, ''))
+        document: ET.Element = self.translate(TranslateFormat.XML, is_recursive_translate=True)
+        file.write(DocumentTranslatorToXML.document_header() + ET.tostring(document, encoding="unicode"))
         file.close()
 
         zipf = zipfile.ZipFile(f'{name}.zip', 'w', zipfile.ZIP_DEFLATED)
@@ -671,9 +675,6 @@ class Document(DocumentParser):
         if os.path.exists(name):
             os.remove(name)
         os.rename(f'{name}.zip', name)
-
-    def _get_inner_elements(self) -> list:
-        return [self.body]
 
     def _get_document(self):
         return self

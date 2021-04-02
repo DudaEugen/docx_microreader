@@ -15,13 +15,14 @@ class TranslatorToHTML:
         self.attributes = {}
         self.ext_tags = []
 
-    def translate(self, element, inner_text: str) -> str:
+    def translate(self, element, inner_elements: list) -> str:
         self._reset_value()     # it is need, because one translator can using for many objects
         # it is need convert inner element before tacking styles, attributes etc
         # because one translator can using for many objects, but this objects can containing each other
         # In this algorithm styles, attributes etc. takes from inner elements to outher elements
         # and inner elements don't reset this parameters for outher
 
+        inner_text: str = ''.join([str(s) for s in inner_elements])
         self._convert_fields(element)
         self._do_methods(element)
         return self._get_html(inner_text)
@@ -580,7 +581,7 @@ class TextTranslatorToHTML:
         'ґ': '&#1169',
     }
 
-    def translate(self, text_element, inner_text: str = '') -> str:
+    def translate(self, text_element, inner_elements: list) -> str:
         import re
 
         text = text_element.content

@@ -1,11 +1,8 @@
 import xml.etree.ElementTree as ET
 from typing import List
-from ...constants.translate_formats import TranslateFormat
 
 
 class TranslatorToXML:
-    inner_text: str = ''
-
     def insert_elements(self, parent_element: ET.Element, d: dict, properties: dict):
         result: bool = False
         for key, value in d.items():
@@ -30,9 +27,9 @@ class TranslatorToXML:
                     # return True
         return result
 
-    def create_xml(self, element) -> ET.Element:
+    def create_xml(self, element, inner_elements: list) -> ET.Element:
         result: ET.Element = ET.Element(element.element_description.tag)
-        inner_elements = {}
+        properties = {}
         for pr_key, pr_description in element._all_properties.items():
             tags_description = pr_description.get_wrapped_tags()
             descr = tags_description if isinstance(tags_description, str) else tags_description[0]
@@ -41,96 +38,79 @@ class TranslatorToXML:
             elif isinstance(pr_description.tag_property, str):
                 descr += '/' + pr_description.tag_property
             tags: List[str] = descr.split('/')
-            d = inner_elements
+            d = properties
             for i in range(len(tags) - 1):
                 if not tags[i] in d:
                     d[tags[i]] = {}
                 d = d[tags[i]]
             d[tags[-1]] = pr_key
-        self.insert_elements(result, inner_elements, element._properties)
-        self.add_inner_xml(result, element)
+        self.insert_elements(result, properties, element._properties)
+
+        for el in inner_elements:
+            if isinstance(el, ET.Element):
+                result.append(el)
+            else:
+                if result.text is not None:
+                    result.text += str(el)
+                else:
+                    result.text = str(el)
         return result
 
-    def add_inner_xml(self, xml: ET.Element, element) -> ET.Element:
-        xml.text = self.inner_text
-        return xml
-
-    def translate(self, element, inner_text: str) -> str:
-        self.inner_text = inner_text
-        el = self.create_xml(element)
-        return ET.tostring(el, encoding='unicode')
+    def translate(self, element, inner_elements: list) -> ET.Element:
+        el = self.create_xml(element, inner_elements)
+        return el
 
 
 class TextTranslatorToXML(TranslatorToXML):
-    def create_xml(self, element) -> ET.Element:
-        result = super(TextTranslatorToXML, self).create_xml(element)
+    def create_xml(self, element, inner_elements: list) -> ET.Element:
+        result = super(TextTranslatorToXML, self).create_xml(element, inner_elements)
         # TO DO: upgrade create_xml in TranslatorToXML, add xml:space to properties of Text
         if len(element.content) > 0 and (element.content[0] == ' ' or element.content[-1] == ' '):
             result.set('xml:space', 'preserve')
         return result
 
-    def add_inner_xml(self, xml: ET.Element, element) -> ET.Element:
-        xml.text = element.content
-        return xml
-
 
 class RunTranslatorToXML(TranslatorToXML):
-    def add_inner_xml(self, xml: ET.Element, element) -> ET.Element:
-        inner_xml = TextTranslatorToXML().create_xml(element.text)
-        xml.append(inner_xml)
-        return xml
+    pass
 
 
 class ParagraphTranslatorToXML(TranslatorToXML):
-    def add_inner_xml(self, xml: ET.Element, element) -> ET.Element:
-        for run in element.runs:
-            run_xml = RunTranslatorToXML().create_xml(run)
-            xml.append(run_xml)
-        return xml
+    pass
 
 
 class CellTranslatorToXML(TranslatorToXML):
-    def add_inner_xml(self, xml: ET.Element, element) -> ET.Element:
-        for e in element.elements:
-            e_xml = e.translators[TranslateFormat.XML].create_xml(e)
-            xml.append(e_xml)
-        return xml
+    pass
 
 
 class RowTranslatorToXML(TranslatorToXML):
-    def add_inner_xml(self, xml: ET.Element, element) -> ET.Element:
-        for cell in element.cells:
-            cell_xml = CellTranslatorToXML().create_xml(cell)
-            xml.append(cell_xml)
-        return xml
+    pass
 
 
 class TableTranslatorToXML(TranslatorToXML):
-    def add_inner_xml(self, xml: ET.Element, element) -> ET.Element:
-        for row in element.rows:
-            row_xml = RowTranslatorToXML().create_xml(row)
-            xml.append(row_xml)
-        return xml
+    pass
 
 
 class BodyTranslatorToXML(TranslatorToXML):
-    def add_inner_xml(self, xml: ET.Element, element) -> ET.Element:
-        for e in element.elements:
-            e_xml = e.translators[TranslateFormat.XML].create_xml(e)
-            xml.append(e_xml)
-        return xml
+    pass
 
 
 class DocumentTranslatorToXML:
-    def translate(self, element, inner_text: str) -> str:
+    def translate(self, element, inner_elements: list) -> ET.Element:
         from ...constants.namespaces import namespaces
 
         doc = ET.Element('w:document')
-        doc.append(BodyTranslatorToXML().create_xml(element.body))
         for key, value in namespaces.items():
             doc.set(f'xmlns:{key}', value)
         doc.set('mc:Ignorable', "w14 w15 w16se w16cid wp14")
-        return f'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n{ET.tostring(doc, encoding="unicode")}'
+        for el in inner_elements:
+            if isinstance(el, ET.Element):
+                doc.append(el)
+            else:
+                if doc.text is not None:
+                    doc.text += str(el)
+                else:
+                    doc.text = str(el)
+        return doc
 
     @staticmethod
     def template_directory_name() -> str:
@@ -142,3 +122,7 @@ class DocumentTranslatorToXML:
         current_file_path = pathlib.Path(__file__).parent.absolute()
 
         return f'{current_file_path}\\{DocumentTranslatorToXML.template_directory_name()}'
+
+    @staticmethod
+    def document_header() -> str:
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'

@@ -243,14 +243,16 @@ class XMLement(Parser):
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
         """
-        translator = self.translators[to_format] if to_format is not None else self.translators[self.translate_format]
+        from docx_microreader.constants.translate_formats import TranslateFormat
+        translator = self.translators[TranslateFormat(to_format)] if to_format is not None else \
+                     self.translators[self.translate_format]
         translated_inner_elements = []
         for el in self._get_inner_elements():
             if is_recursive_translate:
                 translated_inner_elements.append(el.translate(to_format, is_recursive_translate))
             else:
                 translated_inner_elements.append(el.translate())
-        return translator.translate(self, ''.join(translated_inner_elements))
+        return translator.translate(self, translated_inner_elements)
 
     def _get_document(self):
         return self.parent._get_document()
