@@ -40,7 +40,7 @@ class Parser:
                         return Property(prop)
                 return Property(None)
             else:
-                return Property(property_element.get(check_namespace_of_tag(tags)))
+                return Property(property_element.get(check_namespace_of_tag(tags), default=pr.default_value))
         else:
             value: Union[str, None] = property_element.get(check_namespace_of_tag(pr_const.BoolPropertyValue))
             if value is not None and value == '0':

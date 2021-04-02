@@ -4,11 +4,12 @@ from typing import Union, List
 class PropertyDescription:
 
     def __init__(self, tag_wrap: Union[List[str], str, None], tag: Union[List[str], str, None],
-                 tag_property: Union[List[str], str, None]):
+                 tag_property: Union[List[str], str, None], default: Union[str, None] = None):
         self.tag_wrap: Union[List[str], str, None] = tag_wrap
         self.tag: Union[List[str], str] = tag
         self.tag_property: Union[List[str], str, None] = tag_property
         self.value_type: str = 'str' if self.tag_property is not None else 'bool'
+        self.default_value: Union[str, None] = default
 
     def get_wrapped_tags(self) -> Union[List[str], str]:
         tag_wrap: Union[List[str], str] = self.__wrap_for_tag()
