@@ -18,7 +18,7 @@ class Image(XMLement):
     def __init__(self, element: ET.Element, parent):
         super(Image, self).__init__(element, parent)
 
-    def translate(self, to_format: Union[TranslateFormat, None] = None, is_recursive_translate: bool = True) -> str:
+    def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True) -> str:
         """
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
@@ -86,7 +86,7 @@ class Text(XMLement):
     def _init(self):
         self.content = self._element.text
 
-    def translate(self, to_format: Union[TranslateFormat, None] = None, is_recursive_translate: bool = True) -> str:
+    def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True) -> str:
         """
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
@@ -508,14 +508,14 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         self.header_row_number: int = 0
         super(Table, self).__init__(element, parent)
 
-    def translate(self, to_format: Union[TranslateFormat, None] = None, is_recursive_translate: bool = True) -> str:
+    def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True) -> str:
         """
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
         """
         self.__define_first_and_last_head_rows()
         self.__calculate_rowspan_for_cells()
-        return super(Table, self).translate(to_format, is_recursive_translate)
+        return super(Table, self).translate(TranslateFormat(to_format), is_recursive_translate)
 
     def _init(self):
         self.rows = self._get_elements(Row)
@@ -633,7 +633,7 @@ class Document(DocumentParser):
         self.body: Body = self._get_elements(Body)
         self._remove_raw_xml()
 
-    def translate(self, to_format: TranslateFormat, is_recursive_translate: bool = True) -> ET.Element:
+    def translate(self, to_format: Union[TranslateFormat, str], is_recursive_translate: bool = True) -> ET.Element:
         """
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
