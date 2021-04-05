@@ -3,58 +3,58 @@ from typing import List
 
 
 class TranslatorToXML:
-    def insert_elements(self, parent_element: ET.Element, d: dict, properties: dict):
-        result: bool = False
+
+    @staticmethod
+    def create_properties_dict(parent: dict, rest_tags: List[str]) -> dict:
+        tag: str = rest_tags[0]
+        if not (tag in parent):
+            parent[tag] = {}
+        d: dict = parent[tag]
+        if len(rest_tags) > 1:
+            return TranslatorToXML.create_properties_dict(d, rest_tags[1:])
+        return d
+
+    def add_property(self, element: ET.Element, d: dict) -> bool:
+        is_added_someone: bool = False
         for key, value in d.items():
-            if isinstance(value, str):
-                if isinstance(properties[value].value, str):
-                    if properties[value].value is not None:
-                        parent_element.set(key, properties[value].value)
-                        result = True
-                        # return True
-                elif isinstance(properties[value].value, bool):
-                    if value:
-                        parent_element.append(ET.Element(key))
-                        result = True
-                        # return True
+            is_added: bool = False
+            if not isinstance(value, dict):
+                if value is not None:
+                    if isinstance(value, bool):
+                        is_added = value
+                    else:
+                        element.set(key, value)
+                        is_added = True
             else:
-                element = ET.Element(key)
-                res = self.insert_elements(element, value, properties)
-                #if res is not None and res:
-                if res:
-                    parent_element.append(element)
-                    result = True
-                    # return True
-        return result
+                new_el = ET.Element(key)
+                is_added = self.add_property(new_el, value)
+                if is_added:
+                    element.append(new_el)
+            is_added_someone = is_added_someone or is_added
+        return is_added_someone
 
     def create_xml(self, element, inner_elements: list) -> ET.Element:
         result: ET.Element = ET.Element(element.element_description.tag)
         properties = {}
-        for pr_key, pr_description in element._all_properties.items():
-            tags_description = pr_description.get_wrapped_tags()
-            descr = tags_description if isinstance(tags_description, str) else tags_description[0]
-            if isinstance(pr_description.tag_property, list):
-                descr += '/' + pr_description.tag_property[0]
-            elif isinstance(pr_description.tag_property, str):
-                descr += '/' + pr_description.tag_property
-            tags: List[str] = descr.split('/')
-            d = properties
-            for i in range(len(tags) - 1):
-                if not tags[i] in d:
-                    d[tags[i]] = {}
-                d = d[tags[i]]
-            d[tags[-1]] = pr_key
-        self.insert_elements(result, properties, element._properties)
+        for prop in element.element_description.props:
+            tags: List[str] = ''.join(prop.description.get_wrapped_tags()).split('/')
+            tag_property = prop.description.tag_property[0] if isinstance(prop.description.tag_property, list) else \
+                prop.description.tag_property
+            self.create_properties_dict(properties, tags)[tag_property] = element._properties[prop.key].value
+        self.add_property(result, properties)
+        TranslatorToXML.append_inner_elements(result, inner_elements)
+        return result
 
+    @staticmethod
+    def append_inner_elements(container, inner_elements):
         for el in inner_elements:
             if isinstance(el, ET.Element):
-                result.append(el)
+                container.append(el)
             else:
-                if result.text is not None:
-                    result.text += str(el)
+                if container.text is not None:
+                    container.text += str(el)
                 else:
-                    result.text = str(el)
-        return result
+                    container.text = str(el)
 
     def translate(self, element, inner_elements: list) -> ET.Element:
         el = self.create_xml(element, inner_elements)
@@ -102,14 +102,7 @@ class DocumentTranslatorToXML:
         for key, value in namespaces.items():
             doc.set(f'xmlns:{key}', value)
         doc.set('mc:Ignorable', "w14 w15 w16se w16cid wp14")
-        for el in inner_elements:
-            if isinstance(el, ET.Element):
-                doc.append(el)
-            else:
-                if doc.text is not None:
-                    doc.text += str(el)
-                else:
-                    doc.text = str(el)
+        TranslatorToXML.append_inner_elements(doc, inner_elements)
         return doc
 
     @staticmethod

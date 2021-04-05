@@ -362,8 +362,8 @@ class CellProperty(EnumOfBorderedElementMixin, CellMarginEnumMixin, ElementPrope
     WIDTH = ('width of cell', PropertyDescription('w:tcPr', 'w:tcW', 'w:w'), True)
     WIDTH_TYPE = ('width type of cell', PropertyDescription('w:tcPr', 'w:tcW', 'w:type'), True)
     COLUMN_SPAN = ('column span of cell', PropertyDescription('w:tcPr', 'w:gridSpan', 'w:val'), True)
-    VERTICAL_MERGE = ('vertical merge of cell', PropertyDescription('w:tcPr', 'w:vMerge', 'w:val'), True)
-    VERTICAL_MARGE_CONTINUE = ('continue vertical merge of cell', PropertyDescription('w:tcPr', 'w:vMerge', None), True)
+    VERTICAL_MERGE = ('vertical merge of cell', PropertyDescription('w:tcPr', 'w:vMerge', 'w:val', default='continue'),
+                      True)
     VERTICAL_ALIGN = ('vertical align of cell', PropertyDescription('w:tcPr', 'w:vAlign', 'w:val'), True)
     TEXT_DIRECTION = ('text direction of cell', PropertyDescription('w:tcPr', 'w:textDirection', 'w:val'), True)
     TOP_BORDER_TYPE = (
