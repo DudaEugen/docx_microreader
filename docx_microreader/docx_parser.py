@@ -238,7 +238,7 @@ class XMLement(Parser):
         self._base_style = self._get_style_from_document()
         self._remove_raw_xml()
 
-    def translate(self, to_format: Union[TranslateFormat, None] = None, is_recursive_translate: bool = True) -> str:
+    def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True) -> str:
         """
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
