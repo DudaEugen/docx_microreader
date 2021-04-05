@@ -677,6 +677,12 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         self._is_header: bool = False
         self._tag_for_header = 'td'
 
+    def translate(self, element, inner_elements: list) -> str:
+        from ...constants.property_enums import CellProperty
+        if element.get_property(CellProperty.VERTICAL_MERGE) == CellProperty.VERTICAL_MERGE.description.default_value:
+            return ''               # default_value is 'continue'
+        return super(CellTranslatorToHTML, self).translate(element, inner_elements)
+
     def _do_methods(self, cell):
         self._to_css_fill_color(cell)
         self._to_css_all_borders(cell)

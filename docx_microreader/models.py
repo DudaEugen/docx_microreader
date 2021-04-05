@@ -549,20 +549,15 @@ class Table(XMLement, TablePropertiesGetSetMixin):
     def __calculate_rowspan_for_cells(self):
         cell_for_row_span: Dict[int, Cell] = {}
         for row in self.rows:
-            cells_for_delete: List[Cell] = []
             col: int = 0
             for cell in row.cells:
                 if cell.get_property(pr_const.CellProperty.VERTICAL_MERGE) == 'restart':
                     cell_for_row_span[col] = cell
                     cell_for_row_span[col].row_span = 1
-                elif cell.get_property(pr_const.CellProperty.VERTICAL_MERGE) == 'continue' or \
-                        cell.get_property(pr_const.CellProperty.VERTICAL_MARGE_CONTINUE):
+                elif cell.get_property(pr_const.CellProperty.VERTICAL_MERGE) == 'continue':
                     cell_for_row_span[col].row_span += 1
-                    cells_for_delete.append(cell)
                 col_span = cell.get_col_span()
                 col += int(col_span) if col_span is not None else 1
-            for cell in cells_for_delete:
-                row.cells.remove(cell)
 
     def is_use_style_of_first_row(self) -> bool:
         if self._properties[pr_const.TableProperty.FIRST_ROW_STYLE_LOOK.key].value is None:
