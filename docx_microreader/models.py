@@ -384,7 +384,7 @@ class Cell(XMLcontainer, CellPropertiesGetSetMixin):
             if not isinstance(area_style_result, Property.Missed) or not is_find_missed_or_true:
                 return area_style_result
 
-        parent_prop = self.get_parent_row().get_property(key, is_find_missed_or_true)
+        parent_prop = self.get_parent_table().get_property(key, is_find_missed_or_true)
         if parent_prop is not None:
             result = parent_prop
             if not isinstance(parent_prop, Property.Missed) or not is_find_missed_or_true:
