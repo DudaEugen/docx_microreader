@@ -7,7 +7,7 @@ from .constants import property_enums as pr_const
 
 
 class Parser:
-    _all_properties: Dict[str, PropertyDescription] = {}
+    element_description = None
 
     def __init__(self, element: ET.Element):
         self._element: ET.Element = element
@@ -91,11 +91,13 @@ class Parser:
 
     def _parse_properties(self) -> Dict[str, Property]:
         result: Dict[str, Property] = {}
-        for key, pr in self._all_properties.items():
+        properties_description_dict = self.element_description.get_property_descriptions_dict()
+        for key, pr in properties_description_dict.items():
             if pr.tag is not None:
                 property_element: Union[ET.Element, None] = self.__find_property_element(pr)
                 if property_element is not None:
-                    result[key] = self.__find_property(property_element, pr, self._all_properties[key].tag_property)
+                    result[key] = self.__find_property(property_element, pr,
+                                                       properties_description_dict[key].tag_property)
                 else:
                     result[key] = Property(None)
             else:
@@ -217,7 +219,9 @@ class DocumentParser(Parser):
 class XMLement(Parser):
     element_description: Union[pr_const.Element, pr_const.Style, pr_const.SubStyle]
     from .constants.translate_formats import TranslateFormat
-    # {TranslateFormat: translator} tarnslator must have method: def translate(self, xml_element, translated_inner_elements: str)
+
+    # {TranslateFormat: translator} tarnslator must have method:
+    # def translate(self, xml_element, translated_inner_elements: str)
     translators = {}
     translate_format: TranslateFormat = TranslateFormat.HTML
     _is_unique: bool = False   # True if parent can containing only one this element
@@ -235,7 +239,6 @@ class XMLement(Parser):
         self.parent: Union[XMLement, None] = parent
         super(XMLement, self).__init__(element)
         self._init()
-        self._all_properties = self.element_description.get_property_descriptions_dict()
         self._properties: Dict[str, Property] = self._parse_properties()
         self._properties_unificate()
         self._base_style = self._get_style_from_document()
@@ -351,7 +354,6 @@ class XMLcontainer(XMLement):
     """
     this objects can containing Tables, Paragraphs, Images, Lists
     """
-    from .constants.translate_formats import TranslateFormat
 
     def _init(self):
         from .models import Paragraph, Table
