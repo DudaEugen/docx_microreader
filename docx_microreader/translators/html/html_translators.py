@@ -679,8 +679,9 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
 
     def translate(self, element, inner_elements: list) -> str:
         from ...constants.property_enums import CellProperty
-        if element.get_property(CellProperty.VERTICAL_MERGE) == CellProperty.VERTICAL_MERGE.description.default_value:
-            return ''               # default_value is 'continue'
+        from ...properties import Property
+        if isinstance(element.get_property(CellProperty.VERTICAL_MERGE, False), Property.Missed):
+            return ''
         return super(CellTranslatorToHTML, self).translate(element, inner_elements)
 
     def _do_methods(self, cell):

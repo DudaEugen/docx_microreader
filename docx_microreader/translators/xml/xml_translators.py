@@ -15,6 +15,8 @@ class TranslatorToXML:
         return d
 
     def add_property(self, element: ET.Element, d: dict) -> bool:
+        from ...properties import Property
+
         is_added_someone: bool = False
         for key, value in d.items():
             is_added: bool = False
@@ -22,6 +24,8 @@ class TranslatorToXML:
                 if value is not None:
                     if isinstance(value, bool):
                         is_added = value
+                    elif isinstance(value, Property.Missed):
+                        is_added = True
                     else:
                         element.set(key, value)
                         is_added = True

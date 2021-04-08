@@ -123,14 +123,29 @@ class Run(XMLement, RunPropertiesGetSetMixin):
         element = self.text if self.image is None else self.image
         return [element]
 
-    def get_property(self, property_name) -> Union[str, None, bool]:
+    def get_property(self, property_name, is_find_missed_or_true: bool = True):
         """
         :param property_name: key of property (str or instance of Enum from constants.property_enums)
+        :param is_find_missed_or_true: recursive find value if result equal Property.Missed. Return True if not find
         :return: Property.value or None
         """
+        from .properties import Property
+
         key: str = XMLement._key_of_property(property_name)
-        result: Union[str, None, bool] = super(Run, self).get_property(key)
-        return result if result is not None else self.parent.get_property(key)
+
+        result = super(Run, self).get_property(key, is_find_missed_or_true)
+        if result is not None and (not isinstance(result, Property.Missed) or not is_find_missed_or_true):
+            return result
+
+        parent_prop = self.parent.get_property(key, is_find_missed_or_true)
+        if parent_prop is not None:
+            result = parent_prop
+            if not isinstance(parent_prop, Property.Missed) or not is_find_missed_or_true:
+                return parent_prop
+
+        if isinstance(result, Property.Missed) and is_find_missed_or_true:
+            return True
+        return result
 
 
 class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
@@ -162,14 +177,29 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
     def _get_inner_elements(self) -> list:
         return self.runs
 
-    def get_property(self, property_name) -> Union[str, None, bool]:
+    def get_property(self, property_name, is_find_missed_or_true: bool = True):
         """
         :param property_name: key of property (str or instance of Enum from constants.property_enums)
+        :param is_find_missed_or_true: recursive find value if result equal Property.Missed. Return True if not find
         :return: Property.value or None
         """
+        from .properties import Property
+
         key: str = XMLement._key_of_property(property_name)
-        result: Union[str, None, bool] = super(Paragraph, self).get_property(key)
-        return result if result is not None else self.parent.get_property(key)
+
+        result = super(Paragraph, self).get_property(key, is_find_missed_or_true)
+        if result is not None and (not isinstance(result, Property.Missed) or not is_find_missed_or_true):
+            return result
+
+        parent_prop = self.parent.get_property(key, is_find_missed_or_true)
+        if parent_prop is not None:
+            result = parent_prop
+            if not isinstance(parent_prop, Property.Missed) or not is_find_missed_or_true:
+                return parent_prop
+
+        if isinstance(result, Property.Missed) and is_find_missed_or_true:
+            return True
+        return result
 
 
 class Cell(XMLcontainer, CellPropertiesGetSetMixin):
@@ -333,19 +363,36 @@ class Cell(XMLcontainer, CellPropertiesGetSetMixin):
             if result is not None or is_met_contition:
                 return result
 
-    def get_property(self, property_name) -> Union[str, None, bool]:
+    def get_property(self, property_name, is_find_missed_or_true: bool = True):
         """
         :param property_name: key of property (str or instance of Enum from constants.property_enums)
+        :param is_find_missed_or_true: recursive find value if result equal Property.Missed. Return True if not find
         :return: Property.value or None
         """
+        from .properties import Property
+
+        result = None
         key: str = XMLement._key_of_property(property_name)
-        result = self._properties.get(key)
-        if result is not None and result.value is not None:
-            return result.value
-        result = self.__define_table_area_style_and_get_property(key)
-        if result is not None:
+
+        result = super(Cell, self).get_property(key, is_find_missed_or_true)
+        if result is not None and (not isinstance(result, Property.Missed) or not is_find_missed_or_true):
             return result
-        return self.get_parent_row().get_property(key)
+
+        area_style_result = self.__define_table_area_style_and_get_property(key)
+        if area_style_result is not None:
+            result = area_style_result
+            if not isinstance(area_style_result, Property.Missed) or not is_find_missed_or_true:
+                return area_style_result
+
+        parent_prop = self.get_parent_row().get_property(key, is_find_missed_or_true)
+        if parent_prop is not None:
+            result = parent_prop
+            if not isinstance(parent_prop, Property.Missed) or not is_find_missed_or_true:
+                return parent_prop
+
+        if isinstance(result, Property.Missed) and is_find_missed_or_true:
+            return True
+        return result
 
     def get_border(self, direction: str, property_name) -> Union[str, None]:
         """
@@ -547,14 +594,17 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                     previous_row = row
 
     def __calculate_rowspan_for_cells(self):
+        from .properties import Property
+
         cell_for_row_span: Dict[int, Cell] = {}
         for row in self.rows:
             col: int = 0
             for cell in row.cells:
-                if cell.get_property(pr_const.CellProperty.VERTICAL_MERGE) == 'restart':
+                vertical_merge = cell.get_property(pr_const.CellProperty.VERTICAL_MERGE, False)
+                if vertical_merge == 'restart':
                     cell_for_row_span[col] = cell
                     cell_for_row_span[col].row_span = 1
-                elif cell.get_property(pr_const.CellProperty.VERTICAL_MERGE) == 'continue':
+                elif vertical_merge == 'continue' or isinstance(vertical_merge, Property.Missed):
                     cell_for_row_span[col].row_span += 1
                 col_span = cell.get_col_span()
                 col += int(col_span) if col_span is not None else 1

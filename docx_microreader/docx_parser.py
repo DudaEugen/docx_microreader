@@ -32,21 +32,24 @@ class Parser:
         """
         find property in element
         """
-        if pr.value_type == 'str':
-            if isinstance(tags, list):
-                for tag_prop in tags:
-                    prop: Union[None, str] = property_element.get(check_namespace_of_tag(tag_prop))
-                    if prop is not None:
-                        return Property(prop)
-                return Property(None)
-            else:
-                return Property(property_element.get(check_namespace_of_tag(tags), default=pr.default_value))
+        if isinstance(tags, list):
+            for tag_prop in tags:
+                prop: Union[None, str] = property_element.get(check_namespace_of_tag(tag_prop))
+                if prop is not None:
+                    return Property(prop)
+            return Property(None)
         else:
-            value: Union[str, None] = property_element.get(check_namespace_of_tag(pr_const.BoolPropertyValue))
-            if value is not None and value == '0':
-                return Property(False)
+            if pr.is_can_be_miss:
+                value: [str, None] = property_element.get(check_namespace_of_tag(pr_const.MissedPropertyAttribute))
+                if value is None:
+                    return Property(Property.Missed())
+                if value == '1':
+                    return Property(True)
+                elif value == '0':
+                    return Property(False)
+                return Property(value)
             else:
-                return Property(True)
+                return Property(property_element.get(check_namespace_of_tag(tags)))
 
     def _parse_element(self, element: ET.Element):
         from .models import Body, Table, Row, Cell, Paragraph, Run, Text, Drawing, Image
@@ -299,18 +302,30 @@ class XMLement(Parser):
     def get_parent(self):
         return self.parent
 
-    def get_property(self, property_name) -> Union[str, None, bool]:
+    def get_property(self, property_name, is_find_missed_or_true: bool = True):
         """
         :param property_name: key of property (str or instance of Enum from constants.property_enums)
+        :param is_find_missed_or_true: recursive find value if result equal Property.Missed. Return True if not find
         :return: Property.value or None
         """
+        result = None
         key: str = XMLement._key_of_property(property_name)
+
         if key in self._properties:
-            if self._properties[key].value is not None:
-                return self._properties[key].value
+            result = self._properties[key].value
+            if result is not None and (not isinstance(result, Property.Missed) or not is_find_missed_or_true):
+                return result
+
         if self._base_style is not None:
-            return self._base_style.get_property(key)
-        return None
+            base_style_result = self._base_style.get_property(key, is_find_missed_or_true)
+            if base_style_result is not None:
+                result = base_style_result
+                if not isinstance(base_style_result, Property.Missed) or not is_find_missed_or_true:
+                    return base_style_result
+
+        if isinstance(result, Property.Missed) and is_find_missed_or_true:
+            return True
+        return result
 
     def get_style(self):
         return self._base_style

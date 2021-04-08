@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 class GetSetMixin(ABC):
     @abstractmethod
-    def get_property(self, property_name) -> Union[str, None, bool]:
+    def get_property(self, property_name, is_find_missed_or_true: bool = True):
         pass
 
     @abstractmethod

@@ -16,8 +16,8 @@ _CELL_NAME: str = 'cell'
 _DRAWING_NAME: str = 'drawing'
 _IMAGE_NAME: str = 'image'
 
-# name of attribute for bool property values
-BoolPropertyValue: str = 'w:val'
+# name of attribute for bool property values. Properties can be missed only if corresponding to this attribute
+MissedPropertyAttribute: str = 'w:val'
 
 
 @unique
@@ -155,8 +155,8 @@ class ParagraphProperty(EnumOfBorderedElementMixin, ElementPropertyEnum):
     INDENT_RIGHT = ('indent right of paragraph', PropertyDescription('w:pPr', 'w:ind', ['w:right', 'w:end']), True)
     HANGING = ('hanging of paragraph', PropertyDescription('w:pPr', 'w:ind', 'w:hanging'), True)
     FIRST_LINE = ('first line of paragraph', PropertyDescription('w:pPr', 'w:ind', 'w:firstLine'), True)
-    KEEP_LINES = ('keep lines of paragraph', PropertyDescription('w:pPr', 'w:keepLines', None), True)
-    KEEP_NEXT = ('keep next of paragraph', PropertyDescription('w:pPr', 'w:keepNext', None), True)
+    KEEP_LINES = ('keep lines of paragraph', PropertyDescription('w:pPr', 'w:keepLines', is_can_be_miss=True), True)
+    KEEP_NEXT = ('keep next of paragraph', PropertyDescription('w:pPr', 'w:keepNext', is_can_be_miss=True), True)
     OUTLINE_LEVEL = ('outline level of paragraph', PropertyDescription('w:pPr', 'w:outlineLvl', 'w:val'), True)
     TOP_BORDER_TYPE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.TOP_TYPE),
                        PropertyDescription('w:pPr/w:pBdr', 'w:top', 'w:val'), True)
@@ -204,9 +204,9 @@ class RunProperty(EnumOfBorderedElementMixin, ElementPropertyEnum):
     FONT_H_ANSI = ('font h ansi of run', PropertyDescription('w:rPr', 'w:rFonts', 'w:hAnsi'), True)
     FONT_CS = ('font cs of run', PropertyDescription('w:rPr', 'w:rFonts', 'w:cs'), True)
     SIZE = ('size of run', PropertyDescription('w:rPr', 'w:sz', 'w:val'), True)
-    BOLD = ('bold of run', PropertyDescription('w:rPr', 'w:b', None), True)
-    ITALIC = ('italic of run', PropertyDescription('w:rPr', 'w:i', None), True)
-    STRIKE = ('strike of run', PropertyDescription('w:rPr', 'w:strike', None), True)
+    BOLD = ('bold of run', PropertyDescription('w:rPr', 'w:b', is_can_be_miss=True), True)
+    ITALIC = ('italic of run', PropertyDescription('w:rPr', 'w:i', is_can_be_miss=True), True)
+    STRIKE = ('strike of run', PropertyDescription('w:rPr', 'w:strike', is_can_be_miss=True), True)
     VERTICAL_ALIGN = ('vertical align of run', PropertyDescription('w:rPr', 'w:vertAlign', 'w:val'), True)
     LANGUAGE = ('language of run', PropertyDescription('w:rPr', 'w:lang', 'w:val'), True)
     COLOR = ('color of run', PropertyDescription('w:rPr', 'w:color', 'w:val'), True)
@@ -350,7 +350,7 @@ class TableProperty(EnumOfBorderedElementMixin, CellMarginEnumMixin, ElementProp
 
 @unique
 class RowProperty(ElementPropertyEnum):
-    HEADER = ('is header row', PropertyDescription('w:trPr', 'w:tblHeader', None), True)
+    HEADER = ('is header row', PropertyDescription('w:trPr', 'w:tblHeader', is_can_be_miss=True), True)
     HEIGHT = ('height of row', PropertyDescription('w:trPr', 'w:trHeight', 'w:val'), True)
     HEIGHT_RULE = ('height rule of row', PropertyDescription('w:trPr', 'w:trHeight', 'w:hRule'), True)
 
@@ -362,8 +362,7 @@ class CellProperty(EnumOfBorderedElementMixin, CellMarginEnumMixin, ElementPrope
     WIDTH = ('width of cell', PropertyDescription('w:tcPr', 'w:tcW', 'w:w'), True)
     WIDTH_TYPE = ('width type of cell', PropertyDescription('w:tcPr', 'w:tcW', 'w:type'), True)
     COLUMN_SPAN = ('column span of cell', PropertyDescription('w:tcPr', 'w:gridSpan', 'w:val'), True)
-    VERTICAL_MERGE = ('vertical merge of cell', PropertyDescription('w:tcPr', 'w:vMerge', 'w:val', default='continue'),
-                      True)
+    VERTICAL_MERGE = ('vertical merge of cell', PropertyDescription('w:tcPr', 'w:vMerge', is_can_be_miss=True), True)
     VERTICAL_ALIGN = ('vertical align of cell', PropertyDescription('w:tcPr', 'w:vAlign', 'w:val'), True)
     TEXT_DIRECTION = ('text direction of cell', PropertyDescription('w:tcPr', 'w:textDirection', 'w:val'), True)
     TOP_BORDER_TYPE = (
