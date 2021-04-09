@@ -344,14 +344,6 @@ class XMLement(Parser):
                 if not isinstance(base_style_result, Property.Missed) or not is_find_missed_or_true:
                     return base_style_result
 
-        if self._default_style is not None:
-            default_style = self._get_default_style_from_document(self._default_style)
-            if default_style is not None:
-                default_style_result = default_style.get_property(key, is_find_missed_or_true)
-                result = default_style_result
-                if not isinstance(default_style_result, Property.Missed) or not is_find_missed_or_true:
-                    return default_style_result
-
         if isinstance(result, Property.Missed) and is_find_missed_or_true:
             return True
         return result
