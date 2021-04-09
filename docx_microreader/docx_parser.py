@@ -4,6 +4,7 @@ from typing import Union, List, Callable, Dict, Tuple
 import re
 from .properties import Property, PropertyDescription
 from .constants import property_enums as pr_const
+from .constants.property_enums import DefaultStyle
 
 
 class Parser:
@@ -121,6 +122,8 @@ class DocumentParser(Parser):
         self._path: str = abspath(path).replace('\\', '/')
         super(DocumentParser, self).__init__(self.get_xml_file('document.xml'))
         self._styles: dict = {}
+        self._default_styles: dict = {}
+        self._parse_default_styles()
         self._parse_styles()
         self._images_dir: str = abspath(path_for_images).replace('\\', '/') + '/' if path_for_images is not None else \
             self._get_images_directory(False)
@@ -143,7 +146,7 @@ class DocumentParser(Parser):
             return ET.fromstring(raw_xml)
         return raw_xml
 
-    def __parse_style(self, element: ET.Element):
+    def __parse_style(self, element: ET.Element, default_type=None):
         from .styles import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
 
         types: Dict[str, Callable] = {
@@ -154,7 +157,8 @@ class DocumentParser(Parser):
         }
 
         parameters: Tuple[str, str, bool, bool] = (
-            element.get(check_namespace_of_tag(pr_const.StyleProperty.TYPE.description.tag_property)),
+            element.get(check_namespace_of_tag(pr_const.StyleProperty.TYPE.description.tag_property),
+                        default=default_type),
             element.get(check_namespace_of_tag(pr_const.StyleProperty.ID.description.tag_property)),
             False if element.get(check_namespace_of_tag(
                 pr_const.StyleProperty.DEFAULT.description.tag_property)
@@ -165,6 +169,14 @@ class DocumentParser(Parser):
         )
         return types[parameters[0]](element, self, parameters[1],
                                     parameters[2], parameters[3]) if parameters[0] in types else None
+
+    def _parse_default_styles(self):
+        for default_style in DefaultStyle:
+            el = self.get_xml_file('styles.xml').find('./w:docDefaults/' + default_style.tag(), namespaces)
+            if el is not None:
+                elem = self.__parse_style(el, default_style.style_type())
+                if elem is not None:
+                    self._default_styles[default_style.key] = elem
 
     def _parse_styles(self):
         for el in self.get_xml_file('styles.xml').findall('./' + pr_const.Style.tag(), namespaces):
@@ -210,7 +222,10 @@ class DocumentParser(Parser):
                             img.save(f'{directory}{self._images[image_key][5:]}')
 
     def get_style(self, style_id: str):
-        return self._styles[style_id]
+        return self._styles.get(style_id)
+
+    def get_default_style(self, style_type: DefaultStyle):
+        return self._default_styles.get(style_type.key)
 
     def get_image(self, image_id: str):
         return f'{self._get_images_directory()}{self._images[image_id][6:]}'
@@ -232,6 +247,8 @@ class XMLement(Parser):
     # if value of property not equal one of variants or correct variant set None
     _properties_unificators: Dict[str, List[Tuple[str, List[str]]]] = {}
 
+    _default_style: Union[None, DefaultStyle] = None
+
     def _init(self):
         pass
 
@@ -243,6 +260,7 @@ class XMLement(Parser):
         self._properties_unificate()
         self._base_style = self._get_style_from_document()
         self._remove_raw_xml()
+        self._set_default_style_of_class()
 
     def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True):
         """
@@ -326,6 +344,14 @@ class XMLement(Parser):
                 if not isinstance(base_style_result, Property.Missed) or not is_find_missed_or_true:
                     return base_style_result
 
+        if self._default_style is not None:
+            default_style = self._get_default_style_from_document(self._default_style)
+            if default_style is not None:
+                default_style_result = default_style.get_property(key, is_find_missed_or_true)
+                result = default_style_result
+                if not isinstance(default_style_result, Property.Missed) or not is_find_missed_or_true:
+                    return default_style_result
+
         if isinstance(result, Property.Missed) and is_find_missed_or_true:
             return True
         return result
@@ -348,6 +374,16 @@ class XMLement(Parser):
         if style_id is not None:
             return self._get_document().get_style(style_id)
         return None
+
+    def _get_default_style_from_document(self, style: DefaultStyle):
+        return self._get_document().get_default_style(style)
+
+    @classmethod
+    def _set_default_style_of_class(cls):
+        if cls._default_style is None:
+            for default_style in DefaultStyle:
+                if cls.element_description == default_style.element:
+                    cls._default_style = default_style
 
 
 class XMLcontainer(XMLement):

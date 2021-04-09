@@ -18,6 +18,10 @@ class Style(XMLement):
     def _get_style_id(self) -> Union[str, None]:
         return self._properties[pr_const.StyleProperty.BASE_STYLE.key].value
 
+    @classmethod
+    def _set_default_style_of_class(cls):
+        return
+
 
 class ParagraphStyle(Style, ParagraphPropertiesGetSetMixin):
     element_description = pr_const.Style.PARAGRAPH
@@ -68,3 +72,7 @@ class TableStyle(Style, TablePropertiesGetSetMixin):
                 self._element.get(check_namespace_of_tag('w:type')),
                 pr_const.TableArea
             )
+
+        @classmethod
+        def _set_default_style_of_class(cls):
+            return

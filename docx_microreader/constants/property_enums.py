@@ -581,3 +581,27 @@ class Style(Enum):
     @staticmethod
     def tag() -> str:
         return 'w:style'
+
+
+@unique
+class DefaultStyle(Enum):
+    PARAGRAPH = ('default paragraph', Style.PARAGRAPH, Element.PARAGRAPH, 'w:pPrDefault')
+    RUN = ('default run', Style.CHARACTER, Element.RUN, 'w:rPrDefault')
+
+    def __init__(self, s: str, style: Style, element: Element, tag: str):
+        self.key: str = s
+        self._style: Style = style
+        self.element: Element = element
+        self._tag: str = tag
+
+    def get_property_descriptions_dict(self) -> Dict[str, PropertyDescription]:
+        """
+        create keys for dict of property descriptions of styles (those keys use also for corresponding properties)
+        """
+        return self.element.get_property_descriptions_dict()
+
+    def style_type(self) -> str:
+        return self._style.type
+
+    def tag(self) -> str:
+        return self._tag
