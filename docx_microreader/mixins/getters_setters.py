@@ -92,6 +92,9 @@ class ParagraphPropertiesGetSetMixin(GetSetMixin, ABC):
 
 
 class RunPropertiesGetSetMixin(GetSetMixin, ABC):
+    def get_font(self) -> Union[str, None]:
+        return self.get_property(pr_const.RunProperty.FONT_ASCII)
+
     def get_size(self) -> Union[str, None]:
         return self.get_property(pr_const.RunProperty.SIZE)
 

@@ -322,6 +322,7 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         }
 
     def _do_methods(self, run):
+        self._to_css_font(run)
         self._to_css_size(run)
         self._to_ext_tag_bold(run)
         self._to_ext_tag_italic(run)
@@ -341,6 +342,11 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         size = run.get_size()
         if size is not None:
             self.styles['font-size'] = size
+
+    def _to_css_font(self, run):
+        font = run.get_font()
+        if font is not None:
+            self.styles['font-family'] = font
 
     def _to_ext_tag_bold(self, run):
         if run.is_bold():
