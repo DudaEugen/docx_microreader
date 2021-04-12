@@ -70,12 +70,7 @@ class TranslatorToXML:
 
 
 class TextTranslatorToXML(TranslatorToXML):
-    def create_xml(self, element, inner_elements: list) -> ET.Element:
-        result = super(TextTranslatorToXML, self).create_xml(element, inner_elements)
-        # TO DO: upgrade create_xml in TranslatorToXML, add xml:space to properties of Text
-        if len(element.content) > 0 and (element.content[0] == ' ' or element.content[-1] == ' '):
-            result.set('xml:space', 'preserve')
-        return result
+    pass
 
 
 class RunTranslatorToXML(TranslatorToXML):

@@ -34,6 +34,10 @@ namespaces: Dict[str, str] = {
     'pic': 'http://schemas.openxmlformats.org/drawingml/2006/picture',
 }
 
+additional_namespaces: Dict[str, str] = {
+    'xml': 'http://www.w3.org/XML/1998/namespace',
+}
+
 
 def check_namespace_of_tag(tag: str) -> str:
     """
@@ -44,5 +48,7 @@ def check_namespace_of_tag(tag: str) -> str:
 
     if ':' in tag:
         key = re.split(':', tag)[0]
-        return tag.replace(key + ':', '{' + namespaces[key] + '}')
+        for name_space in [namespaces, additional_namespaces]:
+            if key in name_space:
+                return tag.replace(key + ':', '{' + name_space[key] + '}')
     return tag

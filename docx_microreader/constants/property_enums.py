@@ -252,7 +252,7 @@ class RunProperty(EnumOfBorderedElementMixin, ElementPropertyEnum):
 
 @unique
 class TextProperty(ElementPropertyEnum):
-    pass
+    SPACE = ('space of text', PropertyDescription(None, None, 'xml:space'))
 
 
 @unique
