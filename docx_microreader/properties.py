@@ -14,29 +14,37 @@ class PropertyDescription:
         from .constants.property_enums import MissedPropertyAttribute
         
         self.tag_wrap: Union[List[str], str, None] = tag_wrap
-        self.tag: Union[List[str], str] = tag
+        self.tag: Union[List[str], str, None] = tag
         self.tag_property: Union[List[str], str, None] = tag_property if not is_can_be_miss else MissedPropertyAttribute
         self.is_can_be_miss: bool = is_can_be_miss
 
     def get_wrapped_tags(self) -> Union[List[str], str]:
-        tag_wrap: Union[List[str], str] = self.__wrap_for_tag()
-        if isinstance(self.tag, list) and isinstance(tag_wrap, list):
+        tag_wrap: Union[List[str], str] = self.tag_wrap if self.tag_wrap is not None else ''
+        tag: Union[List[str], str] = self.tag if self.tag is not None else ''
+
+        if isinstance(tag, list) and isinstance(tag_wrap, list):
             result: List[str] = []
             for wrap in tag_wrap:
-                result.extend([(wrap + tag) for tag in self.tag])
+                result.extend([PropertyDescription.__wrapping_tag(wrap, tag) for tag in tag])
             return result
-        if isinstance(self.tag, list):
-            return [(tag_wrap + tag) for tag in self.tag]
+        if isinstance(tag, list):
+            return [PropertyDescription.__wrapping_tag(tag_wrap, tag) for tag in tag]
         if isinstance(tag_wrap, list):
-            return [(wrap + self.tag) for wrap in tag_wrap]
-        return tag_wrap + self.tag
+            return [PropertyDescription.__wrapping_tag(tag_wrap, tag) for tag_wrap in tag_wrap]
+        return PropertyDescription.__wrapping_tag(tag_wrap, tag)
 
-    def __wrap_for_tag(self) -> Union[List[str], str]:
-        if self.tag_wrap is not None:
-            if isinstance(self.tag_wrap, list):
-                return [(tag_wrap + '/') for tag_wrap in self.tag_wrap]
-            return self.tag_wrap + '/'
-        return ''
+    @staticmethod
+    def __wrapping_tag(wrap, tag) -> str:
+        if wrap != '':
+            if tag != '':
+                return f'{wrap}/{tag}'
+            else:
+                return wrap
+        else:   # wrap == ''
+            if tag != '':
+                return tag
+            else:
+                return ''
 
 
 class Property:

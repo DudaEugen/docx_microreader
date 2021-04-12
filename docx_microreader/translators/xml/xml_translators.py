@@ -1,18 +1,19 @@
 import xml.etree.ElementTree as ET
 from typing import List
+from typing import Union
 
 
 class TranslatorToXML:
 
     @staticmethod
-    def create_properties_dict(parent: dict, rest_tags: List[str]) -> dict:
-        tag: str = rest_tags[0]
-        if not (tag in parent):
-            parent[tag] = {}
-        d: dict = parent[tag]
-        if len(rest_tags) > 1:
-            return TranslatorToXML.create_properties_dict(d, rest_tags[1:])
-        return d
+    def create_properties_dict(parent: dict, rest, value):
+        tag: str = rest[0]
+        if len(rest) > 1:
+            if not (tag in parent):
+                parent[tag] = {}
+            TranslatorToXML.create_properties_dict(parent[tag], rest[1:], value)
+        else:
+            parent[tag] = value
 
     def add_property(self, element: ET.Element, d: dict) -> bool:
         from ...properties import Property
@@ -41,10 +42,13 @@ class TranslatorToXML:
         result: ET.Element = ET.Element(element.element_description.tag)
         properties = {}
         for prop in element.element_description.props:
-            tags: List[str] = ''.join(prop.description.get_wrapped_tags()).split('/')
+            wrapped_tags: Union[List[str], str] = prop.description.get_wrapped_tags()
+            wrapped_tag: str = wrapped_tags if not isinstance(wrapped_tags, list) else wrapped_tags[0]
+            tags = ''.join(wrapped_tag).split('/') if wrapped_tag != '' else []
             tag_property = prop.description.tag_property[0] if isinstance(prop.description.tag_property, list) else \
                 prop.description.tag_property
-            self.create_properties_dict(properties, tags)[tag_property] = element._properties[prop.key].value
+            tags.append(tag_property)
+            self.create_properties_dict(properties, tags, element._properties[prop.key].value)
         self.add_property(result, properties)
         TranslatorToXML.append_inner_elements(result, inner_elements)
         return result
