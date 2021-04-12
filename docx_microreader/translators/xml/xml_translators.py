@@ -23,13 +23,12 @@ class TranslatorToXML:
             is_added: bool = False
             if not isinstance(value, dict):
                 if value is not None:
+                    is_added = True
                     if isinstance(value, bool):
-                        is_added = value
-                    elif isinstance(value, Property.Missed):
-                        is_added = True
-                    else:
+                        element.set(key, '1' if value else '0')
+                    elif not isinstance(value, Property.Missed):
                         element.set(key, value)
-                        is_added = True
+                    # is_added = True enough if isinstance(value, Property.Missed)
             else:
                 new_el = ET.Element(key)
                 is_added = self.add_property(new_el, value)
