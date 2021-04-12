@@ -73,10 +73,10 @@ class Text(XMLement):
     element_description = pr_const.Element.TEXT
     _is_unique = True
     from docx_microreader.translators.html.html_translators import TextTranslatorToHTML
-    from docx_microreader.translators.xml.xml_translators import TextTranslatorToXML
+    from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
         TranslateFormat.HTML: TextTranslatorToHTML(),
-        TranslateFormat.XML: TextTranslatorToXML(),
+        TranslateFormat.XML: TranslatorToXML(),
     }
 
     def __init__(self, element: ET.Element, parent):
@@ -100,10 +100,10 @@ class Run(XMLement, RunPropertiesGetSetMixin):
     element_description = pr_const.Element.RUN
 
     from docx_microreader.translators.html.html_translators import RunTranslatorToHTML
-    from docx_microreader.translators.xml.xml_translators import RunTranslatorToXML
+    from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
         TranslateFormat.HTML: RunTranslatorToHTML(),
-        TranslateFormat.XML: RunTranslatorToXML(),
+        TranslateFormat.XML: TranslatorToXML(),
     }
 
     def __init__(self, element: ET.Element, parent):
@@ -166,10 +166,10 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
                                                ('distribute', [])]
     }
     from docx_microreader.translators.html.html_translators import ParagraphTranslatorToHTML
-    from docx_microreader.translators.xml.xml_translators import ParagraphTranslatorToXML
+    from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
         TranslateFormat.HTML: ParagraphTranslatorToHTML(),
-        TranslateFormat.XML: ParagraphTranslatorToXML(),
+        TranslateFormat.XML: TranslatorToXML(),
     }
 
     def __init__(self, element: ET.Element, parent):
@@ -221,10 +221,10 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
 class Cell(XMLcontainer, CellPropertiesGetSetMixin):
     element_description = pr_const.Element.CELL
     from docx_microreader.translators.html.html_translators import CellTranslatorToHTML
-    from docx_microreader.translators.xml.xml_translators import CellTranslatorToXML
+    from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
         TranslateFormat.HTML: CellTranslatorToHTML(),
-        TranslateFormat.XML: CellTranslatorToXML(),
+        TranslateFormat.XML: TranslatorToXML(),
     }
 
     def __init__(self, element: ET.Element, parent):
@@ -495,10 +495,10 @@ class Cell(XMLcontainer, CellPropertiesGetSetMixin):
 class Row(XMLement, RowPropertiesGetSetMixin):
     element_description = pr_const.Element.ROW
     from docx_microreader.translators.html.html_translators import RowTranslatorToHTML
-    from docx_microreader.translators.xml.xml_translators import RowTranslatorToXML
+    from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
         TranslateFormat.HTML: RowTranslatorToHTML(),
-        TranslateFormat.XML: RowTranslatorToXML(),
+        TranslateFormat.XML: TranslatorToXML(),
     }
 
     def __init__(self, element: ET.Element, parent):
@@ -560,10 +560,10 @@ class Table(XMLement, TablePropertiesGetSetMixin):
                                            ('center', [])]
     }
     from docx_microreader.translators.html.html_translators import TableTranslatorToHTML
-    from docx_microreader.translators.xml.xml_translators import TableTranslatorToXML
+    from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
         TranslateFormat.HTML: TableTranslatorToHTML(),
-        TranslateFormat.XML: TableTranslatorToXML(),
+        TranslateFormat.XML: TranslatorToXML(),
     }
 
     def __init__(self, element: ET.Element, parent):
@@ -678,10 +678,10 @@ class Body(XMLcontainer):
     element_description = pr_const.Element.BODY
     _is_unique = True
     from docx_microreader.translators.html.html_translators import BodyTranslatorToHTML
-    from docx_microreader.translators.xml.xml_translators import BodyTranslatorToXML
+    from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
         TranslateFormat.HTML: BodyTranslatorToHTML(),
-        TranslateFormat.XML: BodyTranslatorToXML(),
+        TranslateFormat.XML: TranslatorToXML(),
     }
 
 

@@ -69,34 +69,6 @@ class TranslatorToXML:
         return el
 
 
-class TextTranslatorToXML(TranslatorToXML):
-    pass
-
-
-class RunTranslatorToXML(TranslatorToXML):
-    pass
-
-
-class ParagraphTranslatorToXML(TranslatorToXML):
-    pass
-
-
-class CellTranslatorToXML(TranslatorToXML):
-    pass
-
-
-class RowTranslatorToXML(TranslatorToXML):
-    pass
-
-
-class TableTranslatorToXML(TranslatorToXML):
-    pass
-
-
-class BodyTranslatorToXML(TranslatorToXML):
-    pass
-
-
 class DocumentTranslatorToXML:
     def translate(self, element, inner_elements: list) -> ET.Element:
         from ...constants.namespaces import namespaces
