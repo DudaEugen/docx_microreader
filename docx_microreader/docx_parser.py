@@ -53,7 +53,7 @@ class Parser:
                 return Property(property_element.get(check_namespace_of_tag(tags)))
 
     def _parse_element(self, element: ET.Element):
-        from .models import Body, Table, Row, Cell, Paragraph, Run, Text, Drawing, Image
+        from .models import Body, Table, Row, Cell, Paragraph, Run, Text, Drawing, Image, LineBreak
 
         tags: Dict[str, Callable] = {
             check_namespace_of_tag(Body.element_description.tag): Body,
@@ -63,6 +63,7 @@ class Parser:
             check_namespace_of_tag(Paragraph.element_description.tag): Paragraph,
             check_namespace_of_tag(Run.element_description.tag): Run,
             check_namespace_of_tag(Text.element_description.tag): Text,
+            check_namespace_of_tag(LineBreak.element_description.tag): LineBreak,
             check_namespace_of_tag(Drawing.element_description.tag): Drawing,
             check_namespace_of_tag(Image.element_description.tag): Image,
         }

@@ -69,6 +69,16 @@ class Drawing(XMLement):
         )
 
 
+class LineBreak(XMLement):
+    element_description = pr_const.Element.LINE_BREAK
+    from docx_microreader.translators.xml.xml_translators import TranslatorToXML
+    from docx_microreader.translators.html.html_translators import LineBreakTranslatorToHTML
+    translators = {
+        TranslateFormat.HTML: LineBreakTranslatorToHTML(),
+        TranslateFormat.XML: TranslatorToXML(),
+    }
+
+
 class Text(XMLement):
     element_description = pr_const.Element.TEXT
     _is_unique = True
@@ -107,21 +117,30 @@ class Run(XMLement, RunPropertiesGetSetMixin):
     }
 
     def __init__(self, element: ET.Element, parent):
-        self.text: Text
+        self.text: Union[Text, None] = None
         self.image: Union[Drawing, None] = None
+        self.line_break: Union[LineBreak, None] = None
+        self.elements: List[Union[Text, Drawing, LineBreak]] = []
         super(Run, self).__init__(element, parent)
 
     def _init(self):
-        text: Union[str, None] = self._get_elements(Text)
-        self.text = text
-        self.image = self._get_elements(Drawing)
+        elements: list = self._get_all_elements()
+        for element in elements:
+            if isinstance(element, Text):
+                self.text = element
+                self.elements.append(element)
+            elif isinstance(element, Drawing):
+                self.image = element
+                self.elements.append(element)
+            elif isinstance(element, LineBreak):
+                self.line_break = element
+                self.elements.append(element)
 
     def _get_style_id(self) -> Union[str, None]:
         return self._properties[pr_const.RunProperty.STYLE.key].value
 
     def _get_inner_elements(self) -> list:
-        element = self.text if self.image is None else self.image
-        return [element]
+        return [element for element in self.elements if element is not None]
 
     def get_property(self, property_name, is_find_missed_or_true: bool = True):
         """

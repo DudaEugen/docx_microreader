@@ -15,6 +15,7 @@ _ROW_NAME: str = 'row'
 _CELL_NAME: str = 'cell'
 _DRAWING_NAME: str = 'drawing'
 _IMAGE_NAME: str = 'image'
+_LINE_BREAK: str = 'break'
 
 # name of attribute for bool property values. Properties can be missed only if corresponding to this attribute
 MissedPropertyAttribute: str = 'w:val'
@@ -256,6 +257,12 @@ class TextProperty(ElementPropertyEnum):
 
 
 @unique
+class LineBreakProperty(ElementPropertyEnum):
+    TYPE = ('type of line break', PropertyDescription(None, None, 'w:type'))
+    CLEAR = ('clear of line break', PropertyDescription(None, None, 'w:clear'))
+
+
+@unique
 class TableProperty(EnumOfBorderedElementMixin, CellMarginEnumMixin, ElementPropertyEnum):
     LAYOUT = ('layout of table', PropertyDescription('w:tblPr', 'w:tblLayout', 'w:type'), True)
     WIDTH = ('width of table', PropertyDescription('w:tblPr', 'w:tblW', 'w:w'), True)
@@ -488,6 +495,7 @@ class Element(Enum):
     PARAGRAPH = (_PARAGRAPH_NAME, 'w:p', ParagraphProperty)
     RUN = (_RUN_NAME, 'w:r', RunProperty)
     TEXT = (_TEXT_NAME, 'w:t', TextProperty)
+    LINE_BREAK = (_LINE_BREAK, 'w:br', LineBreakProperty)
     TABLE = (_TABLE_NAME, 'w:tbl', TableProperty)
     ROW = (_ROW_NAME, 'w:tr', RowProperty)
     CELL = (_CELL_NAME, 'w:tc', CellProperty)

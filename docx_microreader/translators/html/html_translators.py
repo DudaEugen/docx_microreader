@@ -596,6 +596,11 @@ class TextTranslatorToHTML:
         return text
 
 
+class LineBreakTranslatorToHTML:
+    def translate(self, text_element, inner_elements: list) -> str:
+        return '<br>'
+
+
 class TableTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
 
     def _do_methods(self, table):
