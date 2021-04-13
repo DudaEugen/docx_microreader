@@ -601,6 +601,16 @@ class LineBreakTranslatorToHTML:
         return '<br>'
 
 
+class CarriageReturnTranslatorToHTML:
+    def translate(self, text_element, inner_elements: list) -> str:
+        return '<br>'
+
+
+class TabulationTranslatorToHTML:
+    def translate(self, text_element, inner_elements: list) -> str:
+        return '&emsp;&emsp;'
+
+
 class TableTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
 
     def _do_methods(self, table):

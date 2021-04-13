@@ -16,6 +16,8 @@ _CELL_NAME: str = 'cell'
 _DRAWING_NAME: str = 'drawing'
 _IMAGE_NAME: str = 'image'
 _LINE_BREAK: str = 'break'
+_CARRIAGE_RETURN: str = 'carriage return'
+_TABULATION: str = 'tabulation'
 
 # name of attribute for bool property values. Properties can be missed only if corresponding to this attribute
 MissedPropertyAttribute: str = 'w:val'
@@ -263,6 +265,16 @@ class LineBreakProperty(ElementPropertyEnum):
 
 
 @unique
+class CarriageReturnProperty(ElementPropertyEnum):
+    pass
+
+
+@unique
+class TabulationProperty(ElementPropertyEnum):
+    pass
+
+
+@unique
 class TableProperty(EnumOfBorderedElementMixin, CellMarginEnumMixin, ElementPropertyEnum):
     LAYOUT = ('layout of table', PropertyDescription('w:tblPr', 'w:tblLayout', 'w:type'), True)
     WIDTH = ('width of table', PropertyDescription('w:tblPr', 'w:tblW', 'w:w'), True)
@@ -496,6 +508,8 @@ class Element(Enum):
     RUN = (_RUN_NAME, 'w:r', RunProperty)
     TEXT = (_TEXT_NAME, 'w:t', TextProperty)
     LINE_BREAK = (_LINE_BREAK, 'w:br', LineBreakProperty)
+    CARRIAGE_RETURN = (_CARRIAGE_RETURN, 'w:cr', CarriageReturnProperty)
+    Tabulation = (_TABULATION, 'w:tab', TabulationProperty)
     TABLE = (_TABLE_NAME, 'w:tbl', TableProperty)
     ROW = (_ROW_NAME, 'w:tr', RowProperty)
     CELL = (_CELL_NAME, 'w:tc', CellProperty)

@@ -71,6 +71,26 @@ class LineBreak(XMLement):
     }
 
 
+class CarriageReturn(XMLement):
+    element_description = pr_const.Element.CARRIAGE_RETURN
+    from docx_microreader.translators.xml.xml_translators import TranslatorToXML
+    from docx_microreader.translators.html.html_translators import CarriageReturnTranslatorToHTML
+    translators = {
+        TranslateFormat.HTML: CarriageReturnTranslatorToHTML(),
+        TranslateFormat.XML: TranslatorToXML(),
+    }
+
+
+class Tabulation(XMLement):
+    element_description = pr_const.Element.Tabulation
+    from docx_microreader.translators.xml.xml_translators import TranslatorToXML
+    from docx_microreader.translators.html.html_translators import TabulationTranslatorToHTML
+    translators = {
+        TranslateFormat.HTML: TabulationTranslatorToHTML(),
+        TranslateFormat.XML: TranslatorToXML(),
+    }
+
+
 class Text(XMLement):
     element_description = pr_const.Element.TEXT
 
@@ -107,7 +127,7 @@ class Run(XMLement, RunPropertiesGetSetMixin):
 
     @classmethod
     def _possible_inner_elements_descriptions(cls) -> list:
-        return [Text, Drawing, LineBreak]
+        return [Text, Drawing, LineBreak, CarriageReturn, Tabulation]
 
     def _get_style_id(self) -> Union[str, None]:
         return self._properties[pr_const.RunProperty.STYLE.key].value
