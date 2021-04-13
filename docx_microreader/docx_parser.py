@@ -10,25 +10,41 @@ from .constants.property_enums import DefaultStyle
 class Parser:
     element_description = None
 
+    @classmethod
+    def _possible_inner_elements_descriptions(cls) -> list:
+        return []
+
+    def __possible_inner_elements(self) -> list:
+        import sys
+
+        result = []
+        classes_descriptions = self.__class__._possible_inner_elements_descriptions()
+        for v in classes_descriptions:
+            if isinstance(v, tuple):
+                result.append(getattr(sys.modules[v[0]], v[1]))
+            else:
+                result.append(v)
+        return result
+
     def __init__(self, element: ET.Element):
-        self._element: ET.Element = element
+        self._properties: Dict[str, Property] = self.__class__._parse_properties(element)
+        self.inner_elements: list = self._parse_all_inner_elements(element)
 
-    def _remove_raw_xml(self):
-        del self._element
-
-    def __find_property_element(self, description: PropertyDescription) -> Union[ET.Element, None]:
+    @staticmethod
+    def __find_property_element(description: PropertyDescription, element: ET.Element) -> Union[ET.Element, None]:
         """
         find element by propertyDescription
         """
         if isinstance(description.get_wrapped_tags(), list):
             for tag in description.get_wrapped_tags():
-                result: Union[ET.Element, None] = self._element.find(tag, namespaces)
+                result: Union[ET.Element, None] = element.find(tag, namespaces)
                 if result is not None:
                     return result
             return None
-        return self._element.find(description.get_wrapped_tags(), namespaces)
+        return element.find(description.get_wrapped_tags(), namespaces)
 
-    def __find_property(self, property_element: ET.Element, pr: PropertyDescription,
+    @staticmethod
+    def __find_property(property_element: ET.Element, pr: PropertyDescription,
                         tags: Union[List[str], str, None]) -> Property:
         """
         find property in element
@@ -53,57 +69,33 @@ class Parser:
                 return Property(property_element.get(check_namespace_of_tag(tags)))
 
     def _parse_element(self, element: ET.Element):
-        from .models import Body, Table, Row, Cell, Paragraph, Run, Text, Drawing, Image, LineBreak
-
         tags: Dict[str, Callable] = {
-            check_namespace_of_tag(Body.element_description.tag): Body,
-            check_namespace_of_tag(Table.element_description.tag): Table,
-            check_namespace_of_tag(Row.element_description.tag): Row,
-            check_namespace_of_tag(Cell.element_description.tag): Cell,
-            check_namespace_of_tag(Paragraph.element_description.tag): Paragraph,
-            check_namespace_of_tag(Run.element_description.tag): Run,
-            check_namespace_of_tag(Text.element_description.tag): Text,
-            check_namespace_of_tag(LineBreak.element_description.tag): LineBreak,
-            check_namespace_of_tag(Drawing.element_description.tag): Drawing,
-            check_namespace_of_tag(Image.element_description.tag): Image,
+            check_namespace_of_tag(el.element_description.tag): el for el in self.__possible_inner_elements()
         }
-
         return tags[element.tag](element, self) if element.tag in tags else None
 
-    def _get_elements(self, class_of_element):
-        element_tag: str = class_of_element.element_description.tag
-        if class_of_element._is_unique:
-            element: Union[ET.Element, None] = self._element.find(element_tag, namespaces)
-            return class_of_element(element, self) if element is not None else None
-        else:
-            result: list = []
-            for el in self._element.findall('./' + element_tag, namespaces):
-                elem = class_of_element(el, self)
-                if elem is not None:
-                    result.append(elem)
-            return result
-
-    def _get_all_elements(self):
+    def _parse_all_inner_elements(self, element: ET.Element) -> list:
         result: list = []
-        for el in self._element.findall('./'):
+        for el in element.findall('./'):
             elem = self._parse_element(el)
             if elem is not None:
                 result.append(elem)
         return result
 
-    def _parse_properties(self) -> Dict[str, Property]:
+    @classmethod
+    def _parse_properties(cls, element: ET.Element) -> Dict[str, Property]:
         result: Dict[str, Property] = {}
-        properties_description_dict = self.element_description.get_property_descriptions_dict()
+        properties_description_dict = cls.element_description.get_property_descriptions_dict()
         for key, pr in properties_description_dict.items():
             if pr.tag is not None:
-                property_element: Union[ET.Element, None] = self.__find_property_element(pr)
+                property_element: Union[ET.Element, None] = Parser.__find_property_element(pr, element)
                 if property_element is not None:
-                    result[key] = self.__find_property(property_element, pr,
-                                                       properties_description_dict[key].tag_property)
+                    result[key] = Parser.__find_property(property_element, pr,
+                                                         properties_description_dict[key].tag_property)
                 else:
                     result[key] = Property(None)
             else:
-                result[key] = Property(self._element.get(check_namespace_of_tag(pr.tag_property)))
+                result[key] = Property(element.get(check_namespace_of_tag(pr.tag_property)))
         return result
 
     @staticmethod
@@ -121,7 +113,6 @@ class DocumentParser(Parser):
         from os.path import abspath
 
         self._path: str = abspath(path).replace('\\', '/')
-        super(DocumentParser, self).__init__(self.get_xml_file('document.xml'))
         self._styles: dict = {}
         self._default_styles: dict = {}
         self._parse_default_styles()
@@ -130,6 +121,11 @@ class DocumentParser(Parser):
             self._get_images_directory(False)
         self._images: Dict[str, str] = self._parse_images_relationships()
         self.__images_extraction()
+        super(DocumentParser, self).__init__(self.get_xml_file('document.xml'))
+
+    @classmethod
+    def _parse_properties(cls, element: ET.Element) -> Dict[str, Property]:
+        return {}
 
     def get_xml_file(self, file_name: str, is_return_element_tree: bool = True) -> Union[ET.Element, str, None]:
         """
@@ -240,8 +236,6 @@ class XMLement(Parser):
     # def translate(self, xml_element, translated_inner_elements: str)
     translators = {}
     translate_format: TranslateFormat = TranslateFormat.HTML
-    _is_unique: bool = False   # True if parent can containing only one this element
-    # all_style_properties: Dict[str, Tuple[str, Union[str, None], bool]] = {}
 
     # first element of Tuple is correct variant of property value; second element is variants of this value
     # _properties_validate method set correct variant if find value equal of one of variant
@@ -250,17 +244,11 @@ class XMLement(Parser):
 
     _default_style: Union[None, DefaultStyle] = None
 
-    def _init(self):
-        pass
-
     def __init__(self, element: ET.Element, parent):
         self.parent: Union[XMLement, None] = parent
         super(XMLement, self).__init__(element)
-        self._init()
-        self._properties: Dict[str, Property] = self._parse_properties()
         self._properties_unificate()
         self._base_style = self._get_style_from_document()
-        self._remove_raw_xml()
         self._set_default_style_of_class()
 
     def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True):
@@ -272,7 +260,7 @@ class XMLement(Parser):
         translator = self.translators[TranslateFormat(to_format)] if to_format is not None else \
                      self.translators[self.translate_format]
         translated_inner_elements = []
-        for el in self._get_inner_elements():
+        for el in self.inner_elements:
             if is_recursive_translate:
                 translated_inner_elements.append(el.translate(to_format, is_recursive_translate))
             else:
@@ -317,9 +305,6 @@ class XMLement(Parser):
         :return: key of property
         """
         return property_name if isinstance(property_name, str) else property_name.key
-
-    def _get_inner_elements(self) -> list:
-        return []
 
     def get_parent(self):
         return self.parent
@@ -377,32 +362,3 @@ class XMLement(Parser):
             for default_style in DefaultStyle:
                 if cls.element_description == default_style.element:
                     cls._default_style = default_style
-
-
-class XMLcontainer(XMLement):
-    """
-    this objects can containing Tables, Paragraphs, Images, Lists
-    """
-
-    def _init(self):
-        from .models import Paragraph, Table
-
-        elements: list = self._get_all_elements()
-        for element in elements:
-            if isinstance(element, Paragraph):
-                self.paragraphs.append(element)
-                self.elements.append(element)
-            elif isinstance(element, Table):
-                self.tables.append(element)
-                self.elements.append(element)
-
-    def __init__(self, element: ET.Element, parent):
-        from .models import Paragraph, Table
-
-        self.tables: List[Table] = []
-        self.paragraphs: List[Paragraph] = []
-        self.elements: List[Union[Table, Paragraph]] = []
-        super(XMLcontainer, self).__init__(element, parent)
-
-    def _get_inner_elements(self) -> list:
-        return self.elements

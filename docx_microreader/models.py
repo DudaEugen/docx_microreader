@@ -1,4 +1,4 @@
-from .docx_parser import XMLcontainer, DocumentParser, XMLement
+from .docx_parser import DocumentParser, XMLement
 import xml.etree.ElementTree as ET
 from typing import List, Callable, Dict, Union, Tuple
 from .mixins.getters_setters import ParagraphPropertiesGetSetMixin, RunPropertiesGetSetMixin, \
@@ -39,7 +39,7 @@ class Image(XMLement):
 
 class Drawing(XMLement):
     element_description = pr_const.Element.DRAWING
-    _is_unique = True
+
     from docx_microreader.translators.html.html_translators import ContainerTranslatorToHTML
     from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
@@ -47,17 +47,9 @@ class Drawing(XMLement):
         TranslateFormat.XML: TranslatorToXML(),
     }
 
-    def __init__(self, element: ET.Element, parent):
-        self.image: Union[Image, None] = None
-        super(Drawing, self).__init__(element, parent)
-
-    def _init(self):
-        self.image = self._get_elements(Image)
-
-    def _get_inner_elements(self) -> list:
-        if self.image is not None:
-            return [self.image]
-        return []
+    @classmethod
+    def _possible_inner_elements_descriptions(cls) -> list:
+        return [Image]
 
     def get_size(self) -> (int, int):
         """
@@ -81,7 +73,7 @@ class LineBreak(XMLement):
 
 class Text(XMLement):
     element_description = pr_const.Element.TEXT
-    _is_unique = True
+
     from docx_microreader.translators.html.html_translators import TextTranslatorToHTML
     from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
@@ -90,11 +82,8 @@ class Text(XMLement):
     }
 
     def __init__(self, element: ET.Element, parent):
-        self.content: str = ''
+        self.content: str = element.text
         super(Text, self).__init__(element, parent)
-
-    def _init(self):
-        self.content = self._element.text
 
     def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True):
         """
@@ -116,31 +105,12 @@ class Run(XMLement, RunPropertiesGetSetMixin):
         TranslateFormat.XML: TranslatorToXML(),
     }
 
-    def __init__(self, element: ET.Element, parent):
-        self.text: Union[Text, None] = None
-        self.image: Union[Drawing, None] = None
-        self.line_break: Union[LineBreak, None] = None
-        self.elements: List[Union[Text, Drawing, LineBreak]] = []
-        super(Run, self).__init__(element, parent)
-
-    def _init(self):
-        elements: list = self._get_all_elements()
-        for element in elements:
-            if isinstance(element, Text):
-                self.text = element
-                self.elements.append(element)
-            elif isinstance(element, Drawing):
-                self.image = element
-                self.elements.append(element)
-            elif isinstance(element, LineBreak):
-                self.line_break = element
-                self.elements.append(element)
+    @classmethod
+    def _possible_inner_elements_descriptions(cls) -> list:
+        return [Text, Drawing, LineBreak]
 
     def _get_style_id(self) -> Union[str, None]:
         return self._properties[pr_const.RunProperty.STYLE.key].value
-
-    def _get_inner_elements(self) -> list:
-        return [element for element in self.elements if element is not None]
 
     def get_property(self, property_name, is_find_missed_or_true: bool = True):
         """
@@ -177,6 +147,7 @@ class Run(XMLement, RunPropertiesGetSetMixin):
 
 class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
     element_description = pr_const.Element.PARAGRAPH
+
     _properties_unificators = {
         pr_const.ParagraphProperty.ALIGN.key: [('left', ['start']),
                                                ('right', ['end']),
@@ -184,6 +155,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
                                                ('both', []),
                                                ('distribute', [])]
     }
+
     from docx_microreader.translators.html.html_translators import ParagraphTranslatorToHTML
     from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
@@ -191,18 +163,12 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
         TranslateFormat.XML: TranslatorToXML(),
     }
 
-    def __init__(self, element: ET.Element, parent):
-        self.runs: List[Run] = []
-        super(Paragraph, self).__init__(element, parent)
-
-    def _init(self):
-        self.runs = self._get_elements(Run)
+    @classmethod
+    def _possible_inner_elements_descriptions(cls) -> list:
+        return [Run]
 
     def _get_style_id(self) -> Union[str, None]:
         return self._properties[pr_const.ParagraphProperty.STYLE.key].value
-
-    def _get_inner_elements(self) -> list:
-        return self.runs
 
     def get_property(self, property_name, is_find_missed_or_true: bool = True):
         """
@@ -237,14 +203,19 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
         return result
 
 
-class Cell(XMLcontainer, CellPropertiesGetSetMixin):
+class Cell(XMLement, CellPropertiesGetSetMixin):
     element_description = pr_const.Element.CELL
+
     from docx_microreader.translators.html.html_translators import CellTranslatorToHTML
     from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
         TranslateFormat.HTML: CellTranslatorToHTML(),
         TranslateFormat.XML: TranslatorToXML(),
     }
+
+    @classmethod
+    def _possible_inner_elements_descriptions(cls) -> list:
+        return [Paragraph, ('docx_microreader.models', 'Table')]
 
     def __init__(self, element: ET.Element, parent):
         self.row_span: int = 1
@@ -513,6 +484,7 @@ class Cell(XMLcontainer, CellPropertiesGetSetMixin):
 
 class Row(XMLement, RowPropertiesGetSetMixin):
     element_description = pr_const.Element.ROW
+
     from docx_microreader.translators.html.html_translators import RowTranslatorToHTML
     from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
@@ -520,21 +492,19 @@ class Row(XMLement, RowPropertiesGetSetMixin):
         TranslateFormat.XML: TranslatorToXML(),
     }
 
+    @classmethod
+    def _possible_inner_elements_descriptions(cls) -> list:
+        return [Cell]
+
     def __init__(self, element: ET.Element, parent):
-        self.cells: List[Cell] = []
+        super(Row, self).__init__(element, parent)
+        self.cells: List[Cell] = self.inner_elements
+        self.__set_index_in_row_for_cells()
         self.is_first_row_in_header: bool = False
         self.is_last_row_in_header: bool = False
         self.index_in_table: int = -1
-        super(Row, self).__init__(element, parent)
         if self._properties[pr_const.RowProperty.HEADER.key].value:
             self.__set_cells_as_header()
-
-    def _init(self):
-        self.cells = self._get_elements(Cell)
-        self.__set_index_in_row_for_cells()
-
-    def _get_inner_elements(self) -> list:
-        return self.cells
 
     def __set_cells_as_header(self):
         for cell in self.cells:
@@ -573,11 +543,13 @@ class Row(XMLement, RowPropertiesGetSetMixin):
 
 class Table(XMLement, TablePropertiesGetSetMixin):
     element_description = pr_const.Element.TABLE
+
     _properties_unificators = {
         pr_const.TableProperty.ALIGN.key: [('left', ['start']),
                                            ('right', ['end']),
                                            ('center', [])]
     }
+
     from docx_microreader.translators.html.html_translators import TableTranslatorToHTML
     from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
@@ -585,10 +557,15 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         TranslateFormat.XML: TranslatorToXML(),
     }
 
+    @classmethod
+    def _possible_inner_elements_descriptions(cls) -> list:
+        return [Row]
+
     def __init__(self, element: ET.Element, parent):
-        self.rows: List[Row] = []
-        self.header_row_number: int = 0
         super(Table, self).__init__(element, parent)
+        self.rows: List[Row] = self.inner_elements
+        self.__set_index_in_table_for_rows()
+        self.header_row_number: int = 0
 
     def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True):
         """
@@ -599,15 +576,8 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         self.__calculate_rowspan_for_cells()
         return super(Table, self).translate(TranslateFormat(to_format), is_recursive_translate)
 
-    def _init(self):
-        self.rows = self._get_elements(Row)
-        self.__set_index_in_table_for_rows()
-
     def _get_style_id(self) -> Union[str, None]:
         return self._properties[pr_const.TableProperty.STYLE.key].value
-
-    def _get_inner_elements(self) -> list:
-        return self.rows
 
     def __set_index_in_table_for_rows(self):
         for index in range(len(self.rows)):
@@ -693,15 +663,19 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         self._properties[pr_const.TableProperty.NO_VERTICAL_BANDING.key].value = None if is_use else '0'
 
 
-class Body(XMLcontainer):
+class Body(XMLement):
     element_description = pr_const.Element.BODY
-    _is_unique = True
+
     from docx_microreader.translators.html.html_translators import BodyTranslatorToHTML
     from docx_microreader.translators.xml.xml_translators import TranslatorToXML
     translators = {
         TranslateFormat.HTML: BodyTranslatorToHTML(),
         TranslateFormat.XML: TranslatorToXML(),
     }
+
+    @classmethod
+    def _possible_inner_elements_descriptions(cls) -> list:
+        return [Paragraph, Table]
 
 
 class Document(DocumentParser):
@@ -712,11 +686,13 @@ class Document(DocumentParser):
         TranslateFormat.XML: DocumentTranslatorToXML(),
     }
 
+    @classmethod
+    def _possible_inner_elements_descriptions(cls) -> list:
+        return [Body]
+
     def __init__(self, path: str, path_for_images: Union[None, str] = None):
-        self.body: Body
         super(Document, self).__init__(path, path_for_images)
-        self.body: Body = self._get_elements(Body)
-        self._remove_raw_xml()
+        self.body: Body = self.inner_elements[0]
 
     def translate(self, to_format: Union[TranslateFormat, str], is_recursive_translate: bool = True):
         """
