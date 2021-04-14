@@ -14,6 +14,10 @@ class Parser:
     def _possible_inner_elements_descriptions(cls) -> list:
         return []
 
+    def __init__(self, element: ET.Element):
+        self._properties: Dict[str, Property] = self.__class__._parse_properties(element)
+        self.inner_elements: list = self._parse_all_inner_elements(element)
+
     def __possible_inner_elements(self) -> list:
         import sys
 
@@ -26,9 +30,35 @@ class Parser:
                 result.append(v)
         return result
 
-    def __init__(self, element: ET.Element):
-        self._properties: Dict[str, Property] = self.__class__._parse_properties(element)
-        self.inner_elements: list = self._parse_all_inner_elements(element)
+    def _parse_all_inner_elements(self, element: ET.Element) -> list:
+        result: list = []
+        for el in element.findall('./'):
+            elem = self._parse_element(el)
+            if elem is not None:
+                result.append(elem)
+        return result
+
+    def _parse_element(self, element: ET.Element):
+        tags: Dict[str, Callable] = {
+            check_namespace_of_tag(el.element_description.tag): el for el in self.__possible_inner_elements()
+        }
+        return tags[element.tag](element, self) if element.tag in tags else None
+
+    @classmethod
+    def _parse_properties(cls, element: ET.Element) -> Dict[str, Property]:
+        result: Dict[str, Property] = {}
+        properties_description_dict = cls.element_description.get_property_descriptions_dict()
+        for key, pr in properties_description_dict.items():
+            if pr.tag is not None:
+                property_element: Union[ET.Element, None] = Parser.__find_property_element(pr, element)
+                if property_element is not None:
+                    result[key] = Parser.__find_property(property_element, pr,
+                                                         properties_description_dict[key].tag_property)
+                else:
+                    result[key] = Property(None)
+            else:
+                result[key] = Property(element.get(check_namespace_of_tag(pr.tag_property)))
+        return result
 
     @staticmethod
     def __find_property_element(description: PropertyDescription, element: ET.Element) -> Union[ET.Element, None]:
@@ -67,44 +97,6 @@ class Parser:
                 return Property(value)
             else:
                 return Property(property_element.get(check_namespace_of_tag(tags)))
-
-    def _parse_element(self, element: ET.Element):
-        tags: Dict[str, Callable] = {
-            check_namespace_of_tag(el.element_description.tag): el for el in self.__possible_inner_elements()
-        }
-        return tags[element.tag](element, self) if element.tag in tags else None
-
-    def _parse_all_inner_elements(self, element: ET.Element) -> list:
-        result: list = []
-        for el in element.findall('./'):
-            elem = self._parse_element(el)
-            if elem is not None:
-                result.append(elem)
-        return result
-
-    @classmethod
-    def _parse_properties(cls, element: ET.Element) -> Dict[str, Property]:
-        result: Dict[str, Property] = {}
-        properties_description_dict = cls.element_description.get_property_descriptions_dict()
-        for key, pr in properties_description_dict.items():
-            if pr.tag is not None:
-                property_element: Union[ET.Element, None] = Parser.__find_property_element(pr, element)
-                if property_element is not None:
-                    result[key] = Parser.__find_property(property_element, pr,
-                                                         properties_description_dict[key].tag_property)
-                else:
-                    result[key] = Property(None)
-            else:
-                result[key] = Property(element.get(check_namespace_of_tag(pr.tag_property)))
-        return result
-
-    @staticmethod
-    def _parse_color_str(color: str) -> str:
-        match = re.match('[0-9A-F]{6}', color)
-        if match is not None:
-            if color == match.group(0):
-                return '#' + color
-        return color
 
 
 class DocumentParser(Parser):
