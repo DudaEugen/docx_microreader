@@ -8,24 +8,22 @@ class TranslatorToHTML:
         self.inner_html_wrapper_styles: Dict[str, str] = {}
         self.attributes: Dict[str, str] = {}
         self.ext_tags: List[Tuple[str, bool, bool]] = []
+        self.inner_text: str = ''
 
     def _reset_value(self):
         self.styles = {}
         self.inner_html_wrapper_styles = {}
         self.attributes = {}
         self.ext_tags = []
+        self.inner_text = ''
 
     def translate(self, element, inner_elements: list) -> str:
-        self._reset_value()     # it is need, because one translator can using for many objects
-        # it is need convert inner element before tacking styles, attributes etc
-        # because one translator can using for many objects, but this objects can containing each other
-        # In this algorithm styles, attributes etc. takes from inner elements to outher elements
-        # and inner elements don't reset this parameters for outher
-
-        inner_text: str = ''.join([str(s) for s in inner_elements])
+        self.inner_text = ''.join([str(s) for s in inner_elements])
         self._convert_fields(element)
         self._do_methods(element)
-        return self._get_html(inner_text)
+        result: str = self._get_html()
+        self._reset_value()
+        return result
 
     def _convert_fields(self, element):
         pass
@@ -33,7 +31,7 @@ class TranslatorToHTML:
     def _do_methods(self, element):
         pass
 
-    def _get_html(self, inner_text: str) -> str:
+    def _get_html(self) -> str:
         open_ext_tags, close_ext_tags = self._get_ext_tags()
         styles: str = self._get_styles()
         attrs: str = self._get_attributes()
@@ -41,11 +39,11 @@ class TranslatorToHTML:
 
         inner_text_styles: str = self._get_inner_html_wrapper_styles()
         if inner_text_styles != '':
-            inner_text: str = rf'<div{inner_text_styles}>{inner_text}</div>'
+            self.inner_text: str = rf'<div{inner_text_styles}>{self.inner_text}</div>'
         if tag == '':
-            return rf'{open_ext_tags}{inner_text}{close_ext_tags}'
+            return rf'{open_ext_tags}{self.inner_text}{close_ext_tags}'
         if not self._is_single_tag():
-            return rf'{open_ext_tags}<{tag}{attrs}{styles}>{inner_text}</{tag}>{close_ext_tags}'
+            return rf'{open_ext_tags}<{tag}{attrs}{styles}>{self.inner_text}</{tag}>{close_ext_tags}'
         return rf'{open_ext_tags}<{tag}{attrs}{styles}>{close_ext_tags}'
 
     def _get_html_tag(self) -> str:
@@ -426,7 +424,7 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         return None
 
 
-class TextTranslatorToHTML:
+class TextTranslatorToHTML(TranslatorToHTML):
     characters_html: Dict[str, str] = {
         'Α': '&Alpha;',
         'Β': '&Beta;',
@@ -596,17 +594,17 @@ class TextTranslatorToHTML:
         return text
 
 
-class LineBreakTranslatorToHTML:
+class LineBreakTranslatorToHTML(TranslatorToHTML):
     def translate(self, text_element, inner_elements: list) -> str:
         return '<br>'
 
 
-class CarriageReturnTranslatorToHTML:
+class CarriageReturnTranslatorToHTML(TranslatorToHTML):
     def translate(self, text_element, inner_elements: list) -> str:
         return '<br>'
 
 
-class TabulationTranslatorToHTML:
+class TabulationTranslatorToHTML(TranslatorToHTML):
     def translate(self, text_element, inner_elements: list) -> str:
         return '&emsp;&emsp;'
 
