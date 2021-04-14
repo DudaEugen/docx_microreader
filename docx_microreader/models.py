@@ -1,4 +1,5 @@
-from .docx_parser import DocumentParser, XMLement
+from .xml_element import XMLement
+from .docx_parser import DocumentParser
 import xml.etree.ElementTree as ET
 from typing import List, Callable, Dict, Union, Tuple
 from .mixins.getters_setters import ParagraphPropertiesGetSetMixin, RunPropertiesGetSetMixin, \

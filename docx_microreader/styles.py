@@ -1,4 +1,4 @@
-from .docx_parser import XMLement
+from .xml_element import XMLement
 import xml.etree.ElementTree as ET
 from .mixins.getters_setters import ParagraphPropertiesGetSetMixin, RunPropertiesGetSetMixin, TablePropertiesGetSetMixin
 from .constants import property_enums as pr_const
