@@ -18,6 +18,9 @@ _IMAGE_NAME: str = 'image'
 _LINE_BREAK: str = 'break'
 _CARRIAGE_RETURN: str = 'carriage return'
 _TABULATION: str = 'tabulation'
+_NO_BREAK_HYPHEN: str = 'non-breaking hyphen'
+_SOFT_HYPHEN: str = 'soft hyphen'
+_SYMBOL: str = 'symbol'
 
 # name of attribute for bool property values. Properties can be missed only if corresponding to this attribute
 MissedPropertyAttribute: str = 'w:val'
@@ -275,6 +278,22 @@ class TabulationProperty(ElementPropertyEnum):
 
 
 @unique
+class NoBreakHyphenProperty(ElementPropertyEnum):
+    pass
+
+
+@unique
+class SoftHyphenProperty(ElementPropertyEnum):
+    pass
+
+
+@unique
+class SymbolProperty(ElementPropertyEnum):
+    CHAR = ('char of symbol', PropertyDescription(None, None, 'w:char'))
+    FONT = ('font of symbol', PropertyDescription(None, None, 'w:font'))
+
+
+@unique
 class TableProperty(EnumOfBorderedElementMixin, CellMarginEnumMixin, ElementPropertyEnum):
     LAYOUT = ('layout of table', PropertyDescription('w:tblPr', 'w:tblLayout', 'w:type'), True)
     WIDTH = ('width of table', PropertyDescription('w:tblPr', 'w:tblW', 'w:w'), True)
@@ -510,6 +529,9 @@ class Element(Enum):
     LINE_BREAK = (_LINE_BREAK, 'w:br', LineBreakProperty)
     CARRIAGE_RETURN = (_CARRIAGE_RETURN, 'w:cr', CarriageReturnProperty)
     Tabulation = (_TABULATION, 'w:tab', TabulationProperty)
+    NO_BREAK_HYPHEN = (_NO_BREAK_HYPHEN, 'w:noBreakHyphen', NoBreakHyphenProperty)
+    SOFT_HYPHEN = (_SOFT_HYPHEN, 'w:softHyphen', SoftHyphenProperty)
+    SYMBOL = (_SYMBOL, 'w:sym', SymbolProperty)
     TABLE = (_TABLE_NAME, 'w:tbl', TableProperty)
     ROW = (_ROW_NAME, 'w:tr', RowProperty)
     CELL = (_CELL_NAME, 'w:tc', CellProperty)

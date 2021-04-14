@@ -91,6 +91,42 @@ class Tabulation(XMLement):
     }
 
 
+class NoBreakHyphen(XMLement):
+    element_description = pr_const.Element.NO_BREAK_HYPHEN
+    from docx_microreader.translators.xml.xml_translators import TranslatorToXML
+    from docx_microreader.translators.html.html_translators import NoBreakHyphenTranslatorToHTML
+    translators = {
+        TranslateFormat.HTML: NoBreakHyphenTranslatorToHTML(),
+        TranslateFormat.XML: TranslatorToXML(),
+    }
+
+
+class SoftHyphen(XMLement):
+    element_description = pr_const.Element.SOFT_HYPHEN
+    from docx_microreader.translators.xml.xml_translators import TranslatorToXML
+    from docx_microreader.translators.html.html_translators import SoftHyphenTranslatorToHTML
+    translators = {
+        TranslateFormat.HTML: SoftHyphenTranslatorToHTML(),
+        TranslateFormat.XML: TranslatorToXML(),
+    }
+
+
+class Symbol(XMLement):
+    element_description = pr_const.Element.SYMBOL
+    from docx_microreader.translators.xml.xml_translators import TranslatorToXML
+    from docx_microreader.translators.html.html_translators import SymbolTranslatorToHTML
+    translators = {
+        TranslateFormat.HTML: SymbolTranslatorToHTML(),
+        TranslateFormat.XML: TranslatorToXML(),
+    }
+
+    def get_char(self):
+        return self._properties.get(pr_const.SymbolProperty.CHAR.key).value
+
+    def get_font(self):
+        return self._properties.get(pr_const.SymbolProperty.FONT.key).value
+
+
 class Text(XMLement):
     element_description = pr_const.Element.TEXT
 
@@ -127,7 +163,7 @@ class Run(XMLement, RunPropertiesGetSetMixin):
 
     @classmethod
     def _possible_inner_elements_descriptions(cls) -> list:
-        return [Text, Drawing, LineBreak, CarriageReturn, Tabulation]
+        return [Text, Drawing, LineBreak, CarriageReturn, Tabulation, NoBreakHyphen, SoftHyphen, Symbol]
 
     def _get_style_id(self) -> Union[str, None]:
         return self._properties[pr_const.RunProperty.STYLE.key].value

@@ -609,6 +609,40 @@ class TabulationTranslatorToHTML(TranslatorToHTML):
         return '&emsp;&emsp;'
 
 
+class NoBreakHyphenTranslatorToHTML(TranslatorToHTML):
+    def translate(self, text_element, inner_elements: list) -> str:
+        return '&#8209;'
+
+
+class SoftHyphenTranslatorToHTML(TranslatorToHTML):
+    def translate(self, text_element, inner_elements: list) -> str:
+        return '&shy;'
+
+
+class SymbolTranslatorToHTML(TranslatorToHTML):
+    def _do_methods(self, symbol):
+        self._to_css_font(symbol)
+        self._get_char(symbol)
+
+    def _get_html_tag(self) -> str:
+        if self.styles:
+            return 'span'
+        return ''
+
+    def _to_css_font(self, symbol):
+        font = symbol.get_font()
+        if font is not None:
+            self.styles['font-family'] = font
+
+    def _get_char(self, symbol):
+        char = symbol.get_char()
+        if char is not None:
+            char_code = int(char, 16)
+            if char_code > int('F000', 16):
+                char_code -= int('F000', 16)
+            self.inner_text = f'&#{char_code};'
+
+
 class TableTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
 
     def _do_methods(self, table):
