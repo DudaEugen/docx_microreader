@@ -129,35 +129,8 @@ class BodyTranslatorToHTML(TranslatorToHTML):
 
 
 class TranslatorBorderedElementToHTML(ABC):
-    border_types_corresponding: Dict[str, str] = {
-        'nil': 'none',
-        'none': 'none',
-        'thick': 'solid',
-        'single': 'solid',
-        'dotted': 'dotted',
-        'dashed': 'dashed',
-        'dashSmallGap': 'dashed',
-        'dotDash': 'dashed',
-        'dotDotDash': 'dashed',
-        'double': 'double',
-        'wave': 'dashed',
-        'doubleWave': 'double',
-        'triple': 'dashed',
-        'thinThickSmallGap': 'double',
-        'thickThinSmallGap': 'double',
-        'thinThickThinSmallGap': 'double',
-        'thinThickMediumGap': 'double',
-        'thickThinMediumGap': 'double',
-        'thinThickThinLargeGap': 'double',
-        'dashDotStroked': 'dotted',
-        'threeDEmboss': 'double',
-        'threeDEngrave': 'double',
-        'inset': 'inset',
-        'outset': 'outset',
-        'thickThinLargeGap': 'double',
-        'thinThickLargeGap': 'double',
-        'thinThickThinMediumGap': 'double',
-    }
+    from .docx_html_correspondings import border_type
+    border_types_corresponding: Dict[str, str] = border_type
 
     def _add_to_many_properties_style(self, t: Union[Tuple[str, str], None]):
         raise NotImplementedError('method _add_to_many_properties_style is not implemented. Your TranslatorToHTML class'
@@ -241,12 +214,8 @@ class ImageTranslatorToHTML(TranslatorToHTML):
 
 
 class ParagraphTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
-    aligns: Dict[str, str] = {
-        'both': 'justify',
-        'right': 'right',
-        'center': 'center',
-        'left': 'left',
-    }
+    from .docx_html_correspondings import align
+    aligns: Dict[str, str] = align
 
     def _do_methods(self, paragraph):
         self._to_attribute_align(paragraph)
@@ -284,18 +253,9 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTM
 
 
 class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
-    external_tags: Dict[str, str] = {
-        'bold': 'b',
-        'italic': 'i',
-    }
-    underlines: Dict[str, str] = {
-        'wave': 'wavy',
-        'dash': 'dashed',
-        'single': 'solid',
-        'thick': 'solid',
-        'double': 'double',
-        'dotted': 'dotted',
-    }
+    from .docx_html_correspondings import text_typeface, underline
+    external_tags: Dict[str, str] = text_typeface
+    underlines: Dict[str, str] = underline
 
     def __init__(self):
         super(RunTranslatorToHTML, self).__init__()
@@ -425,165 +385,8 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
 
 
 class TextTranslatorToHTML(TranslatorToHTML):
-    characters_html: Dict[str, str] = {
-        'Α': '&Alpha;',
-        'Β': '&Beta;',
-        'Γ': '&Gamma;',
-        'Δ': '&Delta;',
-        'Ε': '&Epsilon;',
-        'Ζ': '&Zeta;',
-        'Η': '&Eta;',
-        'Θ': '&Theta;',
-        'Ι': '&Iota;',
-        'Κ': '&Kappa;',
-        'Λ': '&Lambda;',
-        'Μ': '&Mu;',
-        'Ν': '&Nu;',
-        'Ξ': '&Xi;',
-        'Ο': '&Omicron;',
-        'Π': '&Pi;',
-        'Ρ': '&Rho;',
-        'Σ': '&Sigma;',
-        'Τ': '&Tau;',
-        'Υ': '&Upsilon;',
-        'Φ': '&Phi;',
-        'Χ': '&Chi;',
-        'Ψ': '&Psi;',
-        'Ω': '&Omega;',
-        'α': '&alpha;',
-        'β': '&beta;',
-        'γ': '&gamma;',
-        'δ': '&delta;',
-        'ε': '&epsilon;',
-        'ζ': '&zeta;',
-        'η': '&eta;',
-        'θ': '&theta;',
-        'ι': '&iota;',
-        'κ': '&kappa;',
-        'λ': '&lambda;',
-        'μ': '&mu;',
-        'ν': '&nu;',
-        'ξ': '&xi;',
-        'ο': '&omicron;',
-        'π': '&pi;',
-        'ρ': '&rho;',
-        'ς': '&sigmaf;',
-        'σ': '&sigma;',
-        'τ': '&tau;',
-        'υ': '&upsilon;',
-        'φ': '&phi;',
-        'χ': '&chi;',
-        'ψ': '&psi;',
-        'ω': '&omega;',
-        'Ω': '&Omega;',
-        'µ': '&mu;',
-        '©': '&copy;',
-        '®': '&reg;',
-        '™': '&trade;',
-        'º': '&ordm;',
-        'ª': '&ordf;',
-        '‰': '&permil;',
-        '¦': '&brvbar;',
-        '§': '&sect;',
-        '°': '&deg;',
-        '¶': '&para;',
-        '…': '&hellip;',
-        '‾': '&oline;',
-        '´': '&acute;',
-        '№': '&#8470;',
-        '☎': '&#9742;',
-        '×': '&times;',
-        '÷': '&divide;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '±': '&plusmn;',
-        '¹': '&sup1;',
-        '²': '&sup2;',
-        '³': '&sup3;',
-        '¬': '&not;',
-        '¼': '&frac14;',
-        '½': '&frac12;',
-        '¾': '&frac34;',
-        '≤': '&le;',
-        '≥': '&ge;',
-        '≈': '&asymp;',
-        '≠': '&ne;',
-        '≡': '&equiv;',
-        '√': '&radic;',
-        '∞': '&infin;',
-        '∑': '&sum;',
-        '∏': '&prod;',
-        '∂': '&part;',
-        '∫': '&int;',
-        '∀': '&forall;',
-        '∃': '&exist;',
-        '∅': '&empty;',
-        'Ø': '&Oslash;',
-        '∈': '&isin;',
-        '∉': '&notin;',
-        '∋': '&ni;',
-        '⊂': '&sub;',
-        '⊃': '&sup;',
-        '⊄': '&nsub;',
-        '⊆': '&sube;',
-        '⊇': '&supe;',
-        '⊕': '&oplus;',
-        '⊗': '&otimes;',
-        '⊥': '&perp;',
-        '∠': '&ang;',
-        '∧': '&and;',
-        '∨': '&or;',
-        '∩': '&cap;',
-        '∪': '&cup;',
-        '←': '&larr;',
-        '↑': '&uarr;',
-        '→': '&rarr;',
-        '↓': '&darr;',
-        '↔': '&harr;',
-        '↕': '&#8597;',
-        '↵': '&crarr;',
-        '⇐': '&lArr;',
-        '⇑': '&uArr;',
-        '⇒': '&rArr;',
-        '⇓': '&dArr;',
-        '⇔': '&hArr;',
-        '⇕': '&#8661;',
-        '▲': '&#9650;',
-        '▼': '&#9660;',
-        '►': '&#9658;',
-        '◄': '&#9668;',
-        '"': '&quot;',
-        '«': '&laquo;',
-        '»': '&raquo;',
-        '‹': '&#8249;',
-        '›': '&#8250;',
-        '′': '&prime;',
-        '″': '&Prime;',
-        '‘': '&lsquo;',
-        '’': '&rsquo;',
-        '‚': '&sbquo;',
-        '“': '&ldquo;',
-        '”': '&rdquo;',
-        '„': '&bdquo;',
-        '❛': '&#10075;',
-        '❜': '&#10076;',
-        '❝': '&#10077;',
-        '❞': '&#10078;',
-        '•': '&bull;',
-        '○': '&#9675;',
-        '·': '&middot;',
-        '−': '-',
-        'ß': '&beta;',
-        '\'': '&#39;',
-        '£': '&pound;',
-        '¯': '&macr;',
-        '¨': '&uml;',
-        '¥': '&yen;',
-        '¢': '&cent;',
-        '¿': '&iquest;',
-        'Ґ': '&#1168',
-        'ґ': '&#1169',
-    }
+    from .docx_html_correspondings import character
+    characters_html: Dict[str, str] = character
 
     def translate(self, text_element, inner_elements: list) -> str:
         import re
@@ -720,10 +523,8 @@ class RowTranslatorToHTML(TranslatorToHTML):
 
 
 class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
-    text_directions: Dict[str, str] = {
-        'btLr': 'vertical-rl',
-        'tbRl': 'vertical-rl',
-    }
+    from .docx_html_correspondings import text_direction
+    text_directions: Dict[str, str] = text_direction
 
     def __init__(self):
         super(CellTranslatorToHTML, self).__init__()
