@@ -7,5 +7,5 @@ setup(
     description='Read *.docx files and translate those to another formats',
     author='Duda Eugen',
     license='MIT',
-    install_requires=['pillow',],
+    install_requires=[],
 )

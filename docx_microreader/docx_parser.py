@@ -1,7 +1,6 @@
 import xml.etree.ElementTree as ET
 from .constants.namespaces import namespaces, check_namespace_of_tag
-from typing import Union, List, Callable, Dict, Tuple
-import re
+from typing import Union, List, Callable, Dict, Tuple, Optional
 from .properties import Property, PropertyDescription
 from .constants import property_enums as pr_const
 
@@ -99,40 +98,75 @@ class Parser:
 
 
 class DocumentParser(Parser):
+    document_key: str = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml'
+    styles_key: str = 'application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml'
 
-    def __init__(self, path: str, path_for_images: Union[None, str] = None):
+    def __init__(self, path: str, path_for_images: Optional[str] = None):
         from os.path import abspath
 
         self._path: str = abspath(path).replace('\\', '/')
+        self._content: Dict[str, Optional[str]] = {
+            DocumentParser.document_key: None,
+            DocumentParser.styles_key: None,
+        }
+        self._relationships: Dict[str, Tuple[str, str]] = {}
+        self._extract_content_types()
+        self._extract_relationships()
+
         self._styles: dict = {}
         self._default_styles: dict = {}
         self._parse_default_styles()
         self._parse_styles()
         self._images_dir: str = abspath(path_for_images).replace('\\', '/') + '/' if path_for_images is not None else \
             self._get_images_directory(False)
-        self._images: Dict[str, str] = self._parse_images_relationships()
-        self.__images_extraction()
-        super(DocumentParser, self).__init__(self.get_xml_file('document.xml'))
+        self._images_extraction()
+        super(DocumentParser, self).__init__(self._get_xml_file(self._content[DocumentParser.document_key]))
 
     @classmethod
     def _parse_properties(cls, element: ET.Element) -> Dict[str, Property]:
         return {}
 
-    def get_xml_file(self, file_name: str, is_return_element_tree: bool = True) -> Union[ET.Element, str, None]:
+    def _get_xml_file(self, file: str) -> Optional[ET.Element]:
         """
-        :param file_name: name of xml file in document in directory word
-        :param is_return_element_tree: method return ElementTree if True else return str
-        :return: ElementTree of xml file or str
+        :param file: path to file in document
+        :return: ElementTree of file
         """
         import xml.dom.minidom
         import zipfile
 
-        raw_xml: Union[str, None] = xml.dom.minidom.parseString(
-            zipfile.ZipFile(self._path).read(rf'word/{file_name}')
-        ).toprettyxml()
-        if is_return_element_tree:
-            return ET.fromstring(raw_xml)
-        return raw_xml
+        return ET.fromstring(xml.dom.minidom.parseString(zipfile.ZipFile(self._path).read(file)).toprettyxml())
+
+    def _extract_content_types(self):
+        content_types: Optional[ET.Element] = self._get_xml_file('[Content_Types].xml')
+        if content_types is not None:
+            for content_type in content_types.findall('./'):
+                if content_type.tag.split('}')[-1] == 'Override':
+                    content_type_key: Optional[str] = content_type.get('ContentType')
+                    if content_type_key in self._content:
+                        self._content[content_type_key] = content_type.get('PartName')[1:]
+
+    def _extract_relationships(self):
+        relationships: Optional[ET.Element] = self._get_xml_file('word/_rels/document.xml.rels')
+        for rel in relationships.findall('./'):
+            self._relationships[rel.get('Id')] = (rel.get('Type').split('/')[-1], rel.get('Target'))
+
+    def _parse_default_styles(self):
+        for default_style in pr_const.DefaultStyle:
+            el = self._get_xml_file(self._content[DocumentParser.styles_key]).find(
+                './w:docDefaults/' + default_style.tag(), namespaces
+            )
+            if el is not None:
+                elem = self.__parse_style(el, default_style.style_type())
+                if elem is not None:
+                    self._default_styles[default_style.key] = elem
+
+    def _parse_styles(self):
+        for el in self._get_xml_file(self._content[DocumentParser.styles_key]).findall(
+                './' + pr_const.Style.tag(), namespaces
+        ):
+            elem = self.__parse_style(el)
+            if elem is not None:
+                self._styles[elem.id] = elem
 
     def __parse_style(self, element: ET.Element, default_type=None):
         from .styles import ParagraphStyle, CharacterStyle, TableStyle, NumberingStyle
@@ -158,30 +192,6 @@ class DocumentParser(Parser):
         return types[parameters[0]](element, self, parameters[1],
                                     parameters[2], parameters[3]) if parameters[0] in types else None
 
-    def _parse_default_styles(self):
-        for default_style in pr_const.DefaultStyle:
-            el = self.get_xml_file('styles.xml').find('./w:docDefaults/' + default_style.tag(), namespaces)
-            if el is not None:
-                elem = self.__parse_style(el, default_style.style_type())
-                if elem is not None:
-                    self._default_styles[default_style.key] = elem
-
-    def _parse_styles(self):
-        for el in self.get_xml_file('styles.xml').findall('./' + pr_const.Style.tag(), namespaces):
-            elem = self.__parse_style(el)
-            if elem is not None:
-                self._styles[elem.id] = elem
-
-    def _parse_images_relationships(self) -> Dict[str, str]:
-        result: Dict[str, str] = {}
-        for relationship in re.findall(r'<Relationship ([^>]+)>', self.get_xml_file('_rels/document.xml.rels', False)):
-            rel_type: str = re.search(r'Type="([\w/:.]+)"', relationship).group(1)
-            if rel_type[-5:] == 'image':
-                rel_id: str = re.search(r'Id="(\w+)"', relationship).group(1)
-                rel_target: str = re.search(r'Target="([\w./]+)"', relationship).group(1)
-                result[rel_id] = rel_target
-        return result
-
     def _get_images_directory(self, is_defined_directory: bool = True) -> str:
         if not is_defined_directory:
             result: str = ''
@@ -191,23 +201,20 @@ class DocumentParser(Parser):
             return result
         return self._images_dir
 
-    def __images_extraction(self):
+    def _images_extraction(self):
         import zipfile
-        from PIL import Image
 
-        docx_media_dir: str = 'word/media/'
+        images: List[str] = []
+        for rel_id, rel_v in self._relationships.items():
+            if rel_v[0] == 'image':
+                images.append(rel_v[1])
+
+        docx_media_dir: str = 'word/'
         directory: str = self._get_images_directory()
-        with zipfile.ZipFile(self._path) as archive:
-            for entry in archive.infolist():
-                if entry.filename[:len(docx_media_dir)] == docx_media_dir:
-                    image_key: Union[None, str] = None
-                    for key in self._images:
-                        if self._images[key] == entry.filename[5:]:
-                            image_key = key
-                    if image_key is not None:
-                        with archive.open(entry) as file:
-                            img = Image.open(file)
-                            img.save(f'{directory}{self._images[image_key][5:]}')
+        with zipfile.ZipFile(self._path) as z:
+            for image in images:
+                with open(directory + image.split('/')[-1], 'wb') as f:
+                    f.write(z.read(docx_media_dir + image))
 
     def get_style(self, style_id: str):
         return self._styles.get(style_id)
@@ -216,4 +223,4 @@ class DocumentParser(Parser):
         return self._default_styles.get(style_type.key)
 
     def get_image(self, image_id: str):
-        return f'{self._get_images_directory()}{self._images[image_id][6:]}'
+        return f'{self._get_images_directory()}{self._relationships[image_id][1].split("/")[-1]}'
