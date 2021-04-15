@@ -7,6 +7,7 @@ from .constants import property_enums as pr_const
 
 class Parser:
     element_description = None
+    __possible_inner_elements: Optional[dict] = None
 
     @classmethod
     def _possible_inner_elements_descriptions(cls) -> list:
@@ -14,33 +15,40 @@ class Parser:
 
     def __init__(self, element: ET.Element):
         self._properties: Dict[str, Property] = self.__class__._parse_properties(element)
-        self.inner_elements: list = self._parse_all_inner_elements(element)
+        self.inner_elements: list = []
+        self._parse_all_inner_elements(element)
 
-    def __possible_inner_elements(self) -> list:
+    @classmethod
+    def __set_possible_inner_elements(cls):
         import sys
 
-        result = []
-        classes_descriptions = self.__class__._possible_inner_elements_descriptions()
+        cls.__possible_inner_elements = {}
+        classes_descriptions = cls._possible_inner_elements_descriptions()
         for v in classes_descriptions:
             if isinstance(v, tuple):
-                result.append(getattr(sys.modules[v[0]], v[1]))
-            else:
-                result.append(v)
-        return result
+                v = getattr(sys.modules[v[0]], v[1])
+            tags = v.element_description.tag.split('/')
+            d = cls.__possible_inner_elements
+            for tag in tags[:-1]:
+                t = check_namespace_of_tag(tag)
+                if not (t in d):
+                    d[t] = {}
+                d = d[t]
+            d[check_namespace_of_tag(tags[-1])] = v
 
-    def _parse_all_inner_elements(self, element: ET.Element) -> list:
-        result: list = []
-        for el in element.findall('./'):
-            elem = self._parse_element(el)
-            if elem is not None:
-                result.append(elem)
-        return result
+    def _parse_all_inner_elements(self, element: ET.Element):
+        if self.__class__.__possible_inner_elements is None:
+            self.__class__.__set_possible_inner_elements()
+        self.__parse_element(element, self.__class__.__possible_inner_elements)
 
-    def _parse_element(self, element: ET.Element):
-        tags: Dict[str, Callable] = {
-            check_namespace_of_tag(el.element_description.tag): el for el in self.__possible_inner_elements()
-        }
-        return tags[element.tag](element, self) if element.tag in tags else None
+    def __parse_element(self, element, d):
+        if not isinstance(d, dict):
+            self.inner_elements.append(d(element, self))
+            return
+        if d:
+            for el in element.findall('./'):
+                if el.tag in d:
+                    self.__parse_element(el, d[el.tag])
 
     @classmethod
     def _parse_properties(cls, element: ET.Element) -> Dict[str, Property]:
