@@ -1,6 +1,6 @@
 from .docx_parser import Parser
 import xml.etree.ElementTree as ET
-from typing import Union, List, Dict, Tuple
+from typing import Union, List, Dict, Tuple, Optional
 from .properties import Property
 from .constants import property_enums as pr_const
 
@@ -19,10 +19,10 @@ class XMLement(Parser):
     # if value of property not equal one of variants or correct variant set None
     _properties_unificators: Dict[str, List[Tuple[str, List[str]]]] = {}
 
-    _default_style: Union[None, pr_const.DefaultStyle] = None
+    _default_style: Optional[pr_const.DefaultStyle] = None
 
     def __init__(self, element: ET.Element, parent):
-        self.parent: Union[XMLement, None] = parent
+        self.parent: Optional[XMLement] = parent
         super(XMLement, self).__init__(element)
         self._properties_unificate()
         self._base_style = self._get_style_from_document()
@@ -47,7 +47,7 @@ class XMLement(Parser):
     def _get_document(self):
         return self.parent._get_document()
 
-    def _get_style_id(self) -> Union[str, None]:
+    def _get_style_id(self) -> Optional[str]:
         return None
 
     def _properties_unificate(self):

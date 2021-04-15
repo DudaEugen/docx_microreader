@@ -56,7 +56,7 @@ class Parser:
         properties_description_dict = cls.element_description.get_property_descriptions_dict()
         for key, pr in properties_description_dict.items():
             if pr.tag is not None:
-                property_element: Union[ET.Element, None] = Parser.__find_property_element(pr, element)
+                property_element: Optional[ET.Element] = Parser.__find_property_element(pr, element)
                 if property_element is not None:
                     result[key] = Parser.__find_property(property_element, pr,
                                                          properties_description_dict[key].tag_property)
@@ -67,13 +67,13 @@ class Parser:
         return result
 
     @staticmethod
-    def __find_property_element(description: PropertyDescription, element: ET.Element) -> Union[ET.Element, None]:
+    def __find_property_element(description: PropertyDescription, element: ET.Element) -> Optional[ET.Element]:
         """
         find element by propertyDescription
         """
         if isinstance(description.get_wrapped_tags(), list):
             for tag in description.get_wrapped_tags():
-                result: Union[ET.Element, None] = element.find(tag, namespaces)
+                result: Optional[ET.Element] = element.find(tag, namespaces)
                 if result is not None:
                     return result
             return None
@@ -87,13 +87,13 @@ class Parser:
         """
         if isinstance(tags, list):
             for tag_prop in tags:
-                prop: Union[None, str] = property_element.get(check_namespace_of_tag(tag_prop))
+                prop: Optional[str] = property_element.get(check_namespace_of_tag(tag_prop))
                 if prop is not None:
                     return Property(prop)
             return Property(None)
         else:
             if pr.is_can_be_miss:
-                value: [str, None] = property_element.get(check_namespace_of_tag(pr_const.MissedPropertyAttribute))
+                value: Optional[str] = property_element.get(check_namespace_of_tag(pr_const.MissedPropertyAttribute))
                 if value is None:
                     return Property(Property.Missed())
                 if value == '1':

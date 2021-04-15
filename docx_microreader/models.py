@@ -1,7 +1,7 @@
 from .xml_element import XMLement
 from .docx_parser import DocumentParser
 import xml.etree.ElementTree as ET
-from typing import List, Callable, Dict, Union, Tuple
+from typing import List, Callable, Dict, Union, Tuple, Optional
 from .mixins.getters_setters import ParagraphPropertiesGetSetMixin, RunPropertiesGetSetMixin, \
                                     TablePropertiesGetSetMixin, RowPropertiesGetSetMixin, CellPropertiesGetSetMixin
 from .constants import property_enums as pr_const
@@ -15,9 +15,6 @@ class Image(XMLement):
     translators = {
         TranslateFormat.HTML: ImageTranslatorToHTML(),
     }
-
-    def __init__(self, element: ET.Element, parent):
-        super(Image, self).__init__(element, parent)
 
     def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True):
         """
@@ -166,7 +163,7 @@ class Run(XMLement, RunPropertiesGetSetMixin):
     def _possible_inner_elements_descriptions(cls) -> list:
         return [Text, Drawing, LineBreak, CarriageReturn, Tabulation, NoBreakHyphen, SoftHyphen, Symbol]
 
-    def _get_style_id(self) -> Union[str, None]:
+    def _get_style_id(self) -> Optional[str]:
         return self._properties[pr_const.RunProperty.STYLE.key].value
 
     def get_property(self, property_name, is_find_missed_or_true: bool = True):
@@ -224,7 +221,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
     def _possible_inner_elements_descriptions(cls) -> list:
         return [Run]
 
-    def _get_style_id(self) -> Union[str, None]:
+    def _get_style_id(self) -> Optional[str]:
         return self._properties[pr_const.ParagraphProperty.STYLE.key].value
 
     def get_property(self, property_name, is_find_missed_or_true: bool = True):
@@ -457,7 +454,7 @@ class Cell(XMLement, CellPropertiesGetSetMixin):
             return True
         return result
 
-    def get_border(self, direction: str, property_name) -> Union[str, None]:
+    def get_border(self, direction: str, property_name) -> Optional[str]:
         """
         :param direction: top, bottom, right, left  (or corresponding value of property_enums.Direction)
         :param property_name: color, size, type     (or corresponding value of property_enums.BorderProperty)
@@ -496,7 +493,7 @@ class Cell(XMLement, CellPropertiesGetSetMixin):
                             )
         return maybe_result
 
-    def set_border_value(self, direction: str, property_name, value: Union[str, None]):
+    def set_border_value(self, direction: str, property_name, value: Optional[str]):
         """
         :param direction: top, bottom, right, left  (or corresponding value of property_enums.Direction)
         :param property_name: color, size, type     (or corresponding value of property_enums.BorderProperty)
@@ -506,7 +503,7 @@ class Cell(XMLement, CellPropertiesGetSetMixin):
             value
         )
 
-    def get_col_span(self) -> Union[str, None]:
+    def get_col_span(self) -> Optional[str]:
         return self._properties[pr_const.CellProperty.COLUMN_SPAN.key].value
 
     def set_col_span_value(self, value: Union[str, int]):
@@ -633,7 +630,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         self.__calculate_rowspan_for_cells()
         return super(Table, self).translate(TranslateFormat(to_format), is_recursive_translate)
 
-    def _get_style_id(self) -> Union[str, None]:
+    def _get_style_id(self) -> Optional[str]:
         return self._properties[pr_const.TableProperty.STYLE.key].value
 
     def __set_index_in_table_for_rows(self):
@@ -747,7 +744,7 @@ class Document(DocumentParser):
     def _possible_inner_elements_descriptions(cls) -> list:
         return [Body]
 
-    def __init__(self, path: str, path_for_images: Union[None, str] = None):
+    def __init__(self, path: str, path_for_images: Optional[str] = None):
         super(Document, self).__init__(path, path_for_images)
         self.body: Body = self.inner_elements[0]
 

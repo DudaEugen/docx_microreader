@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Optional
 from abc import ABC
 
 
@@ -98,7 +98,7 @@ class TranslatorToHTML:
                 return '#' + color
         return color
 
-    def _add_to_many_properties_style(self, t: Union[Tuple[str, str], None]):
+    def _add_to_many_properties_style(self, t: Optional[Tuple[str, str]]):
         if t is not None:
             if t[0] not in self.styles:
                 self.styles[t[0]] = t[1]
@@ -132,18 +132,18 @@ class TranslatorBorderedElementToHTML(ABC):
     from .docx_html_correspondings import border_type
     border_types_corresponding: Dict[str, str] = border_type
 
-    def _add_to_many_properties_style(self, t: Union[Tuple[str, str], None]):
+    def _add_to_many_properties_style(self, t: Optional[Tuple[str, str]]):
         raise NotImplementedError('method _add_to_many_properties_style is not implemented. Your TranslatorToHTML class'
                                   'must implement this method or TranslatorBorderedElementToHTML must be inherited'
                                   'after the class that implements this method')
 
-    def _to_css_border(self, element, direction: str) -> Union[Tuple[str, str], None]:
+    def _to_css_border(self, element, direction: str) -> Optional[Tuple[str, str]]:
         border = element.get_border(direction, 'type')
         if border is not None:
             return rf'border-{direction}', self.border_types_corresponding.get(border, 'solid')
         return None
 
-    def _to_css_border_color(self, element, direction: str) -> Union[Tuple[str, str], None]:
+    def _to_css_border_color(self, element, direction: str) -> Optional[Tuple[str, str]]:
         border_color = element.get_border(direction, 'color')
         if border_color is not None:
             if border_color == 'auto':
@@ -152,7 +152,7 @@ class TranslatorBorderedElementToHTML(ABC):
                 return rf'border-{direction}', TranslatorToHTML._translate_color(border_color)
         return None
 
-    def _to_css_border_size(self, element, direction: str) -> Union[Tuple[str, str], None]:
+    def _to_css_border_size(self, element, direction: str) -> Optional[Tuple[str, str]]:
         border_size = element.get_border(direction, 'size')
         if border_size is not None:
             return rf'border-{direction}', str(int(border_size) / 8) + 'pt'
@@ -259,7 +259,7 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
 
     def __init__(self):
         super(RunTranslatorToHTML, self).__init__()
-        self.border: Dict[str, Union[None, str]]
+        self.border: Dict[str, Optional[str]]
         self.defining_of_border: Dict[str, bool]
         self._set_default_for_border_dicts()
 
@@ -268,7 +268,7 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         self._set_default_for_border_dicts()
 
     def _set_default_for_border_dicts(self):
-        self.border: Dict[str, Union[None, str]] = {
+        self.border: Dict[str, Optional[str]] = {
             'type': None,
             'size': None,
             'color': None,
@@ -356,13 +356,13 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         if underline_color is not None:
             self.styles['text-decoration-color'] = TranslatorToHTML._translate_color(underline_color)
 
-    def _get_border_property_of_run(self, run, pr: str) -> Union[str, None]:
+    def _get_border_property_of_run(self, run, pr: str) -> Optional[str]:
         if not self.defining_of_border[pr]:
             self.border[pr] = run.get_border(pr)
             self.defining_of_border[pr] = True
         return self.border[pr]
 
-    def _to_css_border_color(self, run, direction: str) -> Union[Tuple[str, str], None]:
+    def _to_css_border_color(self, run, direction: str) -> Optional[Tuple[str, str]]:
         border_color = self._get_border_property_of_run(run, 'color')
         if border_color is not None:
             if border_color == 'auto':
@@ -371,13 +371,13 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
                 return rf'border-{direction}', TranslatorToHTML._translate_color(border_color)
         return None
 
-    def _to_css_border_size(self, run, direction: str) -> Union[Tuple[str, str], None]:
+    def _to_css_border_size(self, run, direction: str) -> Optional[Tuple[str, str]]:
         border_size = self._get_border_property_of_run(run, 'size')
         if border_size is not None:
             return rf'border-{direction}', str(int(border_size) / 8) + 'pt'
         return None
 
-    def _to_css_border(self, run, direction: str) -> Union[Tuple[str, str], None]:
+    def _to_css_border(self, run, direction: str) -> Optional[Tuple[str, str]]:
         border = self._get_border_property_of_run(run, 'type')
         if border is not None:
             return rf'border-{direction}', self.border_types_corresponding.get(border, 'solid')

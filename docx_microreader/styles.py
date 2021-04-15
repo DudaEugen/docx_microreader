@@ -2,7 +2,7 @@ from .xml_element import XMLement
 import xml.etree.ElementTree as ET
 from .mixins.getters_setters import ParagraphPropertiesGetSetMixin, RunPropertiesGetSetMixin, TablePropertiesGetSetMixin
 from .constants import property_enums as pr_const
-from typing import Union, Dict
+from typing import Union, Dict, Optional
 
 
 class Style(XMLement):
@@ -15,7 +15,7 @@ class Style(XMLement):
         self.is_custom_style = is_custom_style
         super(Style, self).__init__(element, parent)
 
-    def _get_style_id(self) -> Union[str, None]:
+    def _get_style_id(self) -> Optional[str]:
         return self._properties[pr_const.StyleProperty.BASE_STYLE.key].value
 
     @classmethod
