@@ -4,7 +4,6 @@ from typing import Union, List, Callable, Dict, Tuple
 import re
 from .properties import Property, PropertyDescription
 from .constants import property_enums as pr_const
-from .constants.property_enums import DefaultStyle
 
 
 class Parser:
@@ -160,7 +159,7 @@ class DocumentParser(Parser):
                                     parameters[2], parameters[3]) if parameters[0] in types else None
 
     def _parse_default_styles(self):
-        for default_style in DefaultStyle:
+        for default_style in pr_const.DefaultStyle:
             el = self.get_xml_file('styles.xml').find('./w:docDefaults/' + default_style.tag(), namespaces)
             if el is not None:
                 elem = self.__parse_style(el, default_style.style_type())
@@ -213,7 +212,7 @@ class DocumentParser(Parser):
     def get_style(self, style_id: str):
         return self._styles.get(style_id)
 
-    def get_default_style(self, style_type: DefaultStyle):
+    def get_default_style(self, style_type: pr_const.DefaultStyle):
         return self._default_styles.get(style_type.key)
 
     def get_image(self, image_id: str):

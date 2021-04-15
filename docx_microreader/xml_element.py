@@ -3,7 +3,6 @@ import xml.etree.ElementTree as ET
 from typing import Union, List, Dict, Tuple
 from .properties import Property
 from .constants import property_enums as pr_const
-from .constants.property_enums import DefaultStyle
 
 
 class XMLement(Parser):
@@ -20,7 +19,7 @@ class XMLement(Parser):
     # if value of property not equal one of variants or correct variant set None
     _properties_unificators: Dict[str, List[Tuple[str, List[str]]]] = {}
 
-    _default_style: Union[None, DefaultStyle] = None
+    _default_style: Union[None, pr_const.DefaultStyle] = None
 
     def __init__(self, element: ET.Element, parent):
         self.parent: Union[XMLement, None] = parent
@@ -131,12 +130,12 @@ class XMLement(Parser):
             return self._get_document().get_style(style_id)
         return None
 
-    def _get_default_style_from_document(self, style: DefaultStyle):
+    def _get_default_style_from_document(self, style: pr_const.DefaultStyle):
         return self._get_document().get_default_style(style)
 
     @classmethod
     def _set_default_style_of_class(cls):
         if cls._default_style is None:
-            for default_style in DefaultStyle:
+            for default_style in pr_const.DefaultStyle:
                 if cls.element_description == default_style.element:
                     cls._default_style = default_style
