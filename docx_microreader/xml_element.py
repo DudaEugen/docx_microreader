@@ -24,9 +24,22 @@ class XMLement(Parser):
     def __init__(self, element: ET.Element, parent):
         self.parent: Optional[XMLement] = parent
         super(XMLement, self).__init__(element)
+        self._active_inner_element_index = -1
         self._properties_unificate()
         self._base_style = self._get_style_from_document()
         self._set_default_style_of_class()
+
+    def to_next_inner_element(self):
+        self._active_inner_element_index += 1
+        if self._active_inner_element_index >= len(self._inner_elements):
+            self._active_inner_element_index = -1
+            return None
+        return self._inner_elements[self._active_inner_element_index]
+
+    def previous_inner_element(self):
+        if self._active_inner_element_index > 0:
+            return self._inner_elements[self._active_inner_element_index - 1]
+        return None
 
     def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True):
         """
@@ -37,11 +50,13 @@ class XMLement(Parser):
         translator = self.translators[TranslateFormat(to_format)] if to_format is not None else \
                      self.translators[self.translate_format]
         translated_inner_elements = []
-        for el in self.inner_elements:
+        el = self.to_next_inner_element()
+        while el is not None:
             if is_recursive_translate:
                 translated_inner_elements.append(el.translate(to_format, is_recursive_translate))
             else:
                 translated_inner_elements.append(el.translate())
+            el = self.to_next_inner_element()
         return translator.translate(self, translated_inner_elements)
 
     def _get_document(self):

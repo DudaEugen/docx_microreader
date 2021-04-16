@@ -561,7 +561,7 @@ class Row(XMLement, RowPropertiesGetSetMixin):
 
     def __init__(self, element: ET.Element, parent):
         super(Row, self).__init__(element, parent)
-        self.cells: List[Cell] = self.inner_elements
+        self.cells: List[Cell] = self._inner_elements
         self.__set_index_in_row_for_cells()
         self.is_first_row_in_header: bool = False
         self.is_last_row_in_header: bool = False
@@ -626,7 +626,7 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 
     def __init__(self, element: ET.Element, parent):
         super(Table, self).__init__(element, parent)
-        self.rows: List[Row] = self.inner_elements
+        self.rows: List[Row] = self._inner_elements
         self.__set_index_in_table_for_rows()
         self.header_row_number: int = 0
 
@@ -755,7 +755,7 @@ class Document(DocumentParser):
 
     def __init__(self, path: str, path_for_images: Optional[str] = None):
         super(Document, self).__init__(path, path_for_images)
-        self.body: Body = self.inner_elements[0]
+        self.body: Body = self._inner_elements[0]
 
     def translate(self, to_format: Union[TranslateFormat, str], is_recursive_translate: bool = True):
         """

@@ -21,7 +21,7 @@ class AbstractNumbering(XMLement):
         return self._properties[pr_const.AbstractNumberingProperty.ID.key].value
 
     def get_level(self, index: Union[str, int]) -> Optional[NumberingLevel]:
-        for level in self.inner_elements:
+        for level in self._inner_elements:
             if level.get_id() == str(index):
                 return level
 
