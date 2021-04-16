@@ -108,6 +108,7 @@ class Parser:
 class DocumentParser(Parser):
     document_key: str = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml'
     styles_key: str = 'application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml'
+    numberings_key: str = 'application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml'
 
     def __init__(self, path: str, path_for_images: Optional[str] = None):
         from os.path import abspath
@@ -116,6 +117,7 @@ class DocumentParser(Parser):
         self._content: Dict[str, Optional[str]] = {
             DocumentParser.document_key: None,
             DocumentParser.styles_key: None,
+            DocumentParser.numberings_key: None,
         }
         self._relationships: Dict[str, Tuple[str, str]] = {}
         self._extract_content_types()
@@ -125,6 +127,10 @@ class DocumentParser(Parser):
         self._default_styles: dict = {}
         self._parse_default_styles()
         self._parse_styles()
+
+        self._numbering: dict = {pr_const.Element.ABSTRACT_NUMBERING.key: {}, pr_const.Element.NUMBERING.key: {}}
+        self._parse_numberings()
+
         self._images_dir: str = abspath(path_for_images).replace('\\', '/') + '/' if path_for_images is not None else \
             self._get_images_directory(False)
         self._images_extraction()
@@ -224,6 +230,23 @@ class DocumentParser(Parser):
                 with open(directory + image.split('/')[-1], 'wb') as f:
                     f.write(z.read(docx_media_dir + image))
 
+    def _parse_numberings(self):
+        if self._content.get(DocumentParser.numberings_key) is not None:
+            for el in self._get_xml_file(self._content[DocumentParser.numberings_key]).findall('./'):
+                elem = self.__parse_numbering(el)
+                if elem is not None:
+                    self._numbering[elem.element_description.key][elem.get_id()] = elem
+
+    def __parse_numbering(self, element: ET.Element):
+        from .numbering import AbstractNumbering, Numbering
+
+        types: Dict[str, Callable] = {
+            check_namespace_of_tag(AbstractNumbering.element_description.tag): AbstractNumbering,
+            check_namespace_of_tag(Numbering.element_description.tag): Numbering,
+        }
+
+        return types[element.tag](element, self)
+
     def get_style(self, style_id: str):
         return self._styles.get(style_id)
 
@@ -232,3 +255,9 @@ class DocumentParser(Parser):
 
     def get_image(self, image_id: str):
         return f'{self._get_images_directory()}{self._relationships[image_id][1].split("/")[-1]}'
+
+    def get_numbering(self, num_id):
+        return self._numbering[pr_const.Element.NUMBERING.key][num_id]
+
+    def get_abstract_numbering(self, num_id):
+        return self._numbering[pr_const.Element.ABSTRACT_NUMBERING][num_id]

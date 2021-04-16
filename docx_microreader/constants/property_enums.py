@@ -21,6 +21,9 @@ _TABULATION: str = 'tabulation'
 _NO_BREAK_HYPHEN: str = 'non-breaking hyphen'
 _SOFT_HYPHEN: str = 'soft hyphen'
 _SYMBOL: str = 'symbol'
+_ABSTRACT_NUMBERING: str = 'abstract numbering'
+_NUMBERING: str = 'numbering'
+_NUMBERING_LEVEL: str = 'numbering level'
 
 # name of attribute for bool property values. Properties can be missed only if corresponding to this attribute
 MissedPropertyAttribute: str = 'w:val'
@@ -521,6 +524,35 @@ class ImageProperty(ElementPropertyEnum):
 
 
 @unique
+class AbstractNumberingProperty(ElementPropertyEnum):
+    ID = ('id of abstract numbering', PropertyDescription(None, None, 'w:abstractNumId'))
+    NAME = ('name of abstract numbering', PropertyDescription(None, 'w:name', 'w:val'))
+    MULTILEVEL_TYPE = ('multilevel type of abstract numbering', PropertyDescription(None, 'w:multiLevelType', 'w:val'))
+    NUMBERING_STYLE_LINK = ('link to numbering style', PropertyDescription(None, 'w:numStyleLink', 'w:val'))
+    STYLE_LINK = ('link to style', PropertyDescription(None, 'w:styleLink', 'w:val'))
+
+
+@unique
+class NumberingLevelProperty(ElementPropertyEnum):
+    INDEX = ('index of level', PropertyDescription(None, None, 'w:ilvl'))
+    TENTATIVE = ('tentative of level', PropertyDescription(None, None, 'w:tentative'))
+    NUMERAL = ('level is numeral', PropertyDescription(None, 'w:isLgl', None))
+    JUSTIFICATION = ('justification of level', PropertyDescription(None, 'w:lvlJs', 'w:val'))
+    PICTURE_BULLET_ID = ('id of picture bullet of level', PropertyDescription(None, 'w:lvlPicBulletId', 'w:val'))
+    RESTART = ('restart of level', PropertyDescription(None, 'w:lvlRestart', 'w:val'))
+    TEXT = ('text of level', PropertyDescription(None, 'w:lvlText', 'w:val'))
+    FORMAT = ('format of level', PropertyDescription(None, 'w:numFmt', 'w:val'))
+    START = ('start of level', PropertyDescription(None, 'w:start', 'w:val'))
+    SUFF = ('suff of level', PropertyDescription(None, 'w:suff', 'w:val'))
+
+
+@unique
+class NumberingProperty(ElementPropertyEnum):
+    ID = ('id of numbering', PropertyDescription(None, None, 'w:numId'))
+    ABSTRACT_NUMBERING = ('abstract numbering of numbering', PropertyDescription(None, 'w:abstractNumId', 'w:val'))
+
+
+@unique
 class Element(Enum):
     BODY = (_BODY_NAME, 'w:body', BodyProperty)
     PARAGRAPH = (_PARAGRAPH_NAME, 'w:p', ParagraphProperty)
@@ -537,6 +569,9 @@ class Element(Enum):
     CELL = (_CELL_NAME, 'w:tc', CellProperty)
     DRAWING = (_DRAWING_NAME, 'w:drawing', DrawingProperty)
     IMAGE = (_IMAGE_NAME, 'wp:inline/a:graphic/a:graphicData/pic:pic/pic:blipFill/a:blip', ImageProperty)
+    ABSTRACT_NUMBERING = (_ABSTRACT_NUMBERING, 'w:abstractNum', AbstractNumberingProperty)
+    NUMBERING_LEVEL = (_NUMBERING_LEVEL, 'w:lvl', NumberingLevelProperty)
+    NUMBERING = (_NUMBERING, 'w:num', NumberingProperty)
 
     def __init__(self, s: str, tag: str, properties_enum):
         self.key: str = s
