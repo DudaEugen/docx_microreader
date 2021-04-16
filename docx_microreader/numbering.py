@@ -31,3 +31,6 @@ class Numbering(XMLement):
 
     def get_id(self) -> str:
         return self._properties[pr_const.NumberingProperty.ID.key].value
+
+    def get_abstract_numbering_id(self) -> str:
+        return self._properties[pr_const.NumberingProperty.ABSTRACT_NUMBERING.key].value

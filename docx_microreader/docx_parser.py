@@ -260,4 +260,4 @@ class DocumentParser(Parser):
         return self._numbering[pr_const.Element.NUMBERING.key][num_id]
 
     def get_abstract_numbering(self, num_id):
-        return self._numbering[pr_const.Element.ABSTRACT_NUMBERING][num_id]
+        return self._numbering[pr_const.Element.ABSTRACT_NUMBERING.key][num_id]

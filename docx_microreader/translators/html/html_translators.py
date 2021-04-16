@@ -223,6 +223,7 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTM
         self._to_css_margin_right(paragraph)
         self._to_css_text_indent(paragraph)
         self._to_css_all_borders(paragraph)
+        self._to_numbering(paragraph)
 
     def _get_html_tag(self) -> str:
         return 'p'
@@ -250,6 +251,10 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTM
             self.styles['text-indent'] = str(-int(hanging) // 20) + 'px'
         elif first_line is not None:
             self.styles['text-indent'] = str(int(first_line) // 20) + 'px'
+
+    def _to_numbering(self, paragraph):
+        if paragraph.get_numbering_level() is not None:
+            self._add_to_ext_tags('li')
 
 
 class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):

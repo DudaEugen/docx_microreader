@@ -6,6 +6,7 @@ from .mixins.getters_setters import ParagraphPropertiesGetSetMixin, RunPropertie
                                     TablePropertiesGetSetMixin, RowPropertiesGetSetMixin, CellPropertiesGetSetMixin
 from .constants import property_enums as pr_const
 from .constants.translate_formats import TranslateFormat
+from .numbering import NumberingLevel
 
 
 class Image(XMLement):
@@ -255,6 +256,14 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
         if isinstance(result, Property.Missed) and is_find_missed_or_true:
             return True
         return result
+
+    def get_numbering_level(self) -> Optional[NumberingLevel]:
+        num_id = self._properties.get(pr_const.ParagraphProperty.NUMBERING_ID.key).value
+        if num_id is not None:
+            abstract_num_id = self._get_document().get_numbering(num_id).get_abstract_numbering_id()
+            return self._get_document().get_abstract_numbering(abstract_num_id).get_level(
+                self._properties[pr_const.ParagraphProperty.NUMBERING_LEVEL.key].value
+            )
 
 
 class Cell(XMLement, CellPropertiesGetSetMixin):

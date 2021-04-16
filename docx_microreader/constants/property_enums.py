@@ -200,6 +200,8 @@ class ParagraphProperty(EnumOfBorderedElementMixin, ElementPropertyEnum):
     LEFT_BORDER_SPACE = (subelement_property_key_of_element(_PARAGRAPH_NAME, ElementBorderProperty.LEFT_SPACE),
                          PropertyDescription('w:pPr/w:pBdr', 'w:left', 'w:space'), True)
     STYLE = ('style of paragraph', PropertyDescription('w:pPr', 'w:pStyle', 'w:val'))
+    NUMBERING_ID = ('numbering id of paragraph', PropertyDescription('w:pPr/w:numPr', 'w:numId', 'w:val'))
+    NUMBERING_LEVEL = ('numbering level of paragraph', PropertyDescription('w:pPr/w:numPr', 'w:ilvl', 'w:val'))
 
     @classmethod
     def _element_key(cls) -> str:
