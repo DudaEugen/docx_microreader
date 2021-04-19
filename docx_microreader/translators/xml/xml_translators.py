@@ -67,7 +67,7 @@ class TranslatorToXML:
         el = self.create_xml(element, inner_elements)
         return el
 
-    def preparation_to_translate_inner_elements(self, context):
+    def preparation_to_translate_inner_elements(self, element, context):
         pass
 
 
@@ -97,5 +97,5 @@ class DocumentTranslatorToXML:
     def document_header() -> str:
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
 
-    def preparation_to_translate_inner_elements(self, context):
+    def preparation_to_translate_inner_elements(self, element, context):
         pass

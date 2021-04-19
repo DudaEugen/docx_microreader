@@ -57,7 +57,7 @@ class XMLement(Parser):
         from docx_microreader.constants.translate_formats import TranslateFormat
         translator = self.translators[TranslateFormat(to_format)] if to_format is not None else \
                      self.translators[self.translate_format]
-        translator.preparation_to_translate_inner_elements(context)
+        translator.preparation_to_translate_inner_elements(self, context)
         translated_inner_elements = []
         for el in self._inner_elements:
             if is_recursive_translate:

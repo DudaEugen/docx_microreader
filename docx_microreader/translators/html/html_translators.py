@@ -105,7 +105,7 @@ class TranslatorToHTML:
             else:
                 self.styles[t[0]] += rf' {t[1]}'
 
-    def preparation_to_translate_inner_elements(self, translation_context):
+    def preparation_to_translate_inner_elements(self, element, translation_context):
         pass
 
 

@@ -26,7 +26,7 @@ class Image(XMLement):
         """
         translator = self.translators[TranslateFormat(to_format)] if to_format is not None else \
                      self.translators[self.translate_format]
-        translator.preparation_to_translate_inner_elements(context)
+        translator.preparation_to_translate_inner_elements(self, context)
         return translator.translate(self, [], context)
 
     def get_path(self):
@@ -152,7 +152,7 @@ class Text(XMLement):
         """
         translator = self.translators[TranslateFormat(to_format)] if to_format is not None else \
                      self.translators[self.translate_format]
-        translator.preparation_to_translate_inner_elements(context)
+        translator.preparation_to_translate_inner_elements(self, context)
         return translator.translate(self, [self.content], context)
 
 
@@ -770,7 +770,7 @@ class Document(DocumentParser):
         :param context: Translators can use this variable for create context of translation
         """
         translator = self.translators[TranslateFormat(to_format)]
-        translator.preparation_to_translate_inner_elements(context)
+        translator.preparation_to_translate_inner_elements(self, context)
         return translator.translate(self, [self._inner_elements[0].translate(to_format, is_recursive_translate)],
                                     context)
 
