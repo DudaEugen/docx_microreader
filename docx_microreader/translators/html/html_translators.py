@@ -1,8 +1,8 @@
 from typing import Dict, List, Tuple, Optional
-from abc import ABC
+from .mixins import BorderedElementToHTMLMixin, ParagraphContainerMixin
 
 
-class TranslatorToHTML:
+class TranslatorToHTML(ParagraphContainerMixin):
     def __init__(self):
         self.styles: Dict[str, str] = {}
         self.inner_html_wrapper_styles: Dict[str, str] = {}
@@ -17,10 +17,10 @@ class TranslatorToHTML:
         self.ext_tags = []
         self.inner_text = ''
 
-    def translate(self, element, inner_elements: list, context: Optional[dict] = None) -> str:
+    def translate(self, element, inner_elements: list, context: dict) -> str:
         self.inner_text = ''.join([str(s) for s in inner_elements])
         self._convert_fields(element)
-        self._do_methods(element)
+        self._do_methods(element, context)
         result: str = self._get_html()
         self._reset_value()
         return result
@@ -28,7 +28,7 @@ class TranslatorToHTML:
     def _convert_fields(self, element):
         pass
 
-    def _do_methods(self, element):
+    def _do_methods(self, element, context: dict):
         pass
 
     def _get_html(self) -> str:
@@ -90,7 +90,7 @@ class TranslatorToHTML:
         return result
 
     @staticmethod
-    def _translate_color(color: str) -> str:
+    def translate_color(color: str) -> str:
         import re
         match = re.match('[0-9A-F]{6}', color)
         if match is not None:
@@ -105,8 +105,11 @@ class TranslatorToHTML:
             else:
                 self.styles[t[0]] += rf' {t[1]}'
 
-    def preparation_to_translate_inner_elements(self, element, translation_context):
-        pass
+    def preparation_to_translate_inner_elements(self, element, translation_context: dict):
+        from ...models import Paragraph
+        
+        if element.__class__.is_possible_inner_element(Paragraph):
+            self._mark_numbering_paragraphs(element, translation_context)
 
 
 class ContainerTranslatorToHTML(TranslatorToHTML):
@@ -131,66 +134,9 @@ class BodyTranslatorToHTML(TranslatorToHTML):
         return 'body'
 
 
-class TranslatorBorderedElementToHTML(ABC):
-    from .docx_html_correspondings import border_type
-    border_types_corresponding: Dict[str, str] = border_type
-
-    def _add_to_many_properties_style(self, t: Optional[Tuple[str, str]]):
-        raise NotImplementedError('method _add_to_many_properties_style is not implemented. Your TranslatorToHTML class'
-                                  'must implement this method or TranslatorBorderedElementToHTML must be inherited'
-                                  'after the class that implements this method')
-
-    def _to_css_border(self, element, direction: str) -> Optional[Tuple[str, str]]:
-        border = element.get_border(direction, 'type')
-        if border is not None:
-            return rf'border-{direction}', self.border_types_corresponding.get(border, 'solid')
-        return None
-
-    def _to_css_border_color(self, element, direction: str) -> Optional[Tuple[str, str]]:
-        border_color = element.get_border(direction, 'color')
-        if border_color is not None:
-            if border_color == 'auto':
-                return rf'border-{direction}', 'black'
-            elif border_color is not None:
-                return rf'border-{direction}', TranslatorToHTML._translate_color(border_color)
-        return None
-
-    def _to_css_border_size(self, element, direction: str) -> Optional[Tuple[str, str]]:
-        border_size = element.get_border(direction, 'size')
-        if border_size is not None:
-            return rf'border-{direction}', str(int(border_size) / 8) + 'pt'
-        return None
-
-    def _to_css_border_top(self, element):
-        self._add_to_many_properties_style(self._to_css_border(element, 'top'))
-        self._add_to_many_properties_style(self._to_css_border_color(element, 'top'))
-        self._add_to_many_properties_style(self._to_css_border_size(element, 'top'))
-
-    def _to_css_border_bottom(self, element):
-        self._add_to_many_properties_style(self._to_css_border(element, 'bottom'))
-        self._add_to_many_properties_style(self._to_css_border_color(element, 'bottom'))
-        self._add_to_many_properties_style(self._to_css_border_size(element, 'bottom'))
-
-    def _to_css_border_left(self, element):
-        self._add_to_many_properties_style(self._to_css_border(element, 'left'))
-        self._add_to_many_properties_style(self._to_css_border_color(element, 'left'))
-        self._add_to_many_properties_style(self._to_css_border_size(element, 'left'))
-
-    def _to_css_border_right(self, element):
-        self._add_to_many_properties_style(self._to_css_border(element, 'right'))
-        self._add_to_many_properties_style(self._to_css_border_color(element, 'right'))
-        self._add_to_many_properties_style(self._to_css_border_size(element, 'right'))
-
-    def _to_css_all_borders(self, element):
-        self._to_css_border_top(element)
-        self._to_css_border_bottom(element)
-        self._to_css_border_left(element)
-        self._to_css_border_right(element)
-
-
 class ImageTranslatorToHTML(TranslatorToHTML):
 
-    def _do_methods(self, image):
+    def _do_methods(self, image, context: dict):
         self._to_attribute_src(image)
         self._to_attribute_width(image)
         self._to_attribute_height(image)
@@ -216,17 +162,17 @@ class ImageTranslatorToHTML(TranslatorToHTML):
         self.attributes['height'] = str(ImageTranslatorToHTML._emu_to_px(image.get_size()[1]))
 
 
-class ParagraphTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
+class ParagraphTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
     from .docx_html_correspondings import align
     aligns: Dict[str, str] = align
 
-    def _do_methods(self, paragraph):
+    def _do_methods(self, paragraph, context: dict):
         self._to_attribute_align(paragraph)
         self._to_css_margin_left(paragraph)
         self._to_css_margin_right(paragraph)
         self._to_css_text_indent(paragraph)
         self._to_css_all_borders(paragraph)
-        self._to_numbering(paragraph)
+        self._to_numbering(paragraph, context)
 
     def _get_html_tag(self) -> str:
         return 'p'
@@ -255,12 +201,18 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTM
         elif first_line is not None:
             self.styles['text-indent'] = str(int(first_line) // 20) + 'px'
 
-    def _to_numbering(self, paragraph):
+    def _to_numbering(self, paragraph, context: dict):
+        from .marks import ParagraphMark
+
+        context_of_paragraph = context.get(paragraph)
+        if context_of_paragraph is not None:
+            self._add_to_ext_tags('ol', is_open=ParagraphMark.FIRST_ELEMENT_NUMBERING in context_of_paragraph,
+                                  is_close=ParagraphMark.LAST_ELEMENT_NUMBERING in context_of_paragraph)
         if paragraph.get_numbering_level() is not None:
             self._add_to_ext_tags('li')
 
 
-class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
+class RunTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
     from .docx_html_correspondings import text_typeface, underline
     external_tags: Dict[str, str] = text_typeface
     underlines: Dict[str, str] = underline
@@ -287,7 +239,7 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
             'color': False,
         }
 
-    def _do_methods(self, run):
+    def _do_methods(self, run, context: dict):
         self._to_css_font(run)
         self._to_css_size(run)
         self._to_ext_tag_bold(run)
@@ -337,12 +289,12 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
             if background_color != 'none':
                 self.styles['background-color'] = background_color
         elif background_fill is not None:
-            self.styles['background-color'] = TranslatorToHTML._translate_color(background_fill)
+            self.styles['background-color'] = TranslatorToHTML.translate_color(background_fill)
 
     def _to_css_color(self, run):
         color = run.get_color()
         if color is not None:
-            self.styles['color'] = TranslatorToHTML._translate_color(color)
+            self.styles['color'] = TranslatorToHTML.translate_color(color)
 
     def _to_css_line_throught(self, run):
         if run.is_strike():
@@ -362,7 +314,7 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         """
         underline_color = run.get_underline_color()
         if underline_color is not None:
-            self.styles['text-decoration-color'] = TranslatorToHTML._translate_color(underline_color)
+            self.styles['text-decoration-color'] = TranslatorToHTML.translate_color(underline_color)
 
     def _get_border_property_of_run(self, run, pr: str) -> Optional[str]:
         if not self.defining_of_border[pr]:
@@ -376,7 +328,7 @@ class RunTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
             if border_color == 'auto':
                 return rf'border-{direction}', 'black'
             elif border_color is not None:
-                return rf'border-{direction}', TranslatorToHTML._translate_color(border_color)
+                return rf'border-{direction}', TranslatorToHTML.translate_color(border_color)
         return None
 
     def _to_css_border_size(self, run, direction: str) -> Optional[Tuple[str, str]]:
@@ -396,7 +348,7 @@ class TextTranslatorToHTML(TranslatorToHTML):
     from .docx_html_correspondings import character
     characters_html: Dict[str, str] = character
 
-    def translate(self, text_element, inner_elements: list, context: Optional[dict] = None) -> str:
+    def translate(self, text_element, inner_elements: list, context: dict) -> str:
         import re
 
         text = text_element.content
@@ -406,32 +358,32 @@ class TextTranslatorToHTML(TranslatorToHTML):
 
 
 class LineBreakTranslatorToHTML(TranslatorToHTML):
-    def translate(self, text_element, inner_elements: list, context: Optional[dict] = None) -> str:
+    def translate(self, text_element, inner_elements: list, context: dict) -> str:
         return '<br>'
 
 
 class CarriageReturnTranslatorToHTML(TranslatorToHTML):
-    def translate(self, text_element, inner_elements: list, context: Optional[dict] = None) -> str:
+    def translate(self, text_element, inner_elements: list, context: dict) -> str:
         return '<br>'
 
 
 class TabulationTranslatorToHTML(TranslatorToHTML):
-    def translate(self, text_element, inner_elements: list, context: Optional[dict] = None) -> str:
+    def translate(self, text_element, inner_elements: list, context: dict) -> str:
         return '&emsp;&emsp;'
 
 
 class NoBreakHyphenTranslatorToHTML(TranslatorToHTML):
-    def translate(self, text_element, inner_elements: list, context: Optional[dict] = None) -> str:
+    def translate(self, text_element, inner_elements: list, context: dict) -> str:
         return '&#8209;'
 
 
 class SoftHyphenTranslatorToHTML(TranslatorToHTML):
-    def translate(self, text_element, inner_elements: list, context: Optional[dict] = None) -> str:
+    def translate(self, text_element, inner_elements: list, context: dict) -> str:
         return '&shy;'
 
 
 class SymbolTranslatorToHTML(TranslatorToHTML):
-    def _do_methods(self, symbol):
+    def _do_methods(self, symbol, context: dict):
         self._to_css_font(symbol)
         self._get_char(symbol)
 
@@ -454,9 +406,9 @@ class SymbolTranslatorToHTML(TranslatorToHTML):
             self.inner_text = f'&#{char_code};'
 
 
-class TableTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
+class TableTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
 
-    def _do_methods(self, table):
+    def _do_methods(self, table, context: dict):
         self._to_css_border_collapse()
         self._to_attribute_width(table)
         self._to_attribute_align(table)
@@ -504,7 +456,7 @@ class TableTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
 
 class RowTranslatorToHTML(TranslatorToHTML):
 
-    def _do_methods(self, row):
+    def _do_methods(self, row, context: dict):
         self._to_attribute_or_css_height(row)
 
     def _convert_fields(self, row):
@@ -530,7 +482,7 @@ class RowTranslatorToHTML(TranslatorToHTML):
                 return
 
 
-class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
+class CellTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
     from .docx_html_correspondings import text_direction
     text_directions: Dict[str, str] = text_direction
 
@@ -539,14 +491,14 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         self._is_header: bool = False
         self._tag_for_header = 'td'
 
-    def translate(self, element, inner_elements: list, context: Optional[dict] = None) -> str:
+    def translate(self, element, inner_elements: list, context: dict) -> str:
         from ...constants.property_enums import CellProperty
         from ...properties import Property
         if isinstance(element.get_property(CellProperty.VERTICAL_MERGE, False), Property.Missed):
             return ''
-        return super(CellTranslatorToHTML, self).translate(element, inner_elements)
+        return super(CellTranslatorToHTML, self).translate(element, inner_elements, context)
 
-    def _do_methods(self, cell):
+    def _do_methods(self, cell, context: dict):
         self._to_css_fill_color(cell)
         self._to_css_all_borders(cell)
         self._to_attribute_width(cell)
@@ -569,7 +521,7 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         color = cell.get_fill_color()
         if color is not None:
             if color != 'auto':
-                self.styles['background-color'] = TranslatorToHTML._translate_color(color)
+                self.styles['background-color'] = TranslatorToHTML.translate_color(color)
 
     def _to_css_all_padding(self, cell):
         self._to_css_padding_top(cell)

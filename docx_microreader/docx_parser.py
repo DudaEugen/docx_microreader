@@ -41,6 +41,10 @@ class Parser:
             self.__class__.__set_possible_inner_elements()
         self.__parse_element(element, self.__class__.__possible_inner_elements)
 
+    @classmethod
+    def is_possible_inner_element(cls, inner_class) -> bool:
+        return inner_class in cls.__possible_inner_elements.values()
+
     def __parse_element(self, element, d):
         if not isinstance(d, dict):
             self._inner_elements.append(d(element, self))

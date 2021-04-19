@@ -6,8 +6,8 @@ from typing import Union, Optional
 class NumberingLevel(XMLement):
     element_description = pr_const.Element.NUMBERING_LEVEL
 
-    def get_id(self) -> str:
-        return self._properties[pr_const.NumberingLevelProperty.INDEX.key].value
+    def get_index(self) -> int:
+        return int(self._properties[pr_const.NumberingLevelProperty.INDEX.key].value)
 
 
 class AbstractNumbering(XMLement):
@@ -22,7 +22,7 @@ class AbstractNumbering(XMLement):
 
     def get_level(self, index: Union[str, int]) -> Optional[NumberingLevel]:
         for level in self._inner_elements:
-            if level.get_id() == str(index):
+            if level.get_index() == int(index):
                 return level
 
 
