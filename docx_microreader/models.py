@@ -528,14 +528,14 @@ class Cell(XMLement, CellPropertiesGetSetMixin):
         return self.get_parent_row().is_first_in_table() or self.is_header
 
     def is_bottom(self) -> bool:
-        return self.get_parent_row().index_in_table + self.row_span >= len(self.get_parent_table().rows)
+        return self.get_parent_row().index_in_table + self.row_span >= self.get_parent_table().count_inner_elements()
 
     def is_first_in_row(self) -> bool:
         return self.index_in_row == 0
 
     def is_last_in_row(self) -> bool:
         col_span: int = 1 if self.get_col_span() is None else int(self.get_col_span())
-        return self.index_in_row + col_span >= len(self.get_parent_row().cells)
+        return self.index_in_row + col_span >= self.get_parent_row().count_inner_elements()
 
     def is_odd(self) -> bool:
         offset: int = 0 if self.get_parent_table().is_use_style_of_first_column() else 1
@@ -561,7 +561,6 @@ class Row(XMLement, RowPropertiesGetSetMixin):
 
     def __init__(self, element: ET.Element, parent):
         super(Row, self).__init__(element, parent)
-        self.cells: List[Cell] = self.inner_elements
         self.__set_index_in_row_for_cells()
         self.is_first_row_in_header: bool = False
         self.is_last_row_in_header: bool = False
@@ -570,12 +569,12 @@ class Row(XMLement, RowPropertiesGetSetMixin):
             self.__set_cells_as_header()
 
     def __set_cells_as_header(self):
-        for cell in self.cells:
+        for cell in self._inner_elements:
             cell.is_header = True
 
     def __set_index_in_row_for_cells(self):
-        for index in range(len(self.cells)):
-            self.cells[index].index_in_row = index
+        for index, el in enumerate(self._inner_elements):
+            el.index_in_row = index
 
     def get_parent_table(self):
         return self.get_parent()
@@ -588,7 +587,7 @@ class Row(XMLement, RowPropertiesGetSetMixin):
         return self.index_in_table == 0
 
     def is_last_in_table(self) -> bool:
-        return self.index_in_table == (len(self.get_parent_table().rows) - 1)
+        return self.index_in_table == self.get_parent_table().count_inner_elements() - 1
 
     def is_odd(self) -> bool:
         if self.is_header():
@@ -626,7 +625,6 @@ class Table(XMLement, TablePropertiesGetSetMixin):
 
     def __init__(self, element: ET.Element, parent):
         super(Table, self).__init__(element, parent)
-        self.rows: List[Row] = self.inner_elements
         self.__set_index_in_table_for_rows()
         self.header_row_number: int = 0
 
@@ -643,18 +641,18 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         return self._properties[pr_const.TableProperty.STYLE.key].value
 
     def __set_index_in_table_for_rows(self):
-        for index in range(len(self.rows)):
-            self.rows[index].index_in_table = index
+        for index, el in enumerate(self._inner_elements):
+            el.index_in_table = index
 
     def __define_first_and_last_head_rows(self):
         self.header_row_number = 0
-        if self.rows:
-            if self.rows[0].is_header():
+        if self._inner_elements:
+            if self._inner_elements[0].is_header():
                 self.header_row_number = 1
-                self.rows[0].is_first_row_in_header = True
-                self.rows[0].is_last_row_in_header = True
-                previous_row: Row = self.rows[0]
-                for row in self.rows:
+                self._inner_elements[0].is_first_row_in_header = True
+                self._inner_elements[0].is_last_row_in_header = True
+                previous_row: Row = self._inner_elements[0]
+                for row in self._inner_elements:
                     if row != previous_row and row.is_header():
                         self.header_row_number += 1
                         previous_row.is_last_row_in_header = False
@@ -665,9 +663,9 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         from .properties import Property
 
         cell_for_row_span: Dict[int, Cell] = {}
-        for row in self.rows:
+        for row in self._inner_elements:
             col: int = 0
-            for cell in row.cells:
+            for cell in row.iterate_by_inner_elements():
                 vertical_merge = cell.get_property(pr_const.CellProperty.VERTICAL_MERGE, False)
                 if vertical_merge == 'restart':
                     cell_for_row_span[col] = cell
@@ -755,7 +753,6 @@ class Document(DocumentParser):
 
     def __init__(self, path: str, path_for_images: Optional[str] = None):
         super(Document, self).__init__(path, path_for_images)
-        self.body: Body = self.inner_elements[0]
 
     def translate(self, to_format: Union[TranslateFormat, str], is_recursive_translate: bool = True):
         """
@@ -763,7 +760,7 @@ class Document(DocumentParser):
         :param is_recursive_translate: pass to_format to inner element if True
         """
         translator = self.translators[TranslateFormat(to_format)]
-        return translator.translate(self, [self.body.translate(to_format, is_recursive_translate)])
+        return translator.translate(self, [self._inner_elements[0].translate(to_format, is_recursive_translate)])
 
     def save_as_docx(self, name: str):
         from docx_microreader.translators.xml.xml_translators import DocumentTranslatorToXML

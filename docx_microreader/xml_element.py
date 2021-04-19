@@ -28,6 +28,25 @@ class XMLement(Parser):
         self._base_style = self._get_style_from_document()
         self._set_default_style_of_class()
 
+    def get_inner_element(self, index: int):
+        return self._inner_elements[index]
+
+    def count_inner_elements(self) -> int:
+        return len(self._inner_elements)
+
+    def insert_inner_element(self, index: int, element):
+        self._inner_elements.insert(index, element)
+
+    def append_inner_element(self, element):
+        self._inner_elements.append(element)
+
+    def pop_inner_element(self, index: int):
+        self._inner_elements.pop(index)
+
+    def iterate_by_inner_elements(self):
+        for el in self._inner_elements:
+            yield el
+
     def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True):
         """
         :param to_format: using translate_format of element if None
@@ -37,7 +56,7 @@ class XMLement(Parser):
         translator = self.translators[TranslateFormat(to_format)] if to_format is not None else \
                      self.translators[self.translate_format]
         translated_inner_elements = []
-        for el in self.inner_elements:
+        for el in self._inner_elements:
             if is_recursive_translate:
                 translated_inner_elements.append(el.translate(to_format, is_recursive_translate))
             else:

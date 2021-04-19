@@ -15,7 +15,7 @@ class Parser:
 
     def __init__(self, element: ET.Element):
         self._properties: Dict[str, Property] = self.__class__._parse_properties(element)
-        self.inner_elements: list = []
+        self._inner_elements: list = []
         self._parse_all_inner_elements(element)
 
     @classmethod
@@ -43,7 +43,7 @@ class Parser:
 
     def __parse_element(self, element, d):
         if not isinstance(d, dict):
-            self.inner_elements.append(d(element, self))
+            self._inner_elements.append(d(element, self))
             return
         if d:
             for el in element.findall('./'):

@@ -63,7 +63,7 @@ class TableStyle(Style, TablePropertiesGetSetMixin):
                  style_id: str, is_default: bool = False, is_custom_style: bool = False):
         super(TableStyle, self).__init__(element, parent, style_id, is_default, is_custom_style)
         self.__table_area_styles: Dict[str, TableAreaStyle] = {
-            st.area: st for st in self.inner_elements if isinstance(st, TableAreaStyle)
+            st.area: st for st in self._inner_elements if isinstance(st, TableAreaStyle)
         }
 
     def get_table_area_style(self, table_area: Union[str, pr_const.TableArea]):
