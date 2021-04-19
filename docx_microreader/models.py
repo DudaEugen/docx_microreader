@@ -17,14 +17,17 @@ class Image(XMLement):
         TranslateFormat.HTML: ImageTranslatorToHTML(),
     }
 
-    def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True):
+    def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True,
+                  context: Optional[dict] = None):
         """
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
+        :param context: Translators can use this variable for create context of translation
         """
         translator = self.translators[TranslateFormat(to_format)] if to_format is not None else \
                      self.translators[self.translate_format]
-        return translator.translate(self, [])
+        translator.preparation_to_translate_inner_elements(context)
+        return translator.translate(self, [], context)
 
     def get_path(self):
         return self._get_document().get_image(self._properties[pr_const.ImageProperty.ID.key].value)
@@ -140,14 +143,17 @@ class Text(XMLement):
         self.content: str = element.text
         super(Text, self).__init__(element, parent)
 
-    def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True):
+    def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True,
+                  context: Optional[dict] = None):
         """
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
+        :param context: Translators can use this variable for create context of translation
         """
         translator = self.translators[TranslateFormat(to_format)] if to_format is not None else \
                      self.translators[self.translate_format]
-        return translator.translate(self, [self.content])
+        translator.preparation_to_translate_inner_elements(context)
+        return translator.translate(self, [self.content], context)
 
 
 class Run(XMLement, RunPropertiesGetSetMixin):
@@ -628,14 +634,16 @@ class Table(XMLement, TablePropertiesGetSetMixin):
         self.__set_index_in_table_for_rows()
         self.header_row_number: int = 0
 
-    def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True):
+    def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True,
+                  context: Optional[dict] = None):
         """
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
+        :param context: Translators can use this variable for create context of translation
         """
         self.__define_first_and_last_head_rows()
         self.__calculate_rowspan_for_cells()
-        return super(Table, self).translate(TranslateFormat(to_format), is_recursive_translate)
+        return super(Table, self).translate(TranslateFormat(to_format), is_recursive_translate, context)
 
     def _get_style_id(self) -> Optional[str]:
         return self._properties[pr_const.TableProperty.STYLE.key].value
@@ -754,13 +762,17 @@ class Document(DocumentParser):
     def __init__(self, path: str, path_for_images: Optional[str] = None):
         super(Document, self).__init__(path, path_for_images)
 
-    def translate(self, to_format: Union[TranslateFormat, str], is_recursive_translate: bool = True):
+    def translate(self, to_format: Union[TranslateFormat, str], is_recursive_translate: bool = True,
+                  context: Optional[dict] = None):
         """
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
+        :param context: Translators can use this variable for create context of translation
         """
         translator = self.translators[TranslateFormat(to_format)]
-        return translator.translate(self, [self._inner_elements[0].translate(to_format, is_recursive_translate)])
+        translator.preparation_to_translate_inner_elements(context)
+        return translator.translate(self, [self._inner_elements[0].translate(to_format, is_recursive_translate)],
+                                    context)
 
     def save_as_docx(self, name: str):
         from docx_microreader.translators.xml.xml_translators import DocumentTranslatorToXML

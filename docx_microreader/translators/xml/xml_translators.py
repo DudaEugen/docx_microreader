@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 from typing import List
-from typing import Union
+from typing import Union, Optional
 
 
 class TranslatorToXML:
@@ -63,13 +63,16 @@ class TranslatorToXML:
                 else:
                     container.text = str(el)
 
-    def translate(self, element, inner_elements: list) -> ET.Element:
+    def translate(self, element, inner_elements: list, context: Optional[dict] = None) -> ET.Element:
         el = self.create_xml(element, inner_elements)
         return el
 
+    def preparation_to_translate_inner_elements(self, context):
+        pass
+
 
 class DocumentTranslatorToXML:
-    def translate(self, element, inner_elements: list) -> ET.Element:
+    def translate(self, element, inner_elements: list, context: Optional[dict] = None) -> ET.Element:
         from ...constants.namespaces import namespaces
 
         doc = ET.Element('w:document')
@@ -93,3 +96,6 @@ class DocumentTranslatorToXML:
     @staticmethod
     def document_header() -> str:
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+
+    def preparation_to_translate_inner_elements(self, context):
+        pass

@@ -17,7 +17,7 @@ class TranslatorToHTML:
         self.ext_tags = []
         self.inner_text = ''
 
-    def translate(self, element, inner_elements: list) -> str:
+    def translate(self, element, inner_elements: list, context: Optional[dict] = None) -> str:
         self.inner_text = ''.join([str(s) for s in inner_elements])
         self._convert_fields(element)
         self._do_methods(element)
@@ -104,6 +104,9 @@ class TranslatorToHTML:
                 self.styles[t[0]] = t[1]
             else:
                 self.styles[t[0]] += rf' {t[1]}'
+
+    def preparation_to_translate_inner_elements(self, translation_context):
+        pass
 
 
 class ContainerTranslatorToHTML(TranslatorToHTML):
@@ -393,7 +396,7 @@ class TextTranslatorToHTML(TranslatorToHTML):
     from .docx_html_correspondings import character
     characters_html: Dict[str, str] = character
 
-    def translate(self, text_element, inner_elements: list) -> str:
+    def translate(self, text_element, inner_elements: list, context: Optional[dict] = None) -> str:
         import re
 
         text = text_element.content
@@ -403,27 +406,27 @@ class TextTranslatorToHTML(TranslatorToHTML):
 
 
 class LineBreakTranslatorToHTML(TranslatorToHTML):
-    def translate(self, text_element, inner_elements: list) -> str:
+    def translate(self, text_element, inner_elements: list, context: Optional[dict] = None) -> str:
         return '<br>'
 
 
 class CarriageReturnTranslatorToHTML(TranslatorToHTML):
-    def translate(self, text_element, inner_elements: list) -> str:
+    def translate(self, text_element, inner_elements: list, context: Optional[dict] = None) -> str:
         return '<br>'
 
 
 class TabulationTranslatorToHTML(TranslatorToHTML):
-    def translate(self, text_element, inner_elements: list) -> str:
+    def translate(self, text_element, inner_elements: list, context: Optional[dict] = None) -> str:
         return '&emsp;&emsp;'
 
 
 class NoBreakHyphenTranslatorToHTML(TranslatorToHTML):
-    def translate(self, text_element, inner_elements: list) -> str:
+    def translate(self, text_element, inner_elements: list, context: Optional[dict] = None) -> str:
         return '&#8209;'
 
 
 class SoftHyphenTranslatorToHTML(TranslatorToHTML):
-    def translate(self, text_element, inner_elements: list) -> str:
+    def translate(self, text_element, inner_elements: list, context: Optional[dict] = None) -> str:
         return '&shy;'
 
 
@@ -536,7 +539,7 @@ class CellTranslatorToHTML(TranslatorToHTML, TranslatorBorderedElementToHTML):
         self._is_header: bool = False
         self._tag_for_header = 'td'
 
-    def translate(self, element, inner_elements: list) -> str:
+    def translate(self, element, inner_elements: list, context: Optional[dict] = None) -> str:
         from ...constants.property_enums import CellProperty
         from ...properties import Property
         if isinstance(element.get_property(CellProperty.VERTICAL_MERGE, False), Property.Missed):

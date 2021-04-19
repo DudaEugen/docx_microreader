@@ -47,21 +47,24 @@ class XMLement(Parser):
         for el in self._inner_elements:
             yield el
 
-    def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True):
+    def translate(self, to_format: Union[TranslateFormat, str, None] = None, is_recursive_translate: bool = True,
+                  context: Optional[dict] = None):
         """
         :param to_format: using translate_format of element if None
         :param is_recursive_translate: pass to_format to inner element if True
+        :param context: Translators can use this variable for create context of translation
         """
         from docx_microreader.constants.translate_formats import TranslateFormat
         translator = self.translators[TranslateFormat(to_format)] if to_format is not None else \
                      self.translators[self.translate_format]
+        translator.preparation_to_translate_inner_elements(context)
         translated_inner_elements = []
         for el in self._inner_elements:
             if is_recursive_translate:
-                translated_inner_elements.append(el.translate(to_format, is_recursive_translate))
+                translated_inner_elements.append(el.translate(to_format, is_recursive_translate, context))
             else:
-                translated_inner_elements.append(el.translate())
-        return translator.translate(self, translated_inner_elements)
+                translated_inner_elements.append(el.translate(context=context))
+        return translator.translate(self, translated_inner_elements, context)
 
     def _get_document(self):
         return self.parent._get_document()
