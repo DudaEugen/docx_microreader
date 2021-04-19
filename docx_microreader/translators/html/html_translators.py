@@ -166,6 +166,10 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
     from .docx_html_correspondings import align
     aligns: Dict[str, str] = align
 
+    def __init__(self):
+        super(ParagraphTranslatorToHTML, self).__init__()
+        self.tag: str = 'p'
+
     def _do_methods(self, paragraph, context: dict):
         self._to_attribute_align(paragraph)
         self._to_css_margin_left(paragraph)
@@ -175,7 +179,7 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
         self._to_numbering(paragraph, context)
 
     def _get_html_tag(self) -> str:
-        return 'p'
+        return self.tag
 
     def _to_attribute_align(self, paragraph):
         align = paragraph.get_align()
@@ -209,7 +213,7 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
             self._add_to_ext_tags('ol', is_open=ParagraphMark.FIRST_ELEMENT_NUMBERING in context_of_paragraph,
                                   is_close=ParagraphMark.LAST_ELEMENT_NUMBERING in context_of_paragraph)
         if paragraph.get_numbering_level() is not None:
-            self._add_to_ext_tags('li')
+            self.tag = 'li'
 
 
 class RunTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
