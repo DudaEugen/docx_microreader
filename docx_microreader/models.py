@@ -770,6 +770,8 @@ class Document(DocumentParser):
         :param context: Translators can use this variable for create context of translation
         """
         translator = self.translators[TranslateFormat(to_format)]
+        if context is None:
+            context = {}
         translator.preparation_to_translate_inner_elements(self, context)
         return translator.translate(self, [self._inner_elements[0].translate(to_format, is_recursive_translate)],
                                     context)
