@@ -166,8 +166,8 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
     from .docx_html_correspondings import align
     aligns: Dict[str, str] = align
 
-    def __init__(self):
-        super(ParagraphTranslatorToHTML, self).__init__()
+    def _reset_value(self):
+        super(ParagraphTranslatorToHTML, self)._reset_value()
         self.tag: str = 'p'
 
     def _do_methods(self, paragraph, context: dict):
