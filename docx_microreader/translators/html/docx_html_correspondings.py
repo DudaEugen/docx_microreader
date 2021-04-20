@@ -212,8 +212,8 @@ character: Dict[str, str] = {
     '¥': '&yen;',
     '¢': '&cent;',
     '¿': '&iquest;',
-    'Ґ': '&#1168',
-    'ґ': '&#1169',
+    'Ґ': '&#1168;',
+    'ґ': '&#1169;',
 }
 
 numbering_formats: Dict[str, str] = {

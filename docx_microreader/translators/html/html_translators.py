@@ -194,17 +194,19 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
         self.is_first_paragraph_in_numbering = False
 
     def _do_methods(self, paragraph, context: dict):
-        self._to_attribute_align(paragraph)
-        self._to_css_margin_left(paragraph)
-        self._to_css_margin_right(paragraph)
-        self._to_css_text_indent(paragraph)
-        self._to_css_all_borders(paragraph)
         self._to_numbering(paragraph, context)
         if self.is_first_paragraph_in_numbering:
             level = paragraph.get_numbering_level()
             if 'ol' in self._ext_tags_list():
                 self._to_ext_css_numbering_format(level)
                 self._to_ext_attribute_start(level)
+        else:
+            self._to_attribute_align(paragraph)
+            self._to_css_margin_left(paragraph)
+            self._to_css_margin_right(paragraph)
+            self._to_css_text_indent(paragraph)
+            self._to_css_all_borders(paragraph)
+            self._to_numbering(paragraph, context)
 
     def _get_html_tag(self) -> str:
         return self.tag
