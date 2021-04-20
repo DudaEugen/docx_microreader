@@ -248,8 +248,9 @@ class DocumentParser(Parser):
             check_namespace_of_tag(AbstractNumbering.element_description.tag): AbstractNumbering,
             check_namespace_of_tag(Numbering.element_description.tag): Numbering,
         }
-
-        return types[element.tag](element, self)
+        if element.tag in types:
+            return types[element.tag](element, self)
+        return None
 
     def get_style(self, style_id: str):
         return self._styles.get(style_id)

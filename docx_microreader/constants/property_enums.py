@@ -538,7 +538,7 @@ class AbstractNumberingProperty(ElementPropertyEnum):
 class NumberingLevelProperty(ElementPropertyEnum):
     INDEX = ('index of level', PropertyDescription(None, None, 'w:ilvl'))
     TENTATIVE = ('tentative of level', PropertyDescription(None, None, 'w:tentative'))
-    NUMERAL = ('level is numeral', PropertyDescription(None, 'w:isLgl', None))
+    NUMERAL = ('level is numeral', PropertyDescription(None, 'w:isLgl', is_can_be_miss=True))
     JUSTIFICATION = ('justification of level', PropertyDescription(None, 'w:lvlJs', 'w:val'))
     PICTURE_BULLET_ID = ('id of picture bullet of level', PropertyDescription(None, 'w:lvlPicBulletId', 'w:val'))
     RESTART = ('restart of level', PropertyDescription(None, 'w:lvlRestart', 'w:val'))
