@@ -8,6 +8,8 @@ class TranslatorToHTML(ParagraphContainerMixin):
         self.inner_html_wrapper_styles: Dict[str, str] = {}
         self.attributes: Dict[str, str] = {}
         self.ext_tags: List[Tuple[str, bool, bool]] = []
+        self.ext_tags_attributes: Dict[str, Dict[str, str]] = {}
+        self.ext_tags_styles: Dict[str, Dict[str, str]] = {}
         self.inner_text: str = ''
 
     def _reset_value(self):
@@ -53,30 +55,40 @@ class TranslatorToHTML(ParagraphContainerMixin):
     def _is_single_tag() -> bool:
         return False
 
-    def _get_styles(self) -> str:
+    def _get_styles(self, key: Optional[str] = None) -> str:
+        """
+        :param key: external tag. Return styles for tag if None
+        """
+        styles = self.styles if key is None else self.ext_tags_styles[key]
         result: str = ''
-        for k in self.styles:
-            result += rf' {k}: {self.styles[k]};'
+        for k in styles:
+            result += rf' {k}: {styles[k]};'
         if result != '':
             result = rf' style="{result}"'
         return result
 
-    def _get_attributes(self) -> str:
+    def _get_attributes(self, key: Optional[str] = None) -> str:
+        """
+        :param key: external tag. Return styles for tag if None
+        """
+        attributes = self.attributes if key is None else self.ext_tags_attributes[key]
         result: str = ''
-        for k in self.attributes:
-            result += rf' {k}="{self.attributes[k]}"'
+        for k in attributes:
+            result += rf' {k}="{attributes[k]}"'
         return result
 
     def _add_to_ext_tags(self, tag: str, is_open: bool = True, is_close: bool = True):
         if is_open or is_close:
             self.ext_tags.append((tag, is_open, is_close))
+            self.ext_tags_attributes[tag] = {}
+            self.ext_tags_styles[tag] = {}
 
     def _get_ext_tags(self) -> Tuple[str, str]:
         open_tags: str = ''
         close_tags: str = ''
         for tag in self.ext_tags:
             if tag[1]:
-                open_tags += rf'<{tag[0]}>'
+                open_tags += rf'<{tag[0]}{self._get_attributes(tag[0])}{self._get_styles(tag[0])}>'
             if tag[2]:
                 close_tags = rf'</{tag[0]}>' + close_tags
         return open_tags, close_tags
@@ -165,6 +177,10 @@ class ImageTranslatorToHTML(TranslatorToHTML):
 class ParagraphTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
     from .docx_html_correspondings import align
     aligns: Dict[str, str] = align
+
+    def __init__(self):
+        super(ParagraphTranslatorToHTML, self).__init__()
+        self.tag: str = 'p'
 
     def _reset_value(self):
         super(ParagraphTranslatorToHTML, self)._reset_value()
