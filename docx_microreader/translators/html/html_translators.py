@@ -17,6 +17,8 @@ class TranslatorToHTML(ParagraphContainerMixin):
         self.inner_html_wrapper_styles = {}
         self.attributes = {}
         self.ext_tags = []
+        self.ext_tags_attributes = {}
+        self.ext_tags_styles = {}
         self.inner_text = ''
 
     def translate(self, element, inner_elements: list, context: dict) -> str:
@@ -82,6 +84,9 @@ class TranslatorToHTML(ParagraphContainerMixin):
             self.ext_tags.append((tag, is_open, is_close))
             self.ext_tags_attributes[tag] = {}
             self.ext_tags_styles[tag] = {}
+
+    def _ext_tags_list(self) -> List[str]:
+        return [tag for tag, b1, b2 in self.ext_tags]
 
     def _get_ext_tags(self) -> Tuple[str, str]:
         open_tags: str = ''
@@ -181,10 +186,12 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
     def __init__(self):
         super(ParagraphTranslatorToHTML, self).__init__()
         self.tag: str = 'p'
+        self.is_first_paragraph_in_numbering: bool = False
 
     def _reset_value(self):
         super(ParagraphTranslatorToHTML, self)._reset_value()
         self.tag: str = 'p'
+        self.is_first_paragraph_in_numbering = False
 
     def _do_methods(self, paragraph, context: dict):
         self._to_attribute_align(paragraph)
@@ -193,6 +200,11 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
         self._to_css_text_indent(paragraph)
         self._to_css_all_borders(paragraph)
         self._to_numbering(paragraph, context)
+        if self.is_first_paragraph_in_numbering:
+            level = paragraph.get_numbering_level()
+            if 'ol' in self._ext_tags_list():
+                self._to_ext_css_numbering_format(level)
+                self._to_ext_attribute_start(level)
 
     def _get_html_tag(self) -> str:
         return self.tag
@@ -225,11 +237,27 @@ class ParagraphTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
         from .marks import ParagraphMark
 
         context_of_paragraph = context.get(paragraph)
-        if context_of_paragraph is not None:
-            self._add_to_ext_tags('ol', is_open=ParagraphMark.FIRST_ELEMENT_NUMBERING in context_of_paragraph,
+        numbering_level = paragraph.get_numbering_level()
+        if context_of_paragraph is not None and numbering_level is not None:
+            self.is_first_paragraph_in_numbering = ParagraphMark.FIRST_ELEMENT_NUMBERING in context_of_paragraph
+            level_num_format = numbering_level.get_numbering_format()
+            self._add_to_ext_tags('ul' if level_num_format == 'bullet' or level_num_format == 'chicago' else 'ol',
+                                  is_open=self.is_first_paragraph_in_numbering,
                                   is_close=ParagraphMark.LAST_ELEMENT_NUMBERING in context_of_paragraph)
-        if paragraph.get_numbering_level() is not None:
+        if numbering_level is not None:
             self.tag = 'li'
+
+    def _to_ext_css_numbering_format(self, level):
+        from .docx_html_correspondings import numbering_formats
+
+        level_num_format: Optional[str] = numbering_formats.get(level.get_numbering_format())
+        if level_num_format is not None:
+            self.ext_tags_styles['ol']['list-style-type'] = level_num_format
+
+    def _to_ext_attribute_start(self, level):
+        start: str = level.get_start()
+        if start != '1':
+            self.ext_tags_attributes['ol']['start'] = start
 
 
 class RunTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):

@@ -215,3 +215,18 @@ character: Dict[str, str] = {
     'Ґ': '&#1168',
     'ґ': '&#1169',
 }
+
+numbering_formats: Dict[str, str] = {
+    'cardinalText': 'upper-alpha',
+    'decimal': 'decimal',
+    'decimalEnclosedCircle': 'decimal',
+    'decimalEnclosedFullstop': 'decimal',
+    'decimalEnclosedParen': 'decimal',
+    'decimalZero': 'decimal-leading-zero',
+    'lowerLetter': 'lower-alpha',
+    'upperLetter': 'upper-alpha',
+    'lowerRoman': 'lower-roman',
+    'upperRoman': 'upper-roman',
+    'ordinalText': 'upper-alpha',
+    'none': 'none',
+}

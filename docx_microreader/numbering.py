@@ -9,6 +9,12 @@ class NumberingLevel(XMLement):
     def get_index(self) -> int:
         return int(self._properties[pr_const.NumberingLevelProperty.INDEX.key].value)
 
+    def get_numbering_format(self) -> str:
+        return self._properties[pr_const.NumberingLevelProperty.FORMAT.key].value
+
+    def get_start(self) -> str:
+        return self._properties[pr_const.NumberingLevelProperty.START.key].value
+
 
 class AbstractNumbering(XMLement):
     element_description = pr_const.Element.ABSTRACT_NUMBERING
