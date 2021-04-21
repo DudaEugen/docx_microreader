@@ -293,7 +293,10 @@ class Cell(XMLement, CellPropertiesGetSetMixin):
         super(Cell, self).__init__(element, parent)
 
     def __get_table_area_style(self, table_area_style_type: str):
-        return self.get_parent_table().get_style().get_table_area_style(table_area_style_type)
+        style = self.get_parent_table().get_style()
+        if style is not None:
+            return style.get_table_area_style(table_area_style_type)
+        return None
 
     def __get_property_of_table_area_style(self, property_name, table_area_style_type: str):
         table_area_style = self.__get_table_area_style(table_area_style_type)
