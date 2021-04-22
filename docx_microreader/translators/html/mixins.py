@@ -79,7 +79,10 @@ class ParagraphContainerMixin:
                         else:
                             while len(num_levels) > 0 and numbering_level.get_index() < num_levels[-1][0].get_index():
                                 ParagraphContainerMixin._numbering_ended(num_levels, translation_context)
-                            num_levels[-1] = (num_levels[-1][0], el)
+                            if len(num_levels) > 0:
+                                num_levels[-1] = (num_levels[-1][0], el)
+                            else:
+                                num_levels.append((numbering_level, el))
                     else:
                         ParagraphContainerMixin._numbering_begin(el, num_levels, translation_context)
                 else:
