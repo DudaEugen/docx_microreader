@@ -35,13 +35,20 @@ class XMLement(Parser):
         return len(self._inner_elements)
 
     def insert_inner_element(self, index: int, element):
-        self._inner_elements.insert(index, element)
+        if self.__class__.is_possible_inner_element(element.__class__):
+            self._inner_elements.insert(index, element)
+            element.parent = self
+        raise TypeError(f"{element} can't be inner element of {self.__class__}")
 
     def append_inner_element(self, element):
-        self._inner_elements.append(element)
+        if self.__class__.is_possible_inner_element(element.__class__):
+            self._inner_elements.append(element)
+            element.parent = self
+        raise TypeError(f"{element} can't be inner element of {self.__class__}")
 
-    def pop_inner_element(self, index: int):
-        self._inner_elements.pop(index)
+    def pop_inner_element(self, index: int = -1):
+        self._inner_elements[index].parent = None
+        return self._inner_elements.pop(index)
 
     def iterate_by_inner_elements(self):
         for el in self._inner_elements:
