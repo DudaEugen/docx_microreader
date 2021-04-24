@@ -645,6 +645,7 @@ class Style(Enum):
     ])
 
     def __init__(self, s: str, style_type: str, property_enums: list):
+        self.tag: str = self.__class__.tag()
         self.key: str = s
         self.type: str = style_type
         self._property_enums: list = property_enums
@@ -673,7 +674,7 @@ class DefaultStyle(Enum):
         self.key: str = s
         self._style: Style = style
         self.element: Element = element
-        self._tag: str = tag
+        self.tag: str = tag
 
     def get_property_descriptions_dict(self) -> Dict[str, PropertyDescription]:
         """
@@ -683,6 +684,3 @@ class DefaultStyle(Enum):
 
     def style_type(self) -> str:
         return self._style.type
-
-    def tag(self) -> str:
-        return self._tag

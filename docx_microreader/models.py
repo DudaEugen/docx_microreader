@@ -762,9 +762,6 @@ class Document(DocumentParser):
     def _possible_inner_elements_descriptions(cls) -> list:
         return [Body]
 
-    def __init__(self, path: str, path_for_images: Optional[str] = None):
-        super(Document, self).__init__(path, path_for_images)
-
     def translate(self, to_format: Union[TranslateFormat, str], is_recursive_translate: bool = True,
                   context: Optional[dict] = None):
         """

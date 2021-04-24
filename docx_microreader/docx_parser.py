@@ -171,7 +171,7 @@ class DocumentParser(Parser):
     def _parse_default_styles(self):
         for default_style in pr_const.DefaultStyle:
             el = self._get_xml_file(self._content[DocumentParser.styles_key]).find(
-                './w:docDefaults/' + default_style.tag(), namespaces
+                './w:docDefaults/' + default_style.tag, namespaces
             )
             if el is not None:
                 elem = self.__parse_style(el, default_style.style_type())

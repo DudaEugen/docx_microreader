@@ -28,6 +28,10 @@ class XMLement(Parser):
         self._base_style = self._get_style_from_document()
         self._set_default_style_of_class()
 
+    @classmethod
+    def create(cls):
+        return cls(ET.Element(cls.element_description.tag), None)
+
     def get_inner_element(self, index: int):
         return self._inner_elements[index]
 
