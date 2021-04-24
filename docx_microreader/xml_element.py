@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from typing import Union, List, Dict, Tuple, Optional
 from .properties import Property
 from .constants import property_enums as pr_const
+from .utils.functions import execute_if_not_none
 
 
 class XMLement(Parser):
@@ -82,7 +83,7 @@ class XMLement(Parser):
         return translator.translate(self, translated_inner_elements, context)
 
     def _get_document(self):
-        return self.parent._get_document()
+        return execute_if_not_none(self.parent, lambda x: x._get_document())
 
     def _get_style_id(self) -> Optional[str]:
         return None
@@ -152,7 +153,7 @@ class XMLement(Parser):
         return self._base_style
 
     def set_style(self, style_id: str):
-        self._base_style = self._get_document().get_style(style_id)
+        self._base_style = execute_if_not_none(self._get_document(), lambda x: x.get_style(style_id))
 
     def set_property_value(self, property_name, value: Union[str, bool, None]):
         """
@@ -164,11 +165,11 @@ class XMLement(Parser):
     def _get_style_from_document(self):
         style_id = self._get_style_id()
         if style_id is not None:
-            return self._get_document().get_style(style_id)
+            return execute_if_not_none(self._get_document(), lambda x: x.get_style(style_id))
         return None
 
     def _get_default_style_from_document(self, style: pr_const.DefaultStyle):
-        return self._get_document().get_default_style(style)
+        return execute_if_not_none(self._get_document(), lambda x: x.get_default_style(style))
 
     @classmethod
     def _set_default_style_of_class(cls):

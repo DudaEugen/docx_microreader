@@ -7,6 +7,7 @@ from .mixins.getters_setters import ParagraphPropertiesGetSetMixin, RunPropertie
 from .constants import property_enums as pr_const
 from .constants.translate_formats import TranslateFormat
 from .numbering import NumberingLevel
+from .utils.functions import execute_if_not_none
 
 
 class Image(XMLement):
@@ -30,13 +31,14 @@ class Image(XMLement):
         return translator.translate(self, [], context)
 
     def get_path(self):
-        return self._get_document().get_image(self._properties[pr_const.ImageProperty.ID.key].value)
+        return execute_if_not_none(self._get_document(),
+                                   lambda x: x.get_image(self._properties[pr_const.ImageProperty.ID.key].value))
 
-    def get_size(self) -> (int, int):
+    def get_size(self) -> (Optional[int], Optional[int]):
         """
         :return: (horizontal size, vertical size)
         """
-        return self.get_parent().get_size()
+        return execute_if_not_none(self.get_parent(), lambda x: x.get_size(), (None, None))
 
 
 class Drawing(XMLement):
@@ -187,7 +189,7 @@ class Run(XMLement, RunPropertiesGetSetMixin):
         if result is not None and (not isinstance(result, Property.Missed) or not is_find_missed_or_true):
             return result
 
-        parent_prop = self.parent.get_property(key, is_find_missed_or_true)
+        parent_prop = execute_if_not_none(self.parent, lambda x: x.get_property(key, is_find_missed_or_true))
         if parent_prop is not None:
             result = parent_prop
             if not isinstance(parent_prop, Property.Missed) or not is_find_missed_or_true:
@@ -245,7 +247,7 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
         if result is not None and (not isinstance(result, Property.Missed) or not is_find_missed_or_true):
             return result
 
-        parent_prop = self.parent.get_property(key, is_find_missed_or_true)
+        parent_prop = execute_if_not_none(self.parent, lambda x: x.get_property(key, is_find_missed_or_true))
         if parent_prop is not None:
             result = parent_prop
             if not isinstance(parent_prop, Property.Missed) or not is_find_missed_or_true:
@@ -266,10 +268,13 @@ class Paragraph(XMLement, ParagraphPropertiesGetSetMixin):
     def get_numbering_level(self) -> Optional[NumberingLevel]:
         num_id = self._properties.get(pr_const.ParagraphProperty.NUMBERING_ID.key).value
         if num_id is not None:
-            abstract_num_id = self._get_document().get_numbering(num_id).get_abstract_numbering_id()
-            return self._get_document().get_abstract_numbering(abstract_num_id).get_level(
-                self._properties[pr_const.ParagraphProperty.NUMBERING_LEVEL.key].value
-            )
+            doc = self._get_document()
+            abstract_num_id = execute_if_not_none(doc, lambda x: x.get_numbering(num_id).get_abstract_numbering_id())
+            if abstract_num_id is not None:
+                return doc.get_abstract_numbering(abstract_num_id).get_level(
+                    self._properties[pr_const.ParagraphProperty.NUMBERING_LEVEL.key].value
+                )
+            return None
 
 
 class Cell(XMLement, CellPropertiesGetSetMixin):
@@ -293,16 +298,14 @@ class Cell(XMLement, CellPropertiesGetSetMixin):
         super(Cell, self).__init__(element, parent)
 
     def __get_table_area_style(self, table_area_style_type: str):
-        style = self.get_parent_table().get_style()
-        if style is not None:
-            return style.get_table_area_style(table_area_style_type)
-        return None
+        style = execute_if_not_none(self.get_parent_table(), lambda x: x.get_style())
+        return execute_if_not_none(style, lambda x: x.get_table_area_style(table_area_style_type))
 
     def __get_property_of_table_area_style(self, property_name, table_area_style_type: str):
-        table_area_style = self.__get_table_area_style(table_area_style_type)
-        if table_area_style is not None:
-            return table_area_style.get_property(property_name)
-        return None
+        return execute_if_not_none(
+            self.__get_table_area_style(table_area_style_type),
+            lambda x: x.get_property(property_name)
+        )
 
     def __get_property_of_top_left_cell_area_style(self, property_name) -> Tuple[Union[str, None, bool], bool]:
         if self.is_top() and self.get_parent_table().is_use_style_of_first_row() and \
@@ -479,9 +482,10 @@ class Cell(XMLement, CellPropertiesGetSetMixin):
         """
         direct: pr_const.Direction = pr_const.convert_to_enum_element(direction, pr_const.Direction)
         pr_name: pr_const.BorderProperty = pr_const.convert_to_enum_element(property_name, pr_const.BorderProperty)
-        maybe_result = self._properties.get(pr_const.CellProperty.get_border_property_enum_value(direct, pr_name).key)
-        if maybe_result is not None:
-            maybe_result = maybe_result.value
+        maybe_result = execute_if_not_none(
+            self._properties.get(pr_const.CellProperty.get_border_property_enum_value(direct, pr_name).key),
+            lambda x: x.value
+        )
         if maybe_result is None or (maybe_result == 'auto' and pr_name == pr_const.BorderProperty.COLOR):
             if not (self.is_first_in_row() and direct == pr_const.Direction.LEFT) and \
                     not (self.is_last_in_row() and direct == pr_const.Direction.RIGHT) and \
@@ -531,23 +535,35 @@ class Cell(XMLement, CellPropertiesGetSetMixin):
         return self.get_parent()
 
     def get_parent_table(self):
-        return self.get_parent_row().get_parent()
+        return execute_if_not_none(self.get_parent_row(), lambda x: x.get_parent())
 
     def is_top(self) -> bool:
-        return self.get_parent_row().is_first_in_table() or self.is_header
+        result = execute_if_not_none(self.get_parent_row(), lambda x: x.is_first_in_table(), False) or self.is_header
+        if result is None:
+            return False
+        return result
 
     def is_bottom(self) -> bool:
-        return self.get_parent_row().index_in_table + self.row_span >= self.get_parent_table().count_inner_elements()
+        parent_row = self.get_parent_row()
+        parent_table = self.get_parent_table()
+        if parent_row is None or parent_table is None:
+            return False
+        return parent_row.index_in_table + self.row_span >= parent_table.count_inner_elements()
 
     def is_first_in_row(self) -> bool:
         return self.index_in_row == 0
 
     def is_last_in_row(self) -> bool:
+        parent_row = self.get_parent_row()
+        if parent_row is None:
+            return False
         col_span: int = 1 if self.get_col_span() is None else int(self.get_col_span())
-        return self.index_in_row + col_span >= self.get_parent_row().count_inner_elements()
+        return self.index_in_row + col_span >= parent_row.count_inner_elements()
 
     def is_odd(self) -> bool:
-        offset: int = 0 if self.get_parent_table().is_use_style_of_first_column() else 1
+        offset: int = 0 if execute_if_not_none(
+            self.get_parent_table(), lambda x: x.is_use_style_of_first_column(), False
+        ) else 1
         return (self.index_in_row + offset) % 2 == 1
 
     def is_even(self) -> bool:
@@ -596,13 +612,19 @@ class Row(XMLement, RowPropertiesGetSetMixin):
         return self.index_in_table == 0
 
     def is_last_in_table(self) -> bool:
-        return self.index_in_table == self.get_parent_table().count_inner_elements() - 1
+        parent_table = self.get_parent_table()
+        if parent_table is None:
+            return False
+        return self.index_in_table == parent_table.count_inner_elements() - 1
 
     def is_odd(self) -> bool:
         if self.is_header():
             return False
-        offset: int = 1 - self.get_parent_table().header_row_number
-        if self.get_parent_table().is_use_style_of_first_row() and offset == 1:
+        parent_table = self.get_parent_table()
+        if parent_table is None:
+            return False
+        offset: int = 1 - parent_table.header_row_number
+        if parent_table.is_use_style_of_first_row() and offset == 1:
             offset = 0
         return (self.index_in_table + offset) % 2 == 1
 

@@ -1,6 +1,7 @@
 from ..constants import property_enums as pr_const
 from typing import Tuple, Union, Optional
 from abc import ABC, abstractmethod
+from ..utils.functions import execute_if_not_none
 
 
 class GetSetMixin(ABC):
@@ -370,7 +371,7 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
                not (self.is_top() and direct == pr_const.Direction.TOP) and \
                not (self.is_bottom() and direct == pr_const.Direction.BOTTOM):
                 d: pr_const.Direction = pr_const.Direction.horizontal_or_vertical_straight(direct)
-                return self.get_parent_table().get_inside_border(d, pr_name)
+                return execute_if_not_none(self.get_parent_table(), lambda t: t.get_inside_border(d, pr_name))
         return maybe_result
 
     def get_width(self) -> Tuple[Optional[str], Optional[str]]:
@@ -406,13 +407,17 @@ class CellPropertiesGetSetMixin(GetSetMixin, ABC):
                 pr_const.CellProperty.get_cell_margin_property_enum_value(direction, pr_const.MarginProperty.SIZE)
         ) is None:
             return (
-                self.get_parent_table().get_property(
-                    pr_const.TableProperty.get_cell_margin_property_enum_value(direction,
-                                                                               pr_const.MarginProperty.SIZE)
+                execute_if_not_none(
+                    self.get_parent_table(), lambda t: t.get_property(
+                        pr_const.TableProperty.get_cell_margin_property_enum_value(direction,
+                                                                                   pr_const.MarginProperty.SIZE)
+                    )
                 ),
-                self.get_parent_table().get_property(
-                    pr_const.TableProperty.get_cell_margin_property_enum_value(direction,
-                                                                               pr_const.MarginProperty.TYPE)
+                execute_if_not_none(
+                    self.get_parent_table(), lambda t: t.get_property(
+                        pr_const.TableProperty.get_cell_margin_property_enum_value(direction,
+                                                                                   pr_const.MarginProperty.TYPE)
+                    )
                 )
             )
         return (

@@ -67,10 +67,10 @@ class TableStyle(Style, TablePropertiesGetSetMixin):
         }
 
     def get_table_area_style(self, table_area: Union[str, pr_const.TableArea]):
+        from .utils.functions import execute_if_not_none
+
         area = pr_const.convert_to_enum_element(table_area, pr_const.TableArea)
         result = self.__table_area_styles.get(area)
         if result is not None:
             return result
-        if self._base_style is not None:
-            return self._base_style.get_table_area_style(area)
-        return None
+        return execute_if_not_none(self._base_style, lambda x: x.get_table_area_style(area))

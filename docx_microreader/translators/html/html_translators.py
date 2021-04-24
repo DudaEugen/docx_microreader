@@ -173,10 +173,14 @@ class ImageTranslatorToHTML(TranslatorToHTML):
         return value // 12700
 
     def _to_attribute_width(self, image):
-        self.attributes['width'] = str(ImageTranslatorToHTML._emu_to_px(image.get_size()[0]))
+        w = image.get_size()[0]
+        if w is not None:
+            self.attributes['width'] = str(ImageTranslatorToHTML._emu_to_px(w))
 
     def _to_attribute_height(self, image):
-        self.attributes['height'] = str(ImageTranslatorToHTML._emu_to_px(image.get_size()[1]))
+        h = image.get_size()[1]
+        if h is not None:
+            self.attributes['height'] = str(ImageTranslatorToHTML._emu_to_px(h))
 
 
 class ParagraphTranslatorToHTML(TranslatorToHTML, BorderedElementToHTMLMixin):
