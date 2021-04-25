@@ -114,30 +114,34 @@ class DocumentParser:
     styles_key: str = 'application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml'
     numberings_key: str = 'application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml'
 
-    def __init__(self, path: str, path_for_images: Optional[str] = None):
+    def __init__(self, path: Optional[str], path_for_images: Optional[str] = None):
         from os.path import abspath
 
-        self._path: str = abspath(path).replace('\\', '/')
+        self._path: str = abspath(path).replace('\\', '/') if path is not None else None
         self._content: Dict[str, Optional[str]] = {
             DocumentParser.document_key: None,
             DocumentParser.styles_key: None,
             DocumentParser.numberings_key: None,
         }
         self._relationships: Dict[str, Tuple[str, str]] = {}
-        self._extract_content_types()
-        self._extract_relationships()
+        if path is not None:
+            self._extract_content_types()
+            self._extract_relationships()
 
         self._styles: dict = {}
         self._default_styles: dict = {}
-        self._parse_default_styles()
-        self._parse_styles()
+        if path is not None:
+            self._parse_default_styles()
+            self._parse_styles()
 
         self._numbering: dict = {pr_const.Element.ABSTRACT_NUMBERING.key: {}, pr_const.Element.NUMBERING.key: {}}
-        self._parse_numberings()
-
-        self._images_dir: str = abspath(path_for_images).replace('\\', '/') + '/' if path_for_images is not None else \
-            self._get_images_directory(False)
-        self._images_extraction()
+        if path is not None:
+            self._parse_numberings()
+            self._images_dir: Optional[str] = abspath(path_for_images).replace('\\', '/') + '/' \
+                if path_for_images is not None else self._get_images_directory(False)
+            self._images_extraction()
+        else:
+            self._images_dir: Optional[str] = None
 
     def _get_xml_file(self, file: str) -> Optional[ET.Element]:
         """
@@ -254,7 +258,9 @@ class DocumentParser:
         return self._default_styles.get(style_type.key)
 
     def get_image(self, image_id: str):
-        return f'{self._get_images_directory()}{self._relationships[image_id][1].split("/")[-1]}'
+        if self._images_dir is not None:
+            return f'{self._get_images_directory()}{self._relationships[image_id][1].split("/")[-1]}'
+        raise RuntimeError("Document haven't images directory")
 
     def get_numbering(self, num_id):
         return self._numbering[pr_const.Element.NUMBERING.key][num_id]

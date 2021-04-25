@@ -773,6 +773,8 @@ class Body(XMLement):
 
 
 class Document(XMLement, DocumentParser):
+    element_description = pr_const.Element.DOCUMENT
+
     from docx_microreader.translators.html.html_translators import DocumentTranslatorToHTML
     from docx_microreader.translators.xml.xml_translators import DocumentTranslatorToXML
     translators = {
@@ -784,11 +786,14 @@ class Document(XMLement, DocumentParser):
     def _possible_inner_elements_descriptions(cls) -> list:
         return [Body]
 
-    def __init__(self, path: str, path_for_images: Optional[str] = None):
-        DocumentParser.__init__(self, path, path_for_images)
-        doc = self._get_xml_file(self._content[DocumentParser.document_key])
-        if doc is not None:
-            XMLement.__init__(self, doc, None)
+    def __init__(self, source: Union[str, ET.Element], path_for_images: Optional[str] = None):
+        DocumentParser.__init__(self, source if isinstance(source, str) else None, path_for_images)
+        if isinstance(source, str):
+            doc = self._get_xml_file(self._content[DocumentParser.document_key])
+            if doc is not None:
+                XMLement.__init__(self, doc, None)
+        else:
+            XMLement.__init__(self, source, None)
 
     @classmethod
     def _parse_properties(cls, element: ET.Element):

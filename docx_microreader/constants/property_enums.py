@@ -6,6 +6,7 @@ from ..utils.enums import ElementPropertyEnum, convert_to_enum_element
 from ..mixins.enums import EnumOfBorderedElementMixin, CellMarginEnumMixin
 
 
+_DOCUMENT_NAME: str = 'document'
 _BODY_NAME: str = 'body'
 _PARAGRAPH_NAME: str = 'paragraph'
 _RUN_NAME: str = 'run'
@@ -150,6 +151,11 @@ def subelement_property_key_of_element(element_name: str, subelement_property_na
     if isinstance(subelement_property_name, str):
         return f'{subelement_property_name} of {element_name}'
     return f'{subelement_property_name.value} of {element_name}'
+
+
+@unique
+class DocumentProperty(ElementPropertyEnum):
+    pass
 
 
 @unique
@@ -556,6 +562,7 @@ class NumberingProperty(ElementPropertyEnum):
 
 @unique
 class Element(Enum):
+    DOCUMENT = (_DOCUMENT_NAME, 'w:document', DocumentProperty)
     BODY = (_BODY_NAME, 'w:body', BodyProperty)
     PARAGRAPH = (_PARAGRAPH_NAME, 'w:p', ParagraphProperty)
     RUN = (_RUN_NAME, 'w:r', RunProperty)
