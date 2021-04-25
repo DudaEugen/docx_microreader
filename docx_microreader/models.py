@@ -298,7 +298,7 @@ class Cell(XMLement, CellPropertiesGetSetMixin):
         super(Cell, self).__init__(element, parent)
 
     def __get_table_area_style(self, table_area_style_type: str):
-        style = execute_if_not_none(self.get_parent_table(), lambda x: x.get_style())
+        style = execute_if_not_none(self.get_parent_table(), lambda x: x.get_base_style())
         return execute_if_not_none(style, lambda x: x.get_table_area_style(table_area_style_type))
 
     def __get_property_of_table_area_style(self, property_name, table_area_style_type: str):
@@ -772,7 +772,7 @@ class Body(XMLement):
         return [Paragraph, Table]
 
 
-class Document(DocumentParser):
+class Document(XMLement, DocumentParser):
     from docx_microreader.translators.html.html_translators import DocumentTranslatorToHTML
     from docx_microreader.translators.xml.xml_translators import DocumentTranslatorToXML
     translators = {
@@ -784,19 +784,15 @@ class Document(DocumentParser):
     def _possible_inner_elements_descriptions(cls) -> list:
         return [Body]
 
-    def translate(self, to_format: Union[TranslateFormat, str], is_recursive_translate: bool = True,
-                  context: Optional[dict] = None):
-        """
-        :param to_format: using translate_format of element if None
-        :param is_recursive_translate: pass to_format to inner element if True
-        :param context: Translators can use this variable for create context of translation
-        """
-        translator = self.translators[TranslateFormat(to_format)]
-        if context is None:
-            context = {}
-        translator.preparation_to_translate_inner_elements(self, context)
-        return translator.translate(self, [self._inner_elements[0].translate(to_format, is_recursive_translate)],
-                                    context)
+    def __init__(self, path: str, path_for_images: Optional[str] = None):
+        DocumentParser.__init__(self, path, path_for_images)
+        doc = self._get_xml_file(self._content[DocumentParser.document_key])
+        if doc is not None:
+            XMLement.__init__(self, doc, None)
+
+    @classmethod
+    def _parse_properties(cls, element: ET.Element):
+        return {}
 
     def save_as_docx(self, name: str):
         from docx_microreader.translators.xml.xml_translators import DocumentTranslatorToXML

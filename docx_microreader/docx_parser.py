@@ -109,7 +109,7 @@ class Parser:
                 return Property(property_element.get(check_namespace_of_tag(tags)))
 
 
-class DocumentParser(Parser):
+class DocumentParser:
     document_key: str = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml'
     styles_key: str = 'application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml'
     numberings_key: str = 'application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml'
@@ -138,11 +138,6 @@ class DocumentParser(Parser):
         self._images_dir: str = abspath(path_for_images).replace('\\', '/') + '/' if path_for_images is not None else \
             self._get_images_directory(False)
         self._images_extraction()
-        super(DocumentParser, self).__init__(self._get_xml_file(self._content[DocumentParser.document_key]))
-
-    @classmethod
-    def _parse_properties(cls, element: ET.Element) -> Dict[str, Property]:
-        return {}
 
     def _get_xml_file(self, file: str) -> Optional[ET.Element]:
         """

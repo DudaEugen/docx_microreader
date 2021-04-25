@@ -149,7 +149,7 @@ class XMLement(Parser):
             return True
         return result
 
-    def get_style(self):
+    def get_base_style(self):
         return self._base_style
 
     def set_style(self, style_id: str):
