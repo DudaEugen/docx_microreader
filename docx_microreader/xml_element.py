@@ -43,12 +43,14 @@ class XMLement(Parser):
         if self.__class__.is_possible_inner_element(element.__class__):
             self._inner_elements.insert(index, element)
             element.parent = self
+            return 
         raise TypeError(f"{element} can't be inner element of {self.__class__}")
 
     def append_inner_element(self, element):
         if self.__class__.is_possible_inner_element(element.__class__):
             self._inner_elements.append(element)
             element.parent = self
+            return
         raise TypeError(f"{element} can't be inner element of {self.__class__}")
 
     def pop_inner_element(self, index: int = -1):
