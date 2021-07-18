@@ -40,18 +40,16 @@ class XMLement(Parser):
         return len(self._inner_elements)
 
     def insert_inner_element(self, index: int, element):
-        if self.__class__.is_possible_inner_element(element.__class__):
-            self._inner_elements.insert(index, element)
-            element.parent = self
-            return 
-        raise TypeError(f"{element} can't be inner element of {self.__class__}")
+        if not self.__class__.is_possible_inner_element(element.__class__):
+            raise TypeError(f"{element} can't be inner element of {self.__class__}")
+        self._inner_elements.insert(index, element)
+        element.parent = self
 
     def append_inner_element(self, element):
-        if self.__class__.is_possible_inner_element(element.__class__):
-            self._inner_elements.append(element)
-            element.parent = self
-            return
-        raise TypeError(f"{element} can't be inner element of {self.__class__}")
+        if not self.__class__.is_possible_inner_element(element.__class__):
+            raise TypeError(f"{element} can't be inner element of {self.__class__}")
+        self._inner_elements.append(element)
+        element.parent = self
 
     def pop_inner_element(self, index: int = -1):
         self._inner_elements[index].parent = None
@@ -98,22 +96,21 @@ class XMLement(Parser):
         if value of property not equal one of variants or correct variant set None
         """
         for key in self._properties_unificators:
-            if key in self._properties:
-                is_finding_value: bool = False
-                for correct_value, variants in self._properties_unificators[key]:
-                    if self._properties[key].value == correct_value:
-                        is_finding_value = True
-                        break
-                    else:
-                        for variant in variants:
-                            if self._properties[key].value == variant:
-                                self._properties[key].value = correct_value
-                                is_finding_value = True
-                                break
-                if not is_finding_value:
-                    self._properties[key].value = None
-            else:
+            if not (key in self._properties):
                 raise KeyError(f'not found key "{key}" from _properties_validators in _all_properties')
+            is_finding_value: bool = False
+            for correct_value, variants in self._properties_unificators[key]:
+                if self._properties[key].value == correct_value:
+                    is_finding_value = True
+                    break
+                else:
+                    for variant in variants:
+                        if self._properties[key].value == variant:
+                            self._properties[key].value = correct_value
+                            is_finding_value = True
+                            break
+            if not is_finding_value:
+                self._properties[key].value = None                
 
     @staticmethod
     def _key_of_property(property_name) -> str:
