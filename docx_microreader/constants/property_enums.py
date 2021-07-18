@@ -122,9 +122,11 @@ class ElementBorderProperty(str, Enum):
     HORIZONTAL_TYPE = subelement_property_key(SubElement.BORDER, Direction.HORIZONTAL, BorderProperty.TYPE)
     HORIZONTAL_COLOR = subelement_property_key(SubElement.BORDER, Direction.HORIZONTAL, BorderProperty.COLOR)
     HORIZONTAL_SIZE = subelement_property_key(SubElement.BORDER, Direction.HORIZONTAL, BorderProperty.SIZE)
+    HORIZONTAL_SPACE = subelement_property_key(SubElement.BORDER, Direction.HORIZONTAL, BorderProperty.SPACE)
     VERTICAL_TYPE = subelement_property_key(SubElement.BORDER, Direction.VERTICAL, BorderProperty.TYPE)
     VERTICAL_COLOR = subelement_property_key(SubElement.BORDER, Direction.VERTICAL, BorderProperty.COLOR)
     VERTICAL_SIZE = subelement_property_key(SubElement.BORDER, Direction.VERTICAL, BorderProperty.SIZE)
+    VERTICAL_SPACE = subelement_property_key(SubElement.BORDER, Direction.VERTICAL, BorderProperty.SPACE)
 
 
 @unique
@@ -208,6 +210,13 @@ class ParagraphProperty(EnumOfBorderedElementMixin, ElementPropertyEnum):
     STYLE = ('style of paragraph', PropertyDescription('w:pPr', 'w:pStyle', 'w:val'))
     NUMBERING_ID = ('numbering id of paragraph', PropertyDescription('w:pPr/w:numPr', 'w:numId', 'w:val'))
     NUMBERING_LEVEL = ('numbering level of paragraph', PropertyDescription('w:pPr/w:numPr', 'w:ilvl', 'w:val'))
+    BEFORE_SPACE = ('before space of paragraph', PropertyDescription('w:pPr', 'w:spacing', 'w:before'), True)
+    AFTER_SPACE = ('after space of paragraph', PropertyDescription('w:pPr', 'w:spacing', 'w:after'), True)
+    SPACING = ('spacing of paragraph', PropertyDescription('w:pPr/w:rPr', 'w:spacing', 'w:val'), True)
+    FONT_SIZE = ('font size of paragraph', PropertyDescription('w:pPr/w:rPr', 'w:sz', 'w:val'), True)
+    FONT_ASCII_THEME = ('font ascii theme of paragraph', PropertyDescription('w:pPr/w:rPr', 'w:rFonts', 'w:asciiTheme'), True)
+    FONT_EAST_ASIA_THEME = ('font east asia theme of paragraph', PropertyDescription('w:pPr/w:rPr', 'w:rFonts', 'w:cstheme'), True)
+    FONT_H_ANSI_THEME = ('font h ansi theme of paragraph', PropertyDescription('w:pPr/w:rPr', 'w:rFonts', 'w:hAnsiTheme'), True)
 
     @classmethod
     def _element_key(cls) -> str:
@@ -219,6 +228,9 @@ class RunProperty(EnumOfBorderedElementMixin, ElementPropertyEnum):
     FONT_ASCII = ('font ascii of run', PropertyDescription('w:rPr', 'w:rFonts', 'w:ascii'), True)
     FONT_EAST_ASIA = ('font east asia of run', PropertyDescription('w:rPr', 'w:rFonts', 'w:eastAsia'), True)
     FONT_H_ANSI = ('font h ansi of run', PropertyDescription('w:rPr', 'w:rFonts', 'w:hAnsi'), True)
+    FONT_ASCII_THEME = ('font ascii theme of run', PropertyDescription('w:rPr', 'w:rFonts', 'w:asciiTheme'), True)
+    FONT_EAST_ASIA_THEME = ('font east asia theme of run', PropertyDescription('w:rPr', 'w:rFonts', 'w:cstheme'), True)
+    FONT_H_ANSI_THEME = ('font h ansi theme of run', PropertyDescription('w:rPr', 'w:rFonts', 'w:hAnsiTheme'), True)
     FONT_CS = ('font cs of run', PropertyDescription('w:rPr', 'w:rFonts', 'w:cs'), True)
     SIZE = ('size of run', PropertyDescription('w:rPr', 'w:sz', 'w:val'), True)
     BOLD = ('bold of run', PropertyDescription('w:rPr', 'w:b', is_can_be_miss=True), True)
@@ -232,6 +244,7 @@ class RunProperty(EnumOfBorderedElementMixin, ElementPropertyEnum):
     BACKGROUND_FILL = ('background fill of run', PropertyDescription('w:rPr', 'w:shd', 'w:fill'), True)
     UNDERLINE_TYPE = ('underline type of run', PropertyDescription('w:rPr', 'w:u', 'w:val'), True)
     UNDERLINE_COLOR = ('underline color of run', PropertyDescription('w:rPr', 'w:u', 'w:color'), True)
+    SPACING = ('spacing of run', PropertyDescription('w:rPr', 'w:spacing', 'w:val'), True)
     BORDER_TYPE = (
         subelement_property_key_of_element(
             _RUN_NAME, subelement_property_key(SubElement.BORDER, None, BorderProperty.TYPE)
@@ -327,6 +340,11 @@ class TableProperty(EnumOfBorderedElementMixin, CellMarginEnumMixin, ElementProp
         PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideH', 'w:sz'),
         True
     )
+    INSIDE_HORIZONTAL_BORDER_SPACE = (
+        subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.HORIZONTAL_SPACE),
+        PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideH', 'w:space'),
+        True
+    )
     INSIDE_VERTICAL_BORDER_TYPE = (
         subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.VERTICAL_TYPE),
         PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideV', 'w:val'),
@@ -342,30 +360,43 @@ class TableProperty(EnumOfBorderedElementMixin, CellMarginEnumMixin, ElementProp
         PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideV', 'w:sz'),
         True
     )
+    INSIDE_VERTICAL_BORDER_SPACE = (
+        subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.VERTICAL_SPACE),
+        PropertyDescription(['w:tblPr/w:tblBorders', 'w:tcPr/w:tcBorders'], 'w:insideV', 'w:space'),
+        True
+    )
     TOP_BORDER_TYPE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.TOP_TYPE),
                        PropertyDescription('w:tblPr/w:tblBorders', 'w:top', 'w:val'), True)
     TOP_BORDER_COLOR = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.TOP_COLOR),
                         PropertyDescription('w:tblPr/w:tblBorders', 'w:top', 'w:color'), True)
     TOP_BORDER_SIZE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.TOP_SIZE),
                        PropertyDescription('w:tblPr/w:tblBorders', 'w:top', 'w:sz'), True)
+    TOP_BORDER_SPACE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.TOP_SPACE),
+                       PropertyDescription('w:tblPr/w:tblBorders', 'w:top', 'w:space'), True)
     BOTTOM_BORDER_TYPE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.BOTTOM_TYPE),
                           PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:val'), True)
     BOTTOM_BORDER_COLOR = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.BOTTOM_COLOR),
                            PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:color'), True)
     BOTTOM_BORDER_SIZE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.BOTTOM_SIZE),
                           PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:sz'), True)
+    BOTTOM_BORDER_SPACE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.BOTTOM_SPACE),
+                          PropertyDescription('w:tblPr/w:tblBorders', 'w:bottom', 'w:space'), True)
     LEFT_BORDER_TYPE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.LEFT_TYPE),
                         PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:val'), True)
     LEFT_BORDER_COLOR = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.LEFT_COLOR),
                          PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:color'), True)
     LEFT_BORDER_SIZE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.LEFT_SIZE),
                         PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:sz'), True)
+    LEFT_BORDER_SPACE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.LEFT_SPACE),
+                        PropertyDescription('w:tblPr/w:tblBorders', ['w:left', 'w:start'], 'w:space'), True)
     RIGHT_BORDER_TYPE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.RIGHT_TYPE),
                          PropertyDescription('w:tblPr/w:tblBorders', ['w:right', 'w:end'], 'w:val'), True)
     RIGHT_BORDER_COLOR = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.RIGHT_COLOR),
                           PropertyDescription('w:tblPr/w:tblBorders', ['w:right', 'w:end'], 'w:color'), True)
     RIGHT_BORDER_SIZE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.RIGHT_SIZE),
                          PropertyDescription('w:tblPr/w:tblBorders', ['w:right', 'w:end'], 'w:sz'), True)
+    RIGHT_BORDER_SPACE = (subelement_property_key_of_element(_TABLE_NAME, ElementBorderProperty.RIGHT_SPACE),
+                         PropertyDescription('w:tblPr/w:tblBorders', ['w:right', 'w:end'], 'w:space'), True)
     CELL_MARGIN_TOP_SIZE = (subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.TOP_SIZE),
                             PropertyDescription('w:tblPr/w:tblCellMar', 'w:top', 'w:w'), True)
     CELL_MARGIN_TOP_TYPE = (subelement_property_key_of_element(_TABLE_NAME, ElementMarginProperty.TOP_TYPE),
