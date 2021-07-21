@@ -26,7 +26,8 @@ However, at the moment this module can already perform some tasks.
 ```python
 from docx_microreader.models import Document
 
-doc = Document("example.docx", "folder for extracted images") # by default second argument is forlder i of example.docx file
+# by default, the second argument is the folder where the file that is the first argument is located
+doc = Document("example.docx", "folder for extracted images")
 with open("result.html", "w", encoding="utf-8") as file:
     file.write(doc1.translate("html"))
 ```
