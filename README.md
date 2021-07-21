@@ -31,7 +31,7 @@ with open("result.html", "w", encoding="utf-8") as file:
     file.write(doc1.translate("html"))
 ```
 Example of documents: __left__ - docx, __right__ - HTML.
-![Example](https://lh3.googleusercontent.com/S7kcORioPyKoiaYZw7CEhYVH2ANDjqga1HVWnX5xHu-R4CzfoYIicgWGs8aOd0V3mnNEZ_vlZiPBcacmHv-AxTsjqjdltTWyu6IQ3_dqDvNMGp_P_NCypa0kor3agATsYDKYpJqQc2tDyRzFLnPANJpLg-z5VxuJphhGdt8Jb0KWNxIur_MMLDY_R6G6kVc-RyNGfMO-9QsIgDRpK_MdLfX-O1nBzhHExPNH7SU6aV_LhJY9rxDeLpmGEnrDglS5iaHDZkBZVOM7E_62ualP9rgu8NIHHqPklsifsUs2NgRQG8nAnhsHAbx8eiOxAXs4elXLN1D3inKQP1nn6ZkxS13lqdhJs4eM8K6tU_a1OdlcUOT01G-WXp2v_LWjF3knIQx0tgC9nJuEISmB92rWPlE45heSMpXDzL-BgdiDKwtTF6IF1gDiWNne6sHvc3AC05lbzlhlpOacFDCpM5jOmtN9XPW0UGsK0pHB1MOBtF4v0fJHkIqORbzWH6Ud2DYEiyPijR3Gecs_Hj2y_1j4YHLtRin_8Nto9AGIZv0aK2L5Wbu2VpJIHmQ5PM0XMFkpIUzguayDZxTjR4OHtIQQiZWdigGT0sV84ooDCOpdFB1TskKJy39VZVmD78Qe4vaIDtfvnLW-MmiQmGJiktgGDZPri0AnueuAtNw76ei_dWR6qpHv7J-ecC-Qba3es9KpyLsRBeP6PtGVP8COow=w1366-h434-no?authuser=0)
+![Example](readme_example.jpg)
 
 ### Simple example of code for editing docx file
 
@@ -40,9 +40,9 @@ Insert word "Text" to paragraphs, that is children of Body of document and haven
 ```python
 from docx_microreader import models as docx
 
-doc1 = docx.Document("test/file.docx")
+doc = docx.Document("test/file.docx")
 
-body: docx.Body = doc1.get_inner_element(0)
+body: docx.Body = doc.get_inner_element(0)
 for element in body.iterate_by_inner_elements():
     if isinstance(element, docx.Paragraph) and element.count_inner_elements() == 0:
         new_run = docx.Run.create()
